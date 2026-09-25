@@ -2,17 +2,23 @@
 
 The source workbook is `TV_Stations_UHF_within500mi_DRAO.xlsx`, retrieved on
 2026-06-09. The workbook, the reduction script, and the upstream source
-material are maintained in the `WVURAIL/dtv-station-census` repository;
-this directory vendors its derived `census.csv`. As of 2026-08-20 that
-file is the reduction described below plus dtv-station-census's ISED
-overlay (Canadian rows re-sited to licensed transmitter coordinates,
-licence-status adjudication, and `erp_kw`); all 499 rows declare
-`schema_version=dtv_transmitter_census_v1` and carry `evidence_status` so the
-11 licence-only candidates remain distinguishable from rows reported on air.
-The vendored file is byte-identical to `WVURAIL/dtv-station-census` commit
-`e217c40dad8ca025f02c07c85790afda41e7202c` and has SHA-256
-`05caae7a509e8a18eb98cb63e8637a985ace4eb503ecf06cc17a6da298dca12f`.
-See that repository's PROVENANCE.md and VERIFICATION.md for the rules and
+material were kept in the census repository (`WVURAIL/dtv-census`, first
+named dtv-station-census), which was retired on 2026-09-25; this directory
+vendors its derived `census.csv`. As of 2026-08-20 that file is the reduction
+described below plus the census repository's ISED overlay (Canadian rows
+re-sited to licensed transmitter coordinates, licence-status adjudication, and
+`erp_kw`); all 499 rows declare `schema_version=dtv_transmitter_census_v1` and
+carry `evidence_status` so the 11 licence-only candidates remain
+distinguishable from rows reported on air. The vendored file has SHA-256
+`05caae7a509e8a18eb98cb63e8637a985ace4eb503ecf06cc17a6da298dca12f` and is
+byte-identical to `census/census.csv` at every commit of the census repository
+(`bdc22f56`, `d2cc1e3d`, `5480e166`). This file used to cite commit
+`e217c40d`, which is not in that history and cannot be recovered.
+
+A full-history git bundle of the census repository is kept on the WVU RAIL
+OneDrive, in `RFI Mitigation/Datasets/dtv-census-retired-2026-09-25/`
+(`dtv-census-all-refs.bundle`; its `README.md` lists the rest). Its
+`census/PROVENANCE.md` and `census/VERIFICATION.md` hold the rules and
 verdicts. The reduction narrative below describes the workbook stage. It is a manually compiled listing from FCC LMS and ISED station
 information, not a propagation simulation. The inclusion rule was every UHF
 ATSC television station listed within 500 statute miles of DRAO
@@ -32,17 +38,23 @@ strengths are optimistic upper-bound estimates, not site predictions.
 The final merged CSV contains 42 rows with field strength. Before the
 channel-sharing merge, 43 values were present. Rows outside the 120-mile study
 have no field strength and fall back to distance when the association code
-needs a rank. The archived RabbitEars result-list printout is committed in
-dtv-station-census as `sources/rabbitears/dtv_120m.pdf`.
+needs a rank. The archived RabbitEars result-list printout was committed in
+the census repository as `sources/rabbitears/dtv_120m.pdf` and is in the
+bundle.
 
 ## Deterministic reduction
 
-Regenerate the committed CSV (workbook reduction plus ISED overlay) from the
-root of the dtv-station-census repository:
+Regenerate the committed CSV (workbook reduction plus ISED overlay) from a
+clone of the bundle, with the packages in its `requirements.txt`:
 
 ```bash
+git clone dtv-census-all-refs.bundle dtv-census
+cd dtv-census
 python3 ingest/apply_ised_overlay.py
 ```
+
+This was checked on 2026-09-25: the output is byte-identical to the vendored
+file.
 
 The overlay command invokes `census/census_from_xlsx.py` for the deterministic
 workbook reduction before applying the licensed Canadian transmitter sites,
@@ -52,7 +64,7 @@ reproduces only the pre-overlay census, not the 499-row CSV vendored here.
 The reduction applies the following rules:
 
 The row counts below were independently reproduced by running the reduction
-(now in dtv-station-census) over the retained workbook. The RabbitEars study settings above are
+(later kept in the census repository) over the retained workbook. The RabbitEars study settings above are
 recorded source metadata; the separate result-list printout is unavailable,
 so those settings were not independently verified here.
 
