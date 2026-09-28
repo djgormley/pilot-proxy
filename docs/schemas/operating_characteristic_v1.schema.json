@@ -1,0 +1,1071 @@
+{
+  "$id": "https://github.com/WVURAIL/pilot-proxy/docs/schemas/operating_characteristic_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "The operating-characteristic handoff: ``oc_table.csv``, ``oc_summary.csv`` and ``manifest.json``.",
+  "properties": {
+    "bands": {
+      "items": {
+        "required": [
+          "band_id",
+          "low_mhz",
+          "high_mhz",
+          "role"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "detector_parameter_columns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "files": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "minProperties": 2,
+      "required": [
+        "oc_table.csv",
+        "oc_summary.csv"
+      ],
+      "type": "object"
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "integration_model": {
+      "required": [
+        "frame_seconds",
+        "coherence_cap_seconds",
+        "variance_split"
+      ],
+      "type": "object"
+    },
+    "mask_rule": {
+      "const": "statistic > eta"
+    },
+    "null_policy": {
+      "required": [
+        "alpha",
+        "availability_rule"
+      ],
+      "type": "object"
+    },
+    "producer": {
+      "description": "Informational; a consumer never requires it.",
+      "type": "object"
+    },
+    "r_reference": {
+      "required": [
+        "noise_bandwidth_hz",
+        "frame_seconds",
+        "feed_sum",
+        "summed_terms"
+      ],
+      "type": "object"
+    },
+    "residual_shape": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "operating_characteristic"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "statistics": {
+      "required": [
+        "Q",
+        "Z_rho"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "files",
+    "mask_rule",
+    "statistics",
+    "r_reference",
+    "residual_shape",
+    "integration_model",
+    "detector_parameter_columns",
+    "bands",
+    "null_policy",
+    "inputs"
+  ],
+  "title": "Operating characteristic handoff (detector to science)",
+  "type": "object",
+  "x-oc-summary-columns": [
+    {
+      "description": "Band label (join key).",
+      "name": "band_id",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Lower band edge.",
+      "name": "band_low_mhz",
+      "type": "float",
+      "unit": "MHz"
+    },
+    {
+      "description": "Upper band edge.",
+      "name": "band_high_mhz",
+      "type": "float",
+      "unit": "MHz"
+    },
+    {
+      "description": "screened or control.",
+      "name": "band_role",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The current era.",
+      "name": "era_label",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "First month of the current era.",
+      "name": "era_start",
+      "type": "str",
+      "unit": "YYYY-MM"
+    },
+    {
+      "description": "Last month of the current era.",
+      "name": "era_end",
+      "type": "str",
+      "unit": "YYYY-MM"
+    },
+    {
+      "description": "The era's state.",
+      "name": "era_state",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "fine_surface, coarse_surface or coarse_ladder.",
+      "name": "candidate_set",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The frames the candidates were computed on.",
+      "name": "population",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "rho=<rank> or Q.",
+      "name": "threshold_family",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The tightest evaluable threshold of the family; below it the kept set is too small (< 30 frames) or unsupported in an era half.",
+      "name": "eta_eval",
+      "type": "float",
+      "unit": "statistic units"
+    },
+    {
+      "description": "Candidates of the family, evaluable or not.",
+      "name": "candidates_total",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Evaluable candidates of the family.",
+      "name": "candidates_evaluable",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "The declared alpha (detection.false_alarm_target).",
+      "name": "pfa_target",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The false-alarm limit: the higher (1 - alpha) quantile of the verified signal-free population (empty when unavailable).",
+      "name": "eta_pfa",
+      "type": "float",
+      "unit": "statistic units"
+    },
+    {
+      "description": "available, unsupported: n_eff = N, unavailable: <reason>, undefined: no alpha declared, or not defined: control band ...",
+      "name": "eta_pfa_status",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Where the null population comes from.",
+      "name": "null_source",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Frames of the population the estimator read.",
+      "name": "null_frames",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "n_eff = n / max(DEFF, 1), from a day-block bootstrap.",
+      "name": "pfa_effective_samples",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "One-sided 95% Clopper-Pearson upper bound on P_fa at eta_Pfa, n_eff trials.",
+      "name": "pfa_upper_95",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Why the band has no verified signal-free population.",
+      "name": "null_rejection_reason",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The estimator on the current era of an independently verified but not signal-free band (a diagnostic, never eta_Pfa).",
+      "name": "eta_pfa_diagnostic",
+      "type": "float",
+      "unit": "statistic units"
+    },
+    {
+      "description": "Its day-bootstrap 95% interval, low.",
+      "name": "eta_pfa_diagnostic_boot_low",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Its day-bootstrap 95% interval, high.",
+      "name": "eta_pfa_diagnostic_boot_high",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Its effective sample count.",
+      "name": "eta_pfa_diagnostic_n_eff",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Its support status.",
+      "name": "eta_pfa_diagnostic_status",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The frames it read.",
+      "name": "eta_pfa_diagnostic_population",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The product's fine_p_fa: the OS-CFAR design value under i.i.d. bulk; model-conditional; not verified; never eta_Pfa.",
+      "name": "pfa_design_model",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The ideal F(2P, 4P) (1 - alpha) quantile of Q divided by the law's mean (mean-scaled; reference only; never used).",
+      "name": "eta_pfa_ideal_model",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Coarse null raw width / ideal width (nulls.csv).",
+      "name": "coarse_raw_width_factor",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Coarse null core width / ideal width (nulls.csv).",
+      "name": "coarse_core_width_factor",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Fine null raw width / ideal width (nulls.csv).",
+      "name": "fine_raw_width_factor",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Fine null core width / ideal width (nulls.csv).",
+      "name": "fine_core_width_factor",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Rank of the exchangeability test (the least-residual point's).",
+      "name": "exch_rho",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Quiet evaluation-block frames it read.",
+      "name": "exch_frames",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Measured per-bin exceedance of the marker bins against T_(rho) of the bulk.",
+      "name": "exch_measured",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The OS-CFAR closed form (|B| + 1 - rho)/(|B| + 1).",
+      "name": "exch_predicted",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Fraction of frames with max_D T > T_(rho).",
+      "name": "exch_max_over_designated",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Why the test did not run, when it did not.",
+      "name": "exch_note",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The floor that bounds r_i.",
+      "name": "floor_db",
+      "type": "float",
+      "unit": "dB"
+    },
+    {
+      "description": "measured, stated or refused.",
+      "name": "floor_evidence",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Where the floor comes from.",
+      "name": "floor_population",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "True only for a floor measured on a verified signal-free population.",
+      "name": "floor_verified",
+      "type": "bool",
+      "unit": ""
+    },
+    {
+      "description": "G, the coherence gain of the declared integration model.",
+      "name": "chain_gain",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "measured (tau_c measured), bounded (tau_c bounded above) or cap (tau_c refused: G is the cap and r_sys an upper bound).",
+      "name": "chain_gain_status",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The booked (share:n_coh) pairs, ';'-joined, so another integration model can recompute G.",
+      "name": "chain_components",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The integration model's variance-split rule.",
+      "name": "variance_split",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Correlation time (measured value or bound).",
+      "name": "tau_c_minutes",
+      "type": "float",
+      "unit": "min"
+    },
+    {
+      "description": "Its 16th percentile (day-block bootstrap).",
+      "name": "tau_c_low_minutes",
+      "type": "float",
+      "unit": "min"
+    },
+    {
+      "description": "Its 84th percentile.",
+      "name": "tau_c_high_minutes",
+      "type": "float",
+      "unit": "min"
+    },
+    {
+      "description": "measured, bounded_above or refused.",
+      "name": "tau_quality",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "measured, bound or refused (cap).",
+      "name": "tau_outcome",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "On-air shelf level.",
+      "name": "on_shelf_db",
+      "type": "float",
+      "unit": "dB"
+    },
+    {
+      "description": "Intra-day share of the shelf power (reported where the split is booked).",
+      "name": "intraday_share",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Sub-acquisition share (reported where the split is booked).",
+      "name": "fast_share",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "floor-bounded shelf linear x chain gain, variance 0.",
+      "name": "residual_convention",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "r_sys keeping every frame, calibration block.",
+      "name": "keep_everything_r_sys_calibration",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "r_sys keeping every frame, evaluation block.",
+      "name": "keep_everything_r_sys_evaluation",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The within-era drift screen: passed or refused_*. A refusal is a detector refusal.",
+      "name": "stability_status",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The screen's reason.",
+      "name": "stability_reason",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Candidates the screen checked.",
+      "name": "stability_points_checked",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Candidates it skipped.",
+      "name": "stability_points_skipped",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "The drift diagnostic's status.",
+      "name": "drift_status",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Frames in the early half.",
+      "name": "drift_early_frames",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Frames in the late half.",
+      "name": "drift_late_frames",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "The candidate the screen refused on: rank.",
+      "name": "drift_refused_rho",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Its threshold.",
+      "name": "drift_refused_eta",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Its kept frames, early half.",
+      "name": "drift_refused_early_kept",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Its kept frames, late half.",
+      "name": "drift_refused_late_kept",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Its kept fraction.",
+      "name": "drift_refused_kept_fraction",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Candidates keeping at least this fraction of each half.",
+      "name": "drift_candidates_at_0",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Worst early/late cost ratio over them.",
+      "name": "drift_max_cost_ratio_at_0",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Worst early/late r_sys ratio over them.",
+      "name": "drift_max_systematic_ratio_at_0",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Candidates keeping at least this fraction of each half.",
+      "name": "drift_candidates_at_0p01",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Worst early/late cost ratio over them.",
+      "name": "drift_max_cost_ratio_at_0p01",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Worst early/late r_sys ratio over them.",
+      "name": "drift_max_systematic_ratio_at_0p01",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Candidates keeping at least this fraction of each half.",
+      "name": "drift_candidates_at_0p05",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Worst early/late cost ratio over them.",
+      "name": "drift_max_cost_ratio_at_0p05",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Worst early/late r_sys ratio over them.",
+      "name": "drift_max_systematic_ratio_at_0p05",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Candidates keeping at least this fraction of each half.",
+      "name": "drift_candidates_at_0p2",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Worst early/late cost ratio over them.",
+      "name": "drift_max_cost_ratio_at_0p2",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Worst early/late r_sys ratio over them.",
+      "name": "drift_max_systematic_ratio_at_0p2",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): rank (fine).",
+      "name": "knee_rho",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): Q16 multiplier (fine).",
+      "name": "knee_eta_q16",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): threshold.",
+      "name": "knee_eta",
+      "type": "float",
+      "unit": "statistic units"
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): masked fraction, calibration block.",
+      "name": "knee_masked_fraction",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): kept frames, calibration block.",
+      "name": "knee_kept",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): r_sys, calibration block.",
+      "name": "knee_r_sys",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): r_sys at G = 1, calibration block.",
+      "name": "knee_r_sys_incoherent",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): floor share, calibration block.",
+      "name": "knee_floor_share",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): 1/(1 - f).",
+      "name": "knee_exposure_cost_uniform_loss",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): masked fraction replayed on the evaluation block.",
+      "name": "knee_masked_fraction_evaluation",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The Pareto knee of the family's candidate set (surface-wide): r_sys replayed on the evaluation block.",
+      "name": "knee_r_sys_evaluation",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): rank (fine).",
+      "name": "least_residual_rho",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): Q16 multiplier (fine).",
+      "name": "least_residual_eta_q16",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): threshold.",
+      "name": "least_residual_eta",
+      "type": "float",
+      "unit": "statistic units"
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): masked fraction, calibration block.",
+      "name": "least_residual_masked_fraction",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): kept frames, calibration block.",
+      "name": "least_residual_kept",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): r_sys, calibration block.",
+      "name": "least_residual_r_sys",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): r_sys at G = 1, calibration block.",
+      "name": "least_residual_r_sys_incoherent",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): floor share, calibration block.",
+      "name": "least_residual_floor_share",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): 1/(1 - f).",
+      "name": "least_residual_exposure_cost_uniform_loss",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): masked fraction replayed on the evaluation block.",
+      "name": "least_residual_masked_fraction_evaluation",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The least-residual point of the candidate set (surface-wide): r_sys replayed on the evaluation block.",
+      "name": "least_residual_r_sys_evaluation",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Acquisition-bootstrap 16th percentile.",
+      "name": "least_residual_masked_fraction_evaluation_q16",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Acquisition-bootstrap 84th percentile.",
+      "name": "least_residual_masked_fraction_evaluation_q84",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Acquisition-bootstrap 16th percentile.",
+      "name": "least_residual_r_sys_evaluation_q16",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Acquisition-bootstrap 84th percentile.",
+      "name": "least_residual_r_sys_evaluation_q84",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Acquisitions resampled.",
+      "name": "least_residual_bootstrap_blocks_evaluation",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Keep-everything r_sys of the evaluation block.",
+      "name": "least_residual_r_sys_unmasked_evaluation",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Kept frames on the evaluation block.",
+      "name": "least_residual_kept_evaluation",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Survey-flag rate of the evaluation block.",
+      "name": "least_residual_survey_flag_rate_evaluation",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Masked fraction on the evaluation block when it is a verified off era (empty otherwise).",
+      "name": "least_residual_false_alarm_rate",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Why a false-alarm rate is or is not measurable there.",
+      "name": "least_residual_false_alarm_basis",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "occupancy wall (survey-flag rate >= 0.90) or below it.",
+      "name": "occupancy_class",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The reasons, with the release's strings.",
+      "name": "occupancy_reasons",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Survey-flag rate of the current era.",
+      "name": "survey_flag_rate_era",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "screening (the stability screen passed) or diagnostic (it refused).",
+      "name": "claim_status",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "A detector refusal (no floor, bundle, preparation, stability), or empty.",
+      "name": "refusal",
+      "type": "str",
+      "unit": ""
+    }
+  ],
+  "x-oc-table-columns": [
+    {
+      "description": "Band label from the frequency plan; the join key, with the edges.",
+      "name": "band_id",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Lower band edge from the plan.",
+      "name": "band_low_mhz",
+      "type": "float",
+      "unit": "MHz"
+    },
+    {
+      "description": "Upper band edge from the plan.",
+      "name": "band_high_mhz",
+      "type": "float",
+      "unit": "MHz"
+    },
+    {
+      "description": "The current era, e.g. '2018-12..2026-08 (proxy-low)'.",
+      "name": "era_label",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "First month of the current era.",
+      "name": "era_start",
+      "type": "str",
+      "unit": "YYYY-MM"
+    },
+    {
+      "description": "Last month of the current era.",
+      "name": "era_end",
+      "type": "str",
+      "unit": "YYYY-MM"
+    },
+    {
+      "description": "The era's state from the era list's vocabulary.",
+      "name": "era_state",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "calibration or evaluation (the chronological split of the current era).",
+      "name": "block",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "fine_surface, coarse_surface or coarse_ladder.",
+      "name": "candidate_set",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The frames the candidates were computed on (current_era_calibration_block).",
+      "name": "population",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The family a deployable set is formed in: 'rho=<rank>' (fine) or 'Q' (coarse).",
+      "name": "threshold_family",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The detector's declared order within (band, candidate set, population, block): rank then multiplier (fine), the grid order (coarse), the rung order (ladder). Ties on the science side are broken by it.",
+      "name": "candidate_order",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Q (coarse, F/mu_0) or Z_rho (fine order-statistic CFAR of rank rho).",
+      "name": "statistic",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The threshold; the mask rule is statistic > eta (equality keeps).",
+      "name": "eta",
+      "type": "float",
+      "unit": "statistic units"
+    },
+    {
+      "description": "The threshold as an exact rational num/den: eta_q16/65536 (fine), float(eta).as_integer_ratio() (coarse).",
+      "name": "eta_exact",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Frames of the block.",
+      "name": "frames",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Frames the threshold keeps.",
+      "name": "kept",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Frames the threshold masks.",
+      "name": "masked",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "f = masked/frames. A mixture quantity (detections and false alarms counted together), not a false-alarm rate and not a figure of merit.",
+      "name": "masked_fraction",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "1/(1 - f): observing time per unit of kept time if the lost frames are spread evenly (ladder: frames/kept).",
+      "name": "exposure_cost_uniform_loss",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Variance residual; 0 by convention (the products carry no variance residual).",
+      "name": "r_var",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Kept-frame mean of r_i = max(10^(s_i/10), floor)·G, G the chain gain of the declared integration model (ladder: the mean at G = 1, times G).",
+      "name": "r_sys",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The same kept-frame mean at G = 1: the residual if it averages down incoherently. Never used in place of r_sys.",
+      "name": "r_sys_incoherent",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The keep-everything residual on the same block.",
+      "name": "r_unmasked",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Fraction of kept frames whose residual is the floor (no shelf estimate, or the floor at or above the shelf). Near 1, r_sys measures the measurement's sensitivity, not the interference.",
+      "name": "floor_share",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Empirical P_fa of this eta on a verified signal-free population (empty when none).",
+      "name": "pfa",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "measured, undefined: no alpha declared, or unavailable: <reason>.",
+      "name": "pfa_status",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "knee, least_residual, both ';'-joined, or empty.",
+      "name": "mark",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "One-based background rank (cfar_rank + 1); fine rows.",
+      "name": "rho",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Size of the bulk B; fine rows.",
+      "name": "bulk_size",
+      "type": "int",
+      "unit": "bins"
+    },
+    {
+      "description": "rho/(B + 1); fine rows.",
+      "name": "rank_fraction",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The 16-bit fixed-point encoding of eta ('Q16' is a number format, not the statistic Q).",
+      "name": "eta_q16",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "The ladder rung: cal_q0.5 keeps the frames whose Q is at or below the calibration-block median of Q; keep_all keeps every frame.",
+      "name": "policy",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Acquisitions with a kept frame (ladder rows).",
+      "name": "kept_acquisitions",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "UTC days with a kept frame (ladder rows).",
+      "name": "kept_days",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Months with sampling support among the kept frames (ladder rows).",
+      "name": "kept_months",
+      "type": "int",
+      "unit": ""
+    }
+  ],
+  "x-row-rules": {
+    "blocks": [
+      "calibration",
+      "evaluation"
+    ],
+    "candidate_sets": [
+      "fine_surface",
+      "coarse_surface",
+      "coarse_ladder"
+    ],
+    "evaluable": "kept >= 30 and eligible (both era halves keep enough frames)",
+    "fine_surface": "thinned: at most 200 candidates per rank, with each rank's least-residual candidate and the marked points",
+    "marks": [
+      "knee",
+      "least_residual"
+    ],
+    "order": [
+      "band_id",
+      "candidate_set",
+      "population",
+      "block",
+      "candidate_order"
+    ],
+    "populations": [
+      "current_era_calibration_block",
+      "all_valid_frames"
+    ]
+  }
+}
