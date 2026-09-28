@@ -792,6 +792,33 @@ def _cmd_list_channels(args: argparse.Namespace) -> None:
     _print_adaptive_reference_diagnostics(layouts)
 
 
+# The detector characterization, product checks and bench figures. Each step is a
+# module with its own ``main(argv)``; the group passes the remaining arguments on.
+CHARACTERIZE_STEPS = {
+    "archive": "pilot_proxy.characterization.run",
+    "report": "pilot_proxy.characterization.report.build",
+    "histogram-frames": "pilot_proxy.characterization.histogram_frames",
+    "histograms": "pilot_proxy.characterization.histograms",
+    "spectrogram": "pilot_proxy.characterization.spectrogram",
+    "roc": "pilot_proxy.characterization.roc",
+}
+PRODUCTS_STEPS = {"check-archive": "pilot_proxy.products.acceptance"}
+BENCH_STEPS = {"estimator-transfer": "pilot_proxy.testbench.harness.bench",
+               "transfer-points": "pilot_proxy.testbench.harness.bench"}
+
+
+def _cmd_step(steps: dict[str, str], *, pass_step: bool = False):
+    def run(args: argparse.Namespace) -> None:
+        import importlib
+
+        module = importlib.import_module(steps[args.step])
+        argv = ([args.step] if pass_step else []) + list(args.step_args)
+        status = module.main(argv)
+        if status:
+            raise SystemExit(status)
+    return run
+
+
 def _print_adaptive_reference_diagnostics(
     layouts: Sequence[Mapping[str, Any]],
 ) -> None:
@@ -1921,6 +1948,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="Analyzer option passed through to chime-scan ctx.options; repeat as needed.",
     )
     chime_scan.set_defaults(func=_cmd_chime_scan)
+
+    for name, summary, steps, pass_step in (
+        ("characterize", "Detector characterization: the operating-characteristic handoff of an archive "
+                         "(archive), its report tables (report), histograms, spectrograms and the ROC.",
+         CHARACTERIZE_STEPS, False),
+        ("products", "Per-pilot product checks: the archive cohort acceptance gate (check-archive).",
+         PRODUCTS_STEPS, False),
+        ("bench", "Bench figures and tables from frozen releases (estimator-transfer, transfer-points).",
+         BENCH_STEPS, True),
+    ):
+        group = _add_command(name, summary)
+        group.add_argument("step", choices=sorted(steps))
+        group.add_argument("step_args", nargs=argparse.REMAINDER,
+                           help="arguments of the step (see pilot-proxy %s STEP --help)" % name)
+        group.set_defaults(func=_cmd_step(steps, pass_step=pass_step))
 
     return parser
 
