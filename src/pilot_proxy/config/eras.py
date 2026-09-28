@@ -8,7 +8,10 @@ Two files:
 - the transmitter-off intervals: band label -> a list of ``{from, through,
   evidence, independently_verified}``. ``from`` null is the start of the
   record and ``through`` null is open-ended, so an intermittent emitter is
-  several intervals.
+  several intervals. ``external_record`` (optional) is the class of the best
+  external record found for the date (``confirmed``, ``consistent``,
+  ``contradicted``, ``not found``); an interval is independently verified only
+  with a confirmed record.
 
 The era states are the vocabulary the project declares (``project.yaml``).
 """
@@ -22,7 +25,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Optional
 
-from ._files import ProfileError, check_keys, month, read_json, text
+from ._files import ProfileError, check_keys, choice, month, read_json, text
 
 TRANSMITTER_OFF_SCHEMA = "pilot_proxy_transmitter_off_v1"
 
@@ -34,12 +37,16 @@ class EraSpan:
     evidence: str
 
 
+EXTERNAL_RECORD_CLASSES = ("confirmed", "consistent", "contradicted", "not found")
+
+
 @dataclass(frozen=True)
 class OffInterval:
     from_month: Optional[str]
     through_month: Optional[str]
     evidence: str
     independently_verified: bool
+    external_record: str = ""    # the class of the best external record, when one was sought
 
 
 @dataclass(frozen=True)
@@ -113,7 +120,7 @@ def _intervals(label: str, raw: Any, where: str) -> tuple[OffInterval, ...]:
         if not isinstance(entry, Mapping):
             raise ProfileError(f"{here} must be a mapping")
         check_keys(entry, required=("from", "through", "evidence", "independently_verified"),
-                   where=here)
+                   optional=("external_record",), where=here)
         start = None if entry["from"] is None else month(entry["from"], field="from", where=here)
         end = None if entry["through"] is None else month(
             entry["through"], field="through", where=here)
@@ -124,8 +131,14 @@ def _intervals(label: str, raw: Any, where: str) -> tuple[OffInterval, ...]:
         verified = entry["independently_verified"]
         if not isinstance(verified, bool):
             raise ProfileError(f"{here}: independently_verified must be true or false")
+        external = ""
+        if "external_record" in entry:
+            external = choice(entry["external_record"], EXTERNAL_RECORD_CLASSES,
+                              field="external_record", where=here)
+        if verified and external != "confirmed":
+            raise ProfileError(f"{here}: independently_verified needs a confirmed external record")
         items.append(OffInterval(start, end, text(entry["evidence"], field="evidence",
-                                                  where=here), verified))
+                                                  where=here), verified, external))
     return tuple(items)
 
 
@@ -178,6 +191,7 @@ def load_era_list(author_eras: Path | str, transmitter_off: Path | str,
 __all__ = [
     "EraList",
     "EraSpan",
+    "EXTERNAL_RECORD_CLASSES",
     "OffInterval",
     "TRANSMITTER_OFF_SCHEMA",
     "load_era_list",

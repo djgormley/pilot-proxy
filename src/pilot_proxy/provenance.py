@@ -55,6 +55,51 @@ def package_source_sha256(package_root: Path | str | None = None) -> str:
     return digest.hexdigest()
 
 
+def sha256_file(path: Path | str) -> str:
+    """SHA256 hex digest of a file (raises if it does not exist)."""
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def producer_identity(roots=None) -> dict:
+    """The producing code of a run, recorded as information (a consumer never requires it).
+
+    The repository commit and whether the package tree is dirty (scoped to
+    ``src/pilot_proxy``), a digest of the package's own sources
+    (:func:`package_source_sha256`, fixed at first use in the process), the
+    package version, and the sha256 of the default project's detector
+    register. ``roots`` may name further source roots whose digests are added.
+    """
+    import subprocess
+
+    from pilot_proxy import __version__
+    from pilot_proxy.config.project import default_project
+
+    package = Path(__file__).resolve().parent
+    commit, dirty, status = "", None, ""
+    try:
+        top = subprocess.run(["git", "-C", str(package), "rev-parse", "--show-toplevel"], capture_output=True,
+                             text=True, timeout=30)
+        if top.returncode == 0:
+            root = top.stdout.strip()
+            commit = subprocess.run(["git", "-C", root, "rev-parse", "HEAD"], capture_output=True, text=True,
+                                    timeout=30).stdout.strip()
+            status = subprocess.run(["git", "-C", root, "status", "--porcelain", "--untracked-files=no", "--",
+                                     str(package)], capture_output=True, text=True, timeout=30).stdout.strip()
+            dirty = bool(status)
+    except (OSError, subprocess.SubprocessError):
+        commit, dirty = "unknown", None
+    out = {"repository": "WVURAIL/pilot-proxy", "package": "pilot_proxy", "version": __version__,
+           "commit": commit, "dirty": dirty, "dirty_files": status, "source_root": str(package),
+           "source_digest": package_source_sha256(), "register_sha256": default_project().register.sha256()}
+    if roots:
+        out["other_source_digests"] = {name: package_source_sha256(Path(root)) for name, root in sorted(roots.items())}
+    return out
+
+
 def sidecar_manifest_path(path: Path | str | None) -> Path | None:
     """Return the conventional manifest sidecar path."""
     if path is None:
