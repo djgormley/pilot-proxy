@@ -20,7 +20,8 @@ import numpy as np
 import scipy
 from scipy import integrate, stats
 
-P = 2048 * 128
+from pilot_proxy.detectors.narrowband_marker.reference_models import P, steady_law as law
+
 N = 1024
 GAMMA = 0.02
 EDGES = np.linspace(0.988, 1.032, 89)
@@ -40,10 +41,6 @@ def load_frames(path):
     if not np.allclose(arrays["Q"], reconstructed, rtol=2e-15, atol=0):
         raise ValueError("Q must be the ratio of branch-power sums, not the mean of ratios")
     return arrays
-
-
-def law(gamma):
-    return stats.f(2 * P, 4 * P) if gamma == 0 else stats.ncf(2 * P, 4 * P, 2 * P * gamma)
 
 
 def summarize(arrays, gamma):

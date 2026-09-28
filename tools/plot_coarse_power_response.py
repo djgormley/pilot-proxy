@@ -22,35 +22,11 @@ import numpy as np
 import scipy
 from scipy import stats
 
-P = 2048 * 128
-DF1, DF2 = 2 * P, 4 * P
+from pilot_proxy.detectors.narrowband_marker.reference_models import DF1, DF2, P, power_response as response
 
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
-def response(gamma):
-    gamma = np.atleast_1d(np.asarray(gamma, dtype=np.float64))
-    if not np.isfinite(gamma).all() or np.any(gamma < 0):
-        raise ValueError("Signal/noise power must be finite and nonnegative")
-    nc = DF1 * gamma
-    positive = gamma > 0
-    median = np.full(gamma.shape, stats.f.ppf(0.5, DF1, DF2))
-    median[positive] = stats.ncf.ppf(0.5, DF1, DF2, nc[positive])
-    mean = DF2 * (DF1 + nc) / (DF1 * (DF2 - 2))
-    # Exact variance of (X/DF1)/(Y/DF2), X noncentral chi-square and Y central.
-    variance = (2 * (DF2 / DF1) ** 2
-                * ((DF1 + nc) ** 2 + (DF1 + 2 * nc) * (DF2 - 2))
-                / ((DF2 - 2) ** 2 * (DF2 - 4)))
-    sd = np.sqrt(variance)
-    approximate_sd = np.sqrt((gamma**2 + 6 * gamma + 3) / (2 * P))
-    return {
-        "gamma": gamma, "lambda": nc, "median": median, "mean": mean,
-        "std": sd, "relative_std_over_mean": sd / mean,
-        "median_large_P_approximation": 1 + gamma,
-        "std_large_P_approximation": approximate_sd,
-    }
 
 
 def check_model():
