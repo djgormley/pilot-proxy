@@ -1,14 +1,15 @@
 {
   "schema": "pilot_proxy_transmitter_off_v1",
-  "source": "RFIsher src/rfisher/residual.py:125-153 at e041d5e (SIGN_ON_OFF_THROUGH, SIGN_OFF_FROM)",
+  "source": "Dates: read from the archive's own pilot series (the release maps SIGN_ON_OFF_THROUGH and SIGN_OFF_FROM, residual.py:125-153 at e041d5e). External records: the N1 search of 2026-09-23 (output/handoff-2026-09-23/evidence/transmitter_off_records.md).",
   "months": "YYYY-MM. from null means the start of the record; through null means open-ended.",
-  "independently_verified": "True only for a date confirmed by an external record (regulator or broadcaster) whose window contains the archive-dated boundary. The dates here were read from the archive's own pilot series.",
+  "independently_verified": "True only for a date confirmed by an external record (regulator or broadcaster) whose window contains the archive-dated boundary; external_record gives the class of the best record found (confirmed, consistent, contradicted, not found).",
   "bands": {
     "19": [
       {
         "from": "2024-12",
         "through": null,
-        "evidence": "Departure dated December 2024 by the archive's monthly pilot record.",
+        "evidence": "Departure dated December 2024 by the archive's monthly pilot record. External record (N1): none. K19AU-D Omak WA (a KAYU Fox 28 translator, 100 km, bearing 167 deg) is shown LICENSED by the FCC with no silent or suspension filing in 2024; no record dates the 2024-11-26 loss.",
+        "external_record": "not found",
         "independently_verified": false
       }
     ],
@@ -16,15 +17,17 @@
       {
         "from": "2022-09",
         "through": null,
-        "evidence": "A step-down rather than a departure: the 2022-09 step leaves a persistent live carrier (post-step months stay 97-100% masked), so the post-step floor is a measured ambient carrier level, conservative as a kept-frame bound but not a transmitter-off sensitivity floor.",
-        "independently_verified": false
+        "evidence": "A step-down rather than a departure: the 2022-09 step leaves a persistent live carrier (post-step months stay 97-100% masked), so the post-step floor is a measured ambient carrier level, conservative as a kept-frame bound but not a transmitter-off sensitivity floor. External record (N1): CONFIRMED to a bracket. CHBC-DT-2 Vernon (109 km, bearing 12 deg) was vacated under CRTC Broadcasting Decision 2020-391 (CHBC carried on the CHKL multiplex); ISED removed its operational record between the Broadcasting Database exports of 2021-12-07 and 2022-09-14, which contains the archive date 2022-08-21/31 (broadcasting certificates lapsed 2022-08-31; Wayback captures of www.ic.gc.ca/engineering/BC_DBF_FILES/baserad.zip). The record dates the change of regulatory status, not the switch-off; a residual carrier after the step is not identified by any record.",
+        "external_record": "confirmed",
+        "independently_verified": true
       }
     ],
     "26": [
       {
         "from": "2023-04",
         "through": null,
-        "evidence": "Departure dated April 2023 by the archive's monthly pilot record.",
+        "evidence": "Departure dated April 2023 by the archive's monthly pilot record. External record (N1): none. K26GV-D Omak WA (Edge Spectrum, 100 km, bearing 167 deg) is shown LICENSED by the FCC (renewed 2023-01-26) with no silent or suspension filing; no record dates the 2023-04-09 sign-off.",
+        "external_record": "not found",
         "independently_verified": false
       }
     ],
@@ -32,7 +35,8 @@
       {
         "from": "2022-10",
         "through": null,
-        "evidence": "Departure bounded inside the 2021-2022 collection gap: strong through 2020-11; first collected off month 2022-10. Any month inside a gap yields identical masks.",
+        "evidence": "Departure bounded inside the 2021-2022 collection gap: strong through 2020-11; first collected off month 2022-10. Any month inside a gap yields identical masks. External record (N1): CONSISTENT, not confirmed. CHBC-DT Kelowna ch 27 was made redundant by CRTC 2020-391 (the CHKL-DT multiplex, certificates effective 2021-10-07, inside the archive window 2020-11-20..2022-10-19); no record gives the day ch 27 went dark, and ISED kept its operational record until at least 2023-02-09.",
+        "external_record": "consistent",
         "independently_verified": false
       }
     ],
@@ -40,15 +44,17 @@
       {
         "from": "2023-02",
         "through": null,
-        "evidence": "Departure bounded inside the 2021-2022 collection gap: strong through 2020-11; first collected off month 2023-02. Any month inside a gap yields identical masks. Superseded value: 2022-10 in pilot-proxy tools/make_chain_table.py:41 (OFF_FROM); the release uses 2023-02 (decision D14).",
-        "independently_verified": false
+        "evidence": "Departure bounded inside the 2021-2022 collection gap: strong through 2020-11; first collected off month 2023-02. Any month inside a gap yields identical masks. Superseded value: 2022-10 in pilot-proxy tools/make_chain_table.py:41 (OFF_FROM); the release uses 2023-02 (decision D14). External record (N1): CONFIRMED to a bracket. CHBC-DT-1 Penticton (38 km, bearing 6 deg) was vacated under CRTC 2020-391; ISED removed its operational record between the exports of 2021-12-07 and 2022-09-14, a bracket entirely inside the archive window 2020-11-13..2023-02-10 (broadcasting certificates lapsed 2022-08-31). The record dates the change of regulatory status, not the switch-off.",
+        "external_record": "confirmed",
+        "independently_verified": true
       }
     ],
     "35": [
       {
         "from": null,
         "through": "2021-10",
-        "evidence": "Off before sign-on: the monthly excess record steps on at 2021-11 (2021-09 and 2021-10 sit at the off level), so the off epoch runs through 2021-10. One later month, 2022-09, sits back at the off level; a single month-threshold mask cannot represent it and counts it on.",
+        "evidence": "Off before sign-on: the monthly excess record steps on at 2021-11 (2021-09 and 2021-10 sit at the off level), so the off epoch runs through 2021-10. One later month, 2022-09, sits back at the off level; a single month-threshold mask cannot represent it and counts it on. External record (N1): CONSISTENT, weak, with a dating tension. K35MN-D Omak WA filed its license to cover on ch 35 on 2020-10-14; the Omak Mtn tower collapsed in January 2021 with a rebuild planned for summer 2021; no record dates a 2021-10-22 sign-on.",
+        "external_record": "consistent",
         "independently_verified": false
       }
     ]
