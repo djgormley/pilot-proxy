@@ -1,0 +1,94 @@
+{
+ "bands": [
+  {
+   "band_id": "29",
+   "high_mhz": 566.0,
+   "low_mhz": 560.0,
+   "marker_freq_id": 614,
+   "role": "screened"
+  },
+  {
+   "band_id": "34",
+   "high_mhz": 596.0,
+   "low_mhz": 590.0,
+   "marker_freq_id": 537,
+   "role": "screened"
+  }
+ ],
+ "detector_parameter_columns": [
+  "rho",
+  "bulk_size",
+  "rank_fraction",
+  "eta_q16",
+  "policy",
+  "kept_acquisitions",
+  "kept_days",
+  "kept_months"
+ ],
+ "files": {
+  "oc_summary.csv": "1fde49b443a32487e7c416253a42057e4b730ad03b9f4652f037208253b8c628",
+  "oc_table.csv": "a1b9f2242a597c1d58cd65157bea9ef394162b3f9b83076fea8426f5a22c836a"
+ },
+ "fine_surface_rows": "thinned: at most 200 candidates per rank, with each rank's least-residual candidate and the marked points",
+ "inputs": {
+  "era_list_sha256": "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd",
+  "products": {
+   "537.npz": "e0558ba46b6b29abead4bc3ae8029fcf71d4f8704b9b3fcfe33e0feb414f1a36",
+   "614.npz": "0edc8e79b2d1be715bde93743574e6db619225ba6771ad6e2888c54b39af3649"
+  },
+  "profile": {
+   "author_eras": "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd",
+   "detector_config": "a2aa470814b0f80ae6dab54bb810c408e1a52d58e3df261467cafa1a124038dd",
+   "frequency_plan": "0bf530829e2e21b2d4d1af007c922563b88eb463196a9faaa0481d47cacb9762",
+   "integration_model": "1deb2704f33d047c1fee86f567013a1754165ad9f45d98a19f4e6f4a88bc2fba",
+   "interference_template": "a9664a9b82e80e0a66a83eb745945c5f63461a28948b285e7e60cfb12394b3a1",
+   "project": "e7636f8590e3ef0f92690f6a742cbef209bb312d333e9b9ddf5d5701683d29ec",
+   "register": "3669b76dfcbfe0b5c6a00262ba6557616110008106df4b62441fff77edcafe75",
+   "transmitter_off": "9af6777a50d2e055f28d5f2caaec1dfbd9ff9ee23c465cfc0577b938dd2f95a7"
+  },
+  "replay_points": {
+   "path": "replay_points.csv",
+   "sha256": "81013be063c33a03f55f5ffef7e58d6eec77ba1c692e44cc3147f4b86194c2a8"
+  },
+  "transmitter_off_sha256": "9af6777a50d2e055f28d5f2caaec1dfbd9ff9ee23c465cfc0577b938dd2f95a7"
+ },
+ "integration_model": {
+  "coherence_cap_seconds": 86164.0905,
+  "frame_seconds": 0.04194304,
+  "variance_split": "off"
+ },
+ "mask_rule": "statistic > eta",
+ "null_policy": {
+  "alpha": 0.001,
+  "availability_rule": "eta_Pfa is available when n_eff >= 10 / alpha on a verified signal-free population (independently verified, null-like, in the current era)",
+  "estimator": "higher (1 - alpha) order statistic; day-block bootstrap (B = 2000); n_eff = n / max(DEFF, 1); one-sided 95% Clopper-Pearson bound with n_eff trials",
+  "minimum_frames_per_false_alarm": 10.0
+ },
+ "r_reference": {
+  "definition": "residual interference power over system noise power per frame, in the band",
+  "feed_sum": "all_inputs",
+  "frame_seconds": 0.04194304,
+  "noise_bandwidth_hz": 6000000.0,
+  "summed_terms": 262144
+ },
+ "record": null,
+ "residual_shape": "band_thermal",
+ "schema": "operating_characteristic",
+ "schema_version": 1,
+ "statistics": {
+  "Q": {
+   "definition": "coarse statistic F / mu_0",
+   "eta": "a multiplier on Q",
+   "null_dof": [
+    524288,
+    1048576
+   ],
+   "null_law": "F(2P, 4P)"
+  },
+  "Z_rho": {
+   "definition": "fine order-statistic CFAR of one-based background rank rho: the marker-bin maximum over the rank-rho bulk value",
+   "eta": "eta_q16 / 65536"
+  }
+ },
+ "tie_rule": "selector_order"
+}
