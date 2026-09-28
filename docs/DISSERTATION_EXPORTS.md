@@ -60,59 +60,15 @@ PYTHONPATH=src python tools/export_dissertation_data.py \
 A missing table is recorded as `pending` in `export_manifest.json`. The exporter
 never substitutes digitized artwork, inferred values, or synthetic data.
 
-## Generate the optional tables
+## Optional tables
 
-`tools/make_dissertation_tables.py` produces two of the optional tables
-directly from their owning pipelines:
-
-```bash
-PYTHONPATH=src python tools/make_dissertation_tables.py \
-  --products /path/to/per_pilot_products
-```
-
-- `census_psd.csv` — the archive-averaged spectrum within ±15 kHz of each
-  synthesized pilot, read from every per-pilot product's stored integrated
-  before-mask spectrum. Offsets are reported in the transmitted-frequency
-  sense (the receiver's spectral inversion is undone), so off-nominal carriers
-  appear at their measured RF displacement.
-- `worked_example_spectra.csv` — the worked example's two archived frames
-  (generated only behind `--worked-example`): the frames are named
-  explicitly by UTC day and F/mu0 ratio, and rows are emitted only after
-  the digits the dissertation quotes reproduce from the product.
-- `bao_time_vs_masking.csv` — observing-time-versus-masked-fraction curves
-  for the survey-amplitude, worst-bin-amplitude, and worst-bin-dilation
-  targets, computed with the released `rfisher` package (RFIsher must be
-  installed; pass `--skip-forecast` to omit).
-
-Tables are written to `exports/dissertation/inputs/` (ignored by git) and are
-then supplied to the exporter through `--census-psd`,
-`--worked-example-spectra`, and `--bao-time-vs-masking`.
-
-The generator reads either product vocabulary. The 2020--2026 archive spells
-its measurements under the retired names and stores `mu0` and a float fine
-ratio; the 2026-09 rebuild uses the current names, stores no `mu0` (it is
-`2*target_norm_sq/reference_norm_sum_sq`) and retains the exact fine-power
-terms instead of a ratio. Everything under `analysis/` and `tools/` goes
-through `pilot_proxy.archived_product_keys.measurement`,
-`product_contract.null_power_ratio_of` and `product_contract.fine_power_ratio_of`,
-so the same script produces the same table shape from both. The fine ratio
-of a current product is the deployed fixed-point statistic and differs in
-its last digits from the archived float ratio, which is why the worked
-example's published digits are checked only on archived products.
-
-`tools/make_chain_table.py` generates the per-channel residual-chain table
-(the dissertation's Table 9.6 and its lower-band extension) from the same
-products via the released `rfisher` residual machinery. It passes only
-versioned v1 health-filtered frame views to RFIsher, so its floor,
-variance, correlation-time, and masked-fraction terms cannot silently restore
-excluded archive rows. Its built-in
-self-test reproduces the published first-measured-block constants from raw
-products and aborts on any drift: the table's provenance is the
-reproduction, not a remembered analysis. The remaining optional tables
-(`bao_convergence`, `bao_two_walls`) are deliberately not generated here:
-they depend on the `_Pres` bias-response bank and the dissertation draft's
-fine-credit and floor-basis conventions. They remain `pending` until those
-calculations are reproduced under their own conventions.
+The optional tables are supplied to the exporter through `--census-psd`,
+`--worked-example-spectra` and `--bao-time-vs-masking`. The generators that
+used to build them here (`tools/make_dissertation_tables.py` and
+`tools/make_chain_table.py`) imported the released `rfisher` package and were
+removed when the detector characterization moved into this repository; the
+science-side tables are built in RFIsher. A table that is not supplied stays
+`pending` in `export_manifest.json`.
 
 ## Verify before import
 
@@ -166,10 +122,7 @@ writes portable `dissertation_summary_v4.json`, `channel_status_v4.csv`, and
 `epoch_operating_points_v4.csv` files. It corrects invalidated prose claims
 without pretending that the legacy numeric epoch operating points or their
 figures were health-recomputed. Do not describe the old rows or figures as
-health-corrected by implication. By contrast, rerunning
-`tools/make_dissertation_tables.py` from the repaired source produces the final
-health-filtered `census_psd.csv` and `bao_time_vs_masking.csv`; its optional
-worked-example table also refuses any excluded frame.
+health-corrected by implication.
 
 ## Large products
 
