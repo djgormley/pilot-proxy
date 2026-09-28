@@ -159,7 +159,9 @@ hdr = (f"{'ch':>3} {'tr':>2} {'keep_an':>8} {'keep_hat':>8} {'band':>6} "
        f"{'band_p99.9':>10} {'kept_p99.9':>10}")
 print(hdr)
 for r in rows:
-    print(f"{r['ch']:>3} {r['trusted']:>2} {r['kc_an']:>8.3f} "
+    trusted_raw = r.get("trusted")
+    trusted_disp = "Y" if trusted_raw is True else ("N" if trusted_raw is False else "?")
+    print(f"{r['ch']:>3} {trusted_disp:>2} {r['kc_an']:>8.3f} "
           f"{r['kc']:>8.3f} {r['kb']:>6.3f} {r['kf']:>6.3f} "
           f"{100*r['inc']:>6.2f} {r['sig_pct']:>5.2f} {r['thr_db']:>7.3f} "
           f"{r['band_p999_db']:>10.2f} {r['kept_p999_db']:>10.2f}")
