@@ -10,61 +10,16 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Mapping
-from fractions import Fraction
-from numbers import Integral, Real
 import math
 
 import numpy as np
 
-MAX_Q16 = (1 << 64) - 1
-ALWAYS_MASKED_Q16 = 1 << 64
-
-
-def _integer(value, name, minimum=0):
-    if isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral):
-        raise TypeError(f"{name} must be an integer")
-    value = int(value)
-    if value < minimum:
-        raise ValueError(f"{name} must be at least {minimum}")
-    return value
-
-
-def _probability(value, name):
-    if isinstance(value, (bool, np.bool_)):
-        raise TypeError(f"{name} must be a probability")
-    if isinstance(value, Fraction):
-        result = value
-    elif isinstance(value, Real):
-        if not math.isfinite(float(value)):
-            raise ValueError(f"{name} must be finite")
-        result = Fraction(str(value))
-    else:
-        raise TypeError(f"{name} must be a real probability or Fraction")
-    if not 0 < result < 1:
-        raise ValueError(f"{name} must lie strictly between zero and one")
-    return result
-
-
-def _real_vector(values, name, *, positive=False):
-    raw = np.asarray(values, dtype=object)
-    if raw.ndim != 1 or raw.size == 0:
-        raise ValueError(f"{name} must be a nonempty vector")
-    if any(isinstance(v, (bool, np.bool_)) or not isinstance(v, Real) for v in raw):
-        raise TypeError(f"{name} must contain real numbers")
-    result = np.asarray(raw, dtype=float)
-    if not np.isfinite(result).all() or np.any(result <= 0 if positive else result < 0):
-        raise ValueError(f"{name} must contain finite {'positive' if positive else 'nonnegative'} values; no rows are dropped")
-    return result
-
-
-def _requirements(values):
-    raw = np.asarray(values, dtype=object)
-    if raw.ndim != 1 or raw.size == 0:
-        raise ValueError("logical Q16 requirements must be a nonempty vector")
-    result = [_integer(v, "requirement", 1) for v in raw]
-    if any(v > ALWAYS_MASKED_Q16 for v in result):
-        raise ValueError("logical Q16 requirements exceed the sentinel")
-    return result
+from pilot_proxy.characterization.false_alarm import (  # noqa: F401  (re-exported under their former names)
+    ALWAYS_MASKED_Q16, MAX_Q16, _integer, _probability, _real_vector, _requirements,
+    empirical_threshold as empirical_null_threshold,
+    exact_q16_threshold as exact_q16_null_threshold,
+    higher_index as _higher_index,
+)
 
 
 def binomial_interval(successes, trials, *, confidence=0.95, side="two-sided"):
@@ -111,46 +66,6 @@ def false_alarm_validation(exceedances, trials, *, nominal_pfa, cap_pfa,
             "pointwise_interval_width": pointwise["upper"]-pointwise["lower"],
             "pointwise_width_at_most_nominal": pointwise["upper"]-pointwise["lower"] <= nominal,
             "physical_acceptance": False}
-
-
-def _higher_index(n, pfa):
-    q = 1-_probability(pfa, "pfa")
-    return (q.numerator*(n-1)+q.denominator-1)//q.denominator
-
-
-def empirical_null_threshold(responses, *, pfa):
-    """Observed higher (1-pfa) quantile; no interpolation or finite-row trimming."""
-    values = _real_vector(responses, "null responses")
-    index = _higher_index(len(values), pfa)
-    threshold = float(np.partition(values, index)[index])
-    exceeded = int(np.count_nonzero(values > threshold))
-    return {"status": "available", "threshold": threshold,
-            "index": index, "trials": len(values), "exceedances": exceeded,
-            "empirical_pfa": exceeded/len(values), "nominal_pfa": float(pfa),
-            "method": "observed higher quantile; strict response > threshold",
-            "independent_validation": False}
-
-
-def exact_q16_null_threshold(requirements, *, pfa):
-    """Higher quantile of decoded exact keep boundaries, with ties kept.
-
-    Sentinel 2**64 remains in every denominator and in sorting. If selected,
-    there is no legal threshold; it is not replaced with the uint64 maximum.
-    Serialized zero+bitset encodings must be decoded before calling.
-    """
-    values = _requirements(requirements)
-    index = _higher_index(len(values), pfa)
-    threshold = sorted(values)[index]
-    available = threshold <= MAX_Q16
-    exceeded = sum(v > threshold for v in values) if available else None
-    return {"status": "available" if available else "unavailable",
-            "threshold": threshold if available else None,
-            "selected_requirement": threshold, "index": index,
-            "trials": len(values), "sentinel_trials": values.count(ALWAYS_MASKED_Q16),
-            "exceedances": exceeded,
-            "empirical_pfa": exceeded/len(values) if available else None,
-            "nominal_pfa": float(pfa), "independent_validation": False,
-            "method": "exact higher keep-boundary quantile; strict requirement > threshold"}
 
 
 def raw_crossing_brackets(snr_db, rates, *, target):

@@ -32,13 +32,18 @@ from typing import Any, Sequence
 
 import numpy as np
 
+from pilot_proxy.characterization import injection
+from pilot_proxy.characterization.injection import (
+    detection_rates,
+    matched_thresholds,
+    signal_dominated_log_slope,
+    weighted_linear_fit as _weighted_linear_fit,
+)
 from pilot_proxy.chime.injection import INJECTION_MANIFEST_FILENAME
-from pilot_proxy.config.project import default_project
 from pilot_proxy.chime.products import (
     CHIME_DETECTOR_OUTPUTS_FILENAME,
     CHIME_SPECTROGRAM_CACHE_FILENAME,
 )
-from pilot_proxy.testbench.evaluate_snr import wilson_interval
 
 RECOVERY_CSV_FILENAME = "injection_recovery.csv"
 RECOVERY_SUMMARY_FILENAME = "injection_recovery_summary.json"
@@ -48,9 +53,8 @@ DEFAULT_FALSE_ALARM_RATES = (1e-2,)
 # An empirical quantile at P_fa needs enough H0 frames to be meaningful: at
 # least this many expected false alarms (detector register entry
 # detection.minimum_frames_per_false_alarm).
-MIN_FRAMES_PER_FALSE_ALARM = default_project().register.value(
-    "detection.minimum_frames_per_false_alarm"
-)
+MIN_FRAMES_PER_FALSE_ALARM = injection.MIN_FRAMES_PER_FALSE_ALARM
+STATISTICS = {"fstat": "fstat", "radiometer": "power"}
 
 
 def _load_point(point_dir: Path) -> dict[str, Any]:
@@ -111,24 +115,6 @@ def _load_point(point_dir: Path) -> dict[str, Any]:
     }
 
 
-def _weighted_linear_fit(
-    x: np.ndarray, y: np.ndarray, sem: np.ndarray
-) -> dict[str, float]:
-    """Weighted least squares y = floor + gain * x with 1/sem^2 weights."""
-    weights = 1.0 / np.square(sem)
-    design = np.stack([np.ones_like(x), x], axis=1)
-    wd = design * weights[:, np.newaxis]
-    normal = design.T @ wd
-    covariance = np.linalg.inv(normal)
-    beta = covariance @ (wd.T @ y)
-    return {
-        "floor": float(beta[0]),
-        "gain_per_lsb2": float(beta[1]),
-        "floor_err": float(np.sqrt(covariance[0, 0])),
-        "gain_err": float(np.sqrt(covariance[1, 1])),
-    }
-
-
 def analyze_injection_recovery(
     point_dirs: Sequence[Path],
     *,
@@ -147,19 +133,7 @@ def analyze_injection_recovery(
     control = controls[0]
 
     # Matched-P_fa thresholds from the control's empirical quantiles.
-    thresholds: dict[str, dict[str, float]] = {"fstat": {}, "radiometer": {}}
-    usable_pfa: list[float] = []
-    for pfa in sorted(set(float(p) for p in false_alarm_rates), reverse=True):
-        if control["n_valid"] < MIN_FRAMES_PER_FALSE_ALARM / pfa:
-            continue
-        usable_pfa.append(pfa)
-        quantile = 1.0 - pfa
-        thresholds["fstat"][f"{pfa:g}"] = float(
-            np.quantile(control["fstat"], quantile)
-        )
-        thresholds["radiometer"][f"{pfa:g}"] = float(
-            np.quantile(control["power"], quantile)
-        )
+    thresholds, usable_pfa = matched_thresholds(control, false_alarm_rates, statistics=STATISTICS)
     if not usable_pfa:
         raise SystemExit(
             f"the control point's {control['n_valid']} valid frames cannot "
@@ -178,15 +152,7 @@ def analyze_injection_recovery(
             "rho_sem": point["rho_sem"],
             "total_clip_count": point["total_clip_count"],
         }
-        for pfa in usable_pfa:
-            key = f"{pfa:g}"
-            for name, stat in (("fstat", point["fstat"]),
-                               ("radiometer", point["power"])):
-                detected = int(np.count_nonzero(stat > thresholds[name][key]))
-                lo, hi = wilson_interval(detected, point["n_valid"])
-                row[f"pd_{name}_pfa{key}"] = detected / point["n_valid"]
-                row[f"pd_{name}_pfa{key}_wilson95_lo"] = lo
-                row[f"pd_{name}_pfa{key}_wilson95_hi"] = hi
+        row.update(detection_rates(point, thresholds, usable_pfa, statistics=STATISTICS))
         rows.append(row)
 
     x = np.asarray([row["injected_power_lsb2"] for row in rows])
@@ -197,12 +163,7 @@ def analyze_injection_recovery(
     fit = _weighted_linear_fit(x, y, sem)
 
     # Slope-one check in log space over signal-dominated points.
-    dominated = x * fit["gain_per_lsb2"] > 3.0 * abs(fit["floor"])
-    log_slope = None
-    if np.count_nonzero(dominated) >= 2:
-        lx = np.log10(x[dominated])
-        ly = np.log10(y[dominated] - fit["floor"])
-        log_slope = float(np.polyfit(lx, ly, 1)[0])
+    log_slope = signal_dominated_log_slope(x, y, fit)
 
     return {
         "schema_version": "pilotproxy_injection_recovery_v1",

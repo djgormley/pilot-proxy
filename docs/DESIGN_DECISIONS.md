@@ -345,9 +345,10 @@ its fixed CFAR point dominates the coarse J-optimum exactly where the
 coarse axis struggles: the coherent gain expressed as ROC separation
 rather than dB. And the designated set must anchor at the measured pilot
 line, not the nominal bin --- every detected transmitter sits at a stable
-nonzero offset, and nominal-bin sets collapse. The measurement script is
-`analysis/youden_j.py` in this repository; it recomputes the table from
-the released per-pilot products.
+nonzero offset, and nominal-bin sets collapse. The measurement is
+`pilot-proxy characterize roc` (`src/pilot_proxy/characterization/roc.py`,
+formerly `analysis/youden_j.py`); it recomputes the table from the
+released per-pilot products.
 
 ## The source stamp is memoized per process
 
