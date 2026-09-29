@@ -94,12 +94,6 @@ with open(OUT / "empirical_thresholds.csv", "w", newline="") as fh:
                     f"{r['err_lo']:.3e}", r["mm_hi"], r["mm_lo"], r["bits"],
                     r["n"]])
 
-print(f"{'ch':>3} {'tr':>2} {'P (ceil num)':>14} {'Q (ceil den)':>13} "
-      f"{'err':>9} {'mm_hi':>5} {'mm_lo':>5} {'bits':>4}")
-for r in rows:
-    print(f"{r['ch']:>3} {r['trusted']:>2} {r['P']:>14} {r['Q']:>13} "
-          f"{r['err_hi']:>9.1e} {r['mm_hi']:>5} {r['mm_lo']:>5} "
-          f"{r['bits']:>4}")
 tot_mm = sum(r["mm_hi"] + r["mm_lo"] for r in rows)
 tot_n = sum(r["n"] for r in rows)
 print("\nrules: mask_hi = pt*Q > P*pr ; mask_lo = pt*Q_lo < P_lo*pr "
