@@ -4,10 +4,19 @@ A detector adapter turns one product into a :class:`FrameTable`: per frame,
 the time, the band, the detector's statistic, the in-band residual estimate
 and whether the frame may be used. It also declares the statistic's ideal
 null law (:class:`NullLaw`), how it estimates the in-band residual, and the
-threshold families its candidates come in. The characterization reads only
-the frame table and these declarations; anything specific to how the
-detector works stays in the adapter. An emitter with no marker (a wideband
-OFDM or a pulsed radar) is then a new adapter, not a new characterization.
+threshold families its candidates come in. The aim is that the
+characterization reads only the frame table and these declarations, with
+anything specific to how the detector works in the adapter, so that an
+emitter with no marker (a wideband OFDM or a pulsed radar) is a new adapter,
+not a new characterization.
+
+What this milestone delivers is the declared interface, not that separation.
+The characterization does not read a :class:`FrameTable` yet: it opens each
+product through :class:`pilot_proxy.products.reader.Product` and calls the
+narrowband-marker adapter's own modules (anchors, psd, scores, shelf,
+exchangeability, reference models) directly. Those direct imports are pinned
+by ``tests/characterization/test_adapter_imports.py``, so the list can only
+shrink until the characterization is moved onto this interface.
 
 The adapter of this repository is
 :class:`pilot_proxy.detectors.narrowband_marker.NarrowbandMarkerAdapter`.

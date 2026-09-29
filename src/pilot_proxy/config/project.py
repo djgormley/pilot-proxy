@@ -8,10 +8,16 @@ model, era list and detector register. Each part is loaded on first use.
 The default project is the profile shipped with the repository,
 ``projects/chime_atsc``. In an installed wheel the same files are carried as
 package resources.
+
+``records`` (optional) names the project's package of code of record under
+``pilot_proxy.records`` (the named configurations that reproduce a campaign's
+releases, the ROC populations); the characterization resolves them through
+the project, not through a package it imports by name.
 """
 from __future__ import annotations
 
 import hashlib
+import importlib
 from collections.abc import Mapping
 from functools import cached_property, lru_cache
 from pathlib import Path
@@ -29,6 +35,7 @@ from .interference import InterferenceTemplate, load_interference_template
 from .register import Register, load_register
 
 PROJECT_FILE = "project.yaml"
+RECORDS_PACKAGE = "pilot_proxy.records"
 DEFAULT_PROJECT_NAME = "chime_atsc"
 _FILE_KEYS = ("frequency_plan", "interference_template", "detector_config",
               "integration_model", "register")
@@ -42,8 +49,11 @@ class Project:
         self.directory = Path(directory)
         where = str(self.directory / PROJECT_FILE)
         check_keys(spec, required=("name", "instrument", "detector_adapter", "eras")
-                   + _FILE_KEYS, where=where)
+                   + _FILE_KEYS, optional=("records",), where=where)
         self.name = text(spec["name"], field="name", where=where)
+        self.records = text(spec["records"], field="records", where=where) if "records" in spec else None
+        if self.records is not None and not self.records.startswith(RECORDS_PACKAGE + "."):
+            raise ProfileError(f"{where}: records {self.records!r} is not a package under {RECORDS_PACKAGE}")
         self.instrument_name = text(spec["instrument"], field="instrument", where=where)
         self.detector_adapter = text(spec["detector_adapter"], field="detector_adapter",
                                      where=where)
@@ -116,6 +126,12 @@ class Project:
             return band.target_freq_id
         return self.instrument.freq_id_of_hz(self.marker_hz(band))
 
+    def record_module(self, part: str):
+        """One module of the project's code of record (``<records>.<part>``); refused when none is named."""
+        if self.records is None:
+            raise ProfileError(f"{self.directory / PROJECT_FILE}: the project names no records package")
+        return importlib.import_module(f"{self.records}.{part}")
+
     def file_sha256(self) -> dict[str, str]:
         """sha256 of every profile file, for run manifests."""
         names = {"project": self.directory / PROJECT_FILE, **self.files}
@@ -158,6 +174,7 @@ def default_project() -> Project:
 __all__ = [
     "DEFAULT_PROJECT_NAME",
     "PROJECT_FILE",
+    "RECORDS_PACKAGE",
     "Project",
     "default_project",
     "default_project_dir",

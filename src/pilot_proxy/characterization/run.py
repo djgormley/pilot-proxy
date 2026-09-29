@@ -55,7 +55,8 @@ from typing import Mapping, Sequence
 
 import numpy as np
 
-from pilot_proxy.config.project import Project, load_project
+from pilot_proxy.config._files import ProfileError
+from pilot_proxy.config.project import Project, default_project, load_project
 from pilot_proxy.detectors.narrowband_marker import NarrowbandMarkerAdapter, anchors, psd
 from pilot_proxy.detectors.narrowband_marker.scores import build_score_bundle
 from pilot_proxy.products.reader import COARSE_BIN_HZ, FINE_BIN_HZ, Product, sha256_of
@@ -72,6 +73,30 @@ def producer_identity(roots: Mapping[str, Path] | None = None) -> dict:
     """
     from pilot_proxy.provenance import producer_identity as identity
     return identity(roots)
+
+
+# the profile parts the general layers bind at import (the register's floor, null, chain, stability and
+# false-alarm constants; the detector configuration's null degrees of freedom; the instrument's geometry)
+DEFAULT_BOUND_PARTS = ("register", "detector_config", "instrument")
+
+
+def _require_default_layers(project: Project) -> None:
+    """Refuse a project whose register, detector configuration or instrument differ from the default project's.
+
+    The characterization modules read those parts from the default project
+    when they are imported, so another project's values would otherwise be
+    mixed silently with the default's. A project that differs only in its
+    frequency plan, eras, transmitter-off record, interference template or
+    integration model is threaded through and accepted.
+    """
+    default = default_project()
+    theirs, ours = project.file_sha256(), default.file_sha256()
+    differ = [k for k in ("register", "detector_config") if theirs[k] != ours[k]]
+    if project.instrument_name != default.instrument_name:
+        differ.append("instrument")
+    if differ:
+        raise ProfileError(f"project {project.name!r} at {project.directory}: its {', '.join(differ)} differ from the "
+                           f"default project's, which the characterization binds at import; refused rather than mixed")
 
 
 def _quiet_cohort_is_null(product: Product, mask) -> bool:
@@ -258,10 +283,8 @@ def characterize_band(path: str, out_dir: str, *, project_dir: str, campaign_las
     """The whole characterization of one product; returns small rows, writes large files."""
     t0 = time.time()
     project = load_project(project_dir)
-    record_config = None
-    if record_name:
-        from pilot_proxy.records.chime_atsc_2026.archive_releases import record as release_record
-        record_config = release_record(record_name)
+    _require_default_layers(project)
+    record_config = project.record_module("archive_releases").record(record_name) if record_name else None
     model = record_config.integration_model(project.integration_model) if record_config else project.integration_model
     rule: TieRule = record_config.ties if record_config else SELECTOR_ORDER
     out = Path(out_dir)
@@ -861,6 +884,7 @@ def characterize_archive(products_dir: Path | str, out_dir: Path | str, *, proje
                          control_run_dir: Path | str | None = None, generated: str | None = None) -> dict:
     """Characterize every screened band's product (and, optionally, one control band into its own directory)."""
     project = load_project(project_dir)
+    _require_default_layers(project)
     project_dir = str(project.directory)
     products_dir, out = Path(products_dir), Path(out_dir) / "characterization"
     out.mkdir(parents=True, exist_ok=True)
@@ -868,8 +892,7 @@ def characterize_archive(products_dir: Path | str, out_dir: Path | str, *, proje
     rule = SELECTOR_ORDER
     model = project.integration_model
     if record_name:
-        from pilot_proxy.records.chime_atsc_2026.archive_releases import record as release_record
-        rec = release_record(record_name)
+        rec = project.record_module("archive_releases").record(record_name)
         rule, model = rec.ties, rec.integration_model(project.integration_model)
     screened = {int(b.label) for b in project.frequency_plan.bands("screened")}
     paths = sorted(products_dir.glob("*.npz"))

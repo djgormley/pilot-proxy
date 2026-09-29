@@ -13,7 +13,8 @@ the null by construction) or collapses on weak channels. This module
 recomputes that comparison on the released per-pilot products with the
 populations stated.
 
-Populations (:class:`Populations`; the record's are
+Populations (:class:`Populations`; read from the project's records package,
+``<records>.roc_populations``, which for the repository's profile is
 ``pilot_proxy.records.chime_atsc_2026.roc_populations``):
   null   : one band's frames in its dated transmitter-off era; the labels are
            dated epochs read from this archive, so the truth is weak
@@ -32,7 +33,7 @@ Output: the ROC table at the record's null-quantile P_fa points, each
 statistic's Youden J (max over threshold of P_d - P_fa), and the coarse
 positive-excess point's measured null exceedance.
 
-    pilot-proxy characterize roc --products DIR [--csv FILE]
+    pilot-proxy characterize roc --products DIR [--csv FILE] [--project DIR]
 """
 from __future__ import annotations
 
@@ -197,13 +198,16 @@ def run_roc(per_pilot: Path, populations: Populations, *, write=print, csv_path:
 
 
 def main(argv=None) -> int:
-    from pilot_proxy.records.chime_atsc_2026.roc_populations import POPULATIONS
+    from pilot_proxy.config.project import default_project_dir, load_project
 
     ap = argparse.ArgumentParser(prog="pilot-proxy characterize roc", description=__doc__)
     ap.add_argument("--products", type=Path, required=True)
     ap.add_argument("--csv", type=Path, default=None, help="also write the ROC rows (roc.csv) here")
+    ap.add_argument("--project", type=Path, default=None,
+                    help="project profile directory whose records name the populations (default: the repository's)")
     args = ap.parse_args(argv)
-    return run_roc(args.products, POPULATIONS, csv_path=args.csv)
+    populations = load_project(args.project or default_project_dir()).record_module("roc_populations").POPULATIONS
+    return run_roc(args.products, populations, csv_path=args.csv)
 
 
 __all__ = ["HALF", "LABEL_SOURCE", "PFA_POINTS", "Populations", "ROC_COLUMNS", "main", "paths", "roc_curve",

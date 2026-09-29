@@ -13,3 +13,4 @@ eras:
   transmitter_off: eras/transmitter_off.json
   states: [proxy-high, proxy-low, ambiguous-only]
 register: detector_register.json
+records: pilot_proxy.records.chime_atsc_2026   # code of record: release configurations, ROC populations
