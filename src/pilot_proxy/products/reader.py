@@ -33,6 +33,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cached_property
 from numbers import Real
@@ -474,8 +475,27 @@ def _legacy_view(product: Mapping) -> ProductView:
     )
 
 
-def open_product(product: Mapping) -> ProductView:
-    """Validate a product and expose its residual decision coordinates."""
+_LEGACY_READING = False
+
+
+@contextmanager
+def legacy_reading():
+    """Within the block, :func:`open_product` reads pre-v5 (legacy) products by default (tests only)."""
+    global _LEGACY_READING
+    before, _LEGACY_READING = _LEGACY_READING, True
+    try:
+        yield
+    finally:
+        _LEGACY_READING = before
+
+
+def open_product(product: Mapping, *, allow_legacy: bool | None = None) -> ProductView:
+    """Validate a product and expose its residual decision coordinates.
+
+    A product that does not declare the current v5 schema is refused unless
+    legacy reading is asked for (``allow_legacy=True``, or inside
+    :func:`legacy_reading`), so a pre-v5 product is never read silently.
+    """
     token = None
     revision = None
     if "schema_version" in product:
@@ -488,6 +508,11 @@ def open_product(product: Mapping) -> ProductView:
             revision = int(values.item())
     if token == PRODUCT_SCHEMA_TOKEN or revision == PRODUCT_SCHEMA_REVISION:
         return _current_view(product)
+    if not (_LEGACY_READING if allow_legacy is None else allow_legacy):
+        raise ProductContractError(
+            f"product does not declare the current schema {PRODUCT_SCHEMA_TOKEN!r} "
+            f"(schema_version {token!r}, schema_revision {revision!r}); legacy products are read only on request"
+        )
     return _legacy_view(product)
 
 
@@ -853,5 +878,5 @@ __all__ = [
     "ProductContractError", "ProductView", "SAMPLE_RATE_HZ", "SCHEMA_TOKEN",
     "SOURCE_EVENT_KEY_SCHEMA", "VALID_RULE", "coarse_reject_mask", "fine_bin_of_hz",
     "fine_hz_of_bin", "fine_offset_to_rf_hz", "fine_power_ratio", "grid_residual_hz",
-    "health_gate", "is_current_product", "open_product", "sha256_of",
+    "health_gate", "is_current_product", "legacy_reading", "open_product", "sha256_of",
 ]
