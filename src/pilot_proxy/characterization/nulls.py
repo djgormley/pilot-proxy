@@ -61,8 +61,10 @@ population* (:func:`transmitter_off`). It is a *verified signal-free*
 population only when it passes both named tests: ``independent_verification``
 (the off state is established by an external record, the interval's
 ``independently_verified`` flag) and ``null_likeness``
-(:func:`off_population_check`: centre at ``mu_0`` and a core width within the
-declared limit). Only a verified signal-free population calibrates the
+(:func:`off_population_check`, two-sided: centre at ``mu_0``, the left-side
+core width within the declared limit, and the upper side through the
+central-68 width ratio ``r68`` within the same limit; see
+:func:`off_null_like`). Only a verified signal-free population calibrates the
 off-null or its measured percentile floor (:attr:`OffPopulation.signal_free`);
 otherwise the fallback remains explicitly mixture-conditioned and the reason
 is recorded (:attr:`OffPopulation.rejection_reason`). Archive-inferred dates
@@ -111,6 +113,11 @@ MIN_NULL_FRAMES = int(_REGISTER.value("floor.minimum_null_frames"))
 # i.i.d. widths) and its robust-core width factor is at most this; provisional policy values, recorded per row
 OFF_CENTRE_TOLERANCE = 0.02
 OFF_WIDTH_LIMIT = 5.0
+# the upper-tail clause of an off population's null-likeness (author ruling T13, 2026-09-28): the central-68
+# half-width over the ideal law's, r68 (the predeclared null's width measure, output/ch37-control-491-2026-09-24/
+# null/PLAN.md test W), must not exceed the same OFF_WIDTH_LIMIT. The core width probes the left side only, so a
+# population with a clean lower side and a heavy upper side, where eta_Pfa lives, passed; r68 reads both sides.
+CENTRAL_68 = (float(stats.norm.cdf(-1.0)), float(stats.norm.cdf(1.0)))
 KEPT_SPREAD_LIMIT = 3.0      # the kept-half probes must agree to this factor for the kept half to state the floor
 BULK_CENTRE_LIMIT = 0.1      # beyond this the block's bulk is the carrier, not a mixture with a null: no stated floor
 
@@ -218,15 +225,53 @@ def null_like(coarse: NullWidths, *, centre_tolerance: float = OFF_CENTRE_TOLERA
     return True, f"centre {coarse.centre:.4f}, core width factor {coarse.core_width_factor:.2f}"
 
 
-def off_population_check(product: Product, off_mask) -> tuple[bool, NullWidths | None, str]:
-    """Describe a recorded off population and say whether it is null-like (None when there is no population)."""
+def central68_ratio(values, dof: tuple[int, int] = COARSE_DOF) -> float:
+    """r68: the central-68 half-width ``(q(0.8413) - q(0.1587)) / 2`` over the ideal law's (NaN below the minimum)."""
+    x = np.asarray(values, dtype=float).ravel()
+    x = x[np.isfinite(x)]
+    if x.size < MIN_NULL_FRAMES:
+        return math.nan
+    low, high = (float(v) for v in np.quantile(x, CENTRAL_68))
+    law_low, law_high = (float(v) for v in stats.f.ppf(CENTRAL_68, *dof))
+    return (high - low) / (law_high - law_low)
+
+
+def off_null_like(coarse: NullWidths, r68: float, *, centre_tolerance: float = OFF_CENTRE_TOLERANCE,
+                  width_limit: float = OFF_WIDTH_LIMIT) -> tuple[bool, str]:
+    """Whether an off population reads as a null on both sides: :func:`null_like`, and ``r68 <= width_limit``."""
+    ok, reason = null_like(coarse, centre_tolerance=centre_tolerance, width_limit=width_limit)
+    if not (math.isfinite(coarse.centre) and math.isfinite(coarse.core_width_factor)):
+        return False, reason
+    upper = math.isfinite(r68) and r68 <= width_limit
+    if ok and upper:
+        return True, f"{reason}, r68 {r68:.2f}"
+    reasons = [] if ok else [reason]
+    if not upper:
+        reasons.append(f"central-68 width r68 {r68:.1f} exceeds {width_limit:g} (upper tail not null-like)")
+    return False, "; ".join(reasons)
+
+
+def _off_check(product: Product, off_mask) -> tuple[bool, NullWidths | None, str, float]:
     if off_mask is None:
-        return False, None, "no recorded off epoch"
+        return False, None, "no recorded off epoch", math.nan
     frames = np.asarray(off_mask, dtype=bool) & product.selected
     if frames.sum() < MIN_NULL_FRAMES:
-        return False, None, f"off population has {int(frames.sum())} frames < {MIN_NULL_FRAMES}"
-    widths = describe_null(product.statistic[frames], COARSE_DOF)
-    ok, reason = null_like(widths)
+        return False, None, f"off population has {int(frames.sum())} frames < {MIN_NULL_FRAMES}", math.nan
+    values = product.statistic[frames]
+    widths = describe_null(values, COARSE_DOF)
+    r68 = central68_ratio(values, COARSE_DOF)
+    ok, reason = off_null_like(widths, r68)
+    return ok, widths, reason, r68
+
+
+def off_population_check(product: Product, off_mask) -> tuple[bool, NullWidths | None, str]:
+    """Describe a recorded off population and say whether it is null-like (None when there is no population).
+
+    Two-sided (:func:`off_null_like`): the centre and the left-side core width
+    as the release tested them, and the central-68 width ratio ``r68``, which
+    reads the upper side, within the same ``OFF_WIDTH_LIMIT``.
+    """
+    ok, widths, reason, _ = _off_check(product, off_mask)
     return ok, widths, reason
 
 
@@ -444,8 +489,8 @@ class OffPopulation:
 
     ``independently_verified`` is the interval's flag (an external record
     confirms the date); ``null_like`` is :func:`off_population_check` on the
-    mask (None when there is no population). The population is signal-free
-    only when both hold.
+    mask (None when there is no population), two-sided. The population is
+    signal-free only when both hold.
     """
 
     mask: np.ndarray | None
@@ -459,6 +504,7 @@ class OffPopulation:
     null_like: bool | None = None
     null_widths: NullWidths | None = None
     null_check: str = ""
+    null_r68: float = math.nan          # the population's central-68 width ratio (the upper-tail clause)
 
     @property
     def signal_free(self) -> bool:
@@ -517,9 +563,10 @@ def transmitter_off(product: Product, months: np.ndarray, intervals, table: eras
         return OffPopulation(None, record_frames=0, off_frames=0, note="", **base)
     if table is None:
         mask = record if record.any() else None
-        ok, widths, reason = off_population_check(product, mask)
+        ok, widths, reason, r68 = _off_check(product, mask)
         return OffPopulation(mask, record_frames=int(record.sum()), off_frames=int(record.sum()), note="",
-                             null_like=(ok if widths is not None else None), null_widths=widths, null_check=reason, **base)
+                             null_like=(ok if widths is not None else None), null_widths=widths, null_check=reason,
+                             null_r68=r68, **base)
     low = np.zeros(record.shape, dtype=bool)
     for index, era in enumerate(table.eras):
         if era.state == eras.PROXY_LOW:
@@ -533,13 +580,13 @@ def transmitter_off(product: Product, months: np.ndarray, intervals, table: eras
     if table.unmatched_station_records:
         notes.append("station record not matched by a transition: " + ", ".join(table.unmatched_station_records))
     mask = mask if mask.any() else None
-    ok, widths, reason = off_population_check(product, mask)
+    ok, widths, reason, r68 = _off_check(product, mask)
     return OffPopulation(mask, record_frames=int(record.sum()), off_frames=int(mask.sum()) if mask is not None else 0,
                          note="; ".join(notes), null_like=(ok if widths is not None else None), null_widths=widths,
-                         null_check=reason, **base)
+                         null_check=reason, null_r68=r68, **base)
 
 
 __all__ = ["NullWidths", "FloorEstimate", "NullCalibration", "OffPopulation", "describe_null", "core_scale",
            "floor_estimate", "calibrate_null", "write_null_rows", "iid_width", "station_records",
            "transmitter_off", "CORE_PROBES", "AS_CODED_PROBES", "COARSE_DOF", "FINE_DOF", "NO_OFF_EPOCH",
-           "Exchangeability", "exchangeability_rate"]
+           "CENTRAL_68", "central68_ratio", "off_null_like", "Exchangeability", "exchangeability_rate"]

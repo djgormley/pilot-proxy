@@ -343,7 +343,7 @@ def characterize_band(path: str, out_dir: str, *, project_dir: str, campaign_las
                        "off_era_current": off_era_current, "current_level_median_db": era.level_median_db if era else math.nan,
                        "off_independently_verified": off.independently_verified,
                        "off_population_null_like": off.null_like, "off_population_check": off.null_check,
-                       "off_signal_free": off.signal_free})
+                       "off_population_r68": off.null_r68, "off_signal_free": off.signal_free})
     era_label = _label(era)
     # on an off era the transmitter's position, containment and chain are read from the last on era (the previous era)
     reference_index = table.current_index - 1 if (off_era_current and table.current_index > 0) else table.current_index
