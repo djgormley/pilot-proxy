@@ -7,10 +7,8 @@ Two layers, read in this order:
   coordinates as a :class:`ProductView`: the exact-integer coarse statistic
   ``Q = F / mu_0``, the survey flag, the in-band residual estimate (the
   estimated shelf level, dB) and the acquisition-unit coordinates. A product
-  that does not satisfy the contract raises :class:`ProductContractError`. A
-  pre-v5 product that carries the legacy shelf field is read into the same
-  coordinates with fewer checks; no release reads one, and the residual-chain
-  tests use it to build small synthetic products.
+  that does not satisfy the contract raises :class:`ProductContractError`, and
+  so does a product that does not declare the v5 schema.
 - :class:`Product` keeps one ``.npz`` product open lazily (a product is up to
   1.5 GB and ``numpy.load`` decodes a member only when indexed). It exposes the
   small per-frame and per-unit fields as cached arrays, the view above, the
@@ -33,7 +31,6 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cached_property
 from numbers import Real
@@ -154,21 +151,9 @@ def _same_float_array(name: str, stored: np.ndarray,
         )
 
 
-def _legacy_scalar(product: Mapping, name: str) -> float:
-    if name not in product:
-        raise ProductContractError(f"legacy product is missing {name!r}")
-    values = np.asarray(product[name]).reshape(-1)
-    if values.size != 1:
-        raise ProductContractError(f"legacy field {name!r} must be scalar")
-    value = float(values[0])
-    if not math.isfinite(value):
-        raise ProductContractError(f"legacy field {name!r} must be finite")
-    return value
-
-
 @dataclass(frozen=True)
 class ProductView:
-    """One residual coordinate system shared by current and legacy products."""
+    """The residual coordinates of one current (v5) product."""
 
     schema: str
     physical_channel: int
@@ -200,12 +185,10 @@ class ProductView:
         if not math.isfinite(value) or value <= 0.0:
             raise ValueError("eta must be positive and finite")
         if not self.is_current:
-            if (not math.isfinite(self.null_level)
-                    or not np.isfinite(self.statistic).any()):
-                raise ProductContractError(
-                    "legacy product lacks fstat_raw/mu0 for rethresholding"
-                )
-            return self.valid & (self.statistic > value * self.null_level)
+            raise ProductContractError(
+                f"view of schema {self.schema!r} cannot be rethresholded; "
+                f"only a {PRODUCT_SCHEMA_TOKEN!r} product can"
+            )
 
         eta_num, eta_den = value.as_integer_ratio()
         target = self._p_target
@@ -406,95 +389,10 @@ def _current_view(product: Mapping) -> ProductView:
     )
 
 
-def _legacy_view(product: Mapping) -> ProductView:
-    required = ("valid", "reject_mask", "snr_shelf_db",
-                "physical_channel", "freq_id")
-    missing = [name for name in required if name not in product]
-    if missing:
-        raise ProductContractError(
-            "product is neither current v5 nor a supported legacy product; "
-            "missing " + ", ".join(missing)
-        )
-    valid_values = np.asarray(product["valid"])
-    if valid_values.ndim != 2 or valid_values.shape[1] != 1:
-        raise ProductContractError("legacy valid array must have shape (N, 1)")
-    frame_count = int(valid_values.shape[0])
-    valid = valid_values[:, 0].astype(bool)
-    rejected = np.asarray(product["reject_mask"])
-    shelf = np.asarray(product["snr_shelf_db"])
-    statistic = (np.asarray(product["fstat_raw"])
-                 if "fstat_raw" in product else
-                 np.full((frame_count, 1), np.nan, dtype=np.float64))
-    for name, values in (("reject_mask", rejected),
-                         ("snr_shelf_db", shelf),
-                         ("fstat_raw", statistic)):
-        if values.shape != (frame_count, 1):
-            raise ProductContractError(
-                f"legacy {name} array must have shape ({frame_count}, 1)"
-            )
-    null_level = (_legacy_scalar(product, "mu0")
-                  if "mu0" in product else float("nan"))
-    calibration = ("pilot_below_data_db", "dtv_bandwidth_hz", "bin_enbw_hz")
-    if all(name in product for name in calibration):
-        pilot_below = _legacy_scalar(product, "pilot_below_data_db")
-        bandwidth = _legacy_scalar(product, "dtv_bandwidth_hz")
-        bin_enbw = _legacy_scalar(product, "bin_enbw_hz")
-        if bandwidth <= 0.0 or bin_enbw <= 0.0:
-            raise ProductContractError("legacy bandwidths must be positive")
-        offset = pilot_below - 10.0 * np.log10(bandwidth / bin_enbw)
-    else:
-        offset = float("nan")
-    has_frame_unit = "frame_unit_index" in product
-    has_unit_time = "unit_time0_ctime" in product
-    if has_frame_unit != has_unit_time:
-        raise ProductContractError("legacy unit coordinates are incomplete")
-    if has_frame_unit:
-        frame_unit = np.asarray(product["frame_unit_index"])
-        unit_time0 = np.asarray(product["unit_time0_ctime"])
-        if frame_unit.shape != (frame_count,) or unit_time0.ndim != 1:
-            raise ProductContractError("legacy unit coordinates are malformed")
-    else:
-        frame_unit = np.empty(0, dtype=np.int32)
-        unit_time0 = np.empty(0, dtype=np.float64)
-    return ProductView(
-        schema="legacy",
-        physical_channel=int(np.asarray(product["physical_channel"]).reshape(-1)[0]),
-        freq_id=int(np.asarray(product["freq_id"]).reshape(-1)[0]),
-        chime_frequency_hz=(
-            float(np.asarray(product["chime_frequency_hz"]).reshape(-1)[0])
-            if "chime_frequency_hz" in product else float("nan")),
-        valid=valid,
-        rejected=rejected[:, 0].astype(bool),
-        shelf_db=shelf[:, 0].astype(np.float64, copy=False),
-        statistic=statistic[:, 0].astype(np.float64, copy=False),
-        null_level=float(null_level),
-        shelf_offset_db=float(offset),
-        frame_unit_index=frame_unit,
-        unit_time0_ctime=unit_time0,
-        normalized_excess=statistic[:, 0].astype(np.float64, copy=False) - 1.0,
-    )
-
-
-_LEGACY_READING = False
-
-
-@contextmanager
-def legacy_reading():
-    """Within the block, :func:`open_product` reads pre-v5 (legacy) products by default (tests only)."""
-    global _LEGACY_READING
-    before, _LEGACY_READING = _LEGACY_READING, True
-    try:
-        yield
-    finally:
-        _LEGACY_READING = before
-
-
-def open_product(product: Mapping, *, allow_legacy: bool | None = None) -> ProductView:
+def open_product(product: Mapping) -> ProductView:
     """Validate a product and expose its residual decision coordinates.
 
-    A product that does not declare the current v5 schema is refused unless
-    legacy reading is asked for (``allow_legacy=True``, or inside
-    :func:`legacy_reading`), so a pre-v5 product is never read silently.
+    A product that does not declare the current v5 schema is refused.
     """
     token = None
     revision = None
@@ -508,12 +406,10 @@ def open_product(product: Mapping, *, allow_legacy: bool | None = None) -> Produ
             revision = int(values.item())
     if token == PRODUCT_SCHEMA_TOKEN or revision == PRODUCT_SCHEMA_REVISION:
         return _current_view(product)
-    if not (_LEGACY_READING if allow_legacy is None else allow_legacy):
-        raise ProductContractError(
-            f"product does not declare the current schema {PRODUCT_SCHEMA_TOKEN!r} "
-            f"(schema_version {token!r}, schema_revision {revision!r}); legacy products are read only on request"
-        )
-    return _legacy_view(product)
+    raise ProductContractError(
+        f"product does not declare the current schema {PRODUCT_SCHEMA_TOKEN!r} "
+        f"(schema_version {token!r}, schema_revision {revision!r}); pre-v5 products are not read"
+    )
 
 
 def is_current_product(product: Mapping) -> bool:
@@ -535,25 +431,9 @@ def coarse_reject_mask(product: Mapping, eta: Real = 1.0) -> np.ndarray:
     )
     if is_current_product(product) or declares_revision_five:
         return _current_view(product).rejected_at_multiplier(eta)
-    if "fstat_raw" not in product or "mu0" not in product:
-        raise ProductContractError(
-            "legacy product lacks fstat_raw/mu0 for rethresholding"
-        )
-    statistic = np.asarray(product["fstat_raw"])
-    if statistic.ndim == 2 and statistic.shape[1] == 1:
-        statistic = statistic[:, 0]
-    elif statistic.ndim != 1:
-        raise ProductContractError(
-            "legacy fstat_raw must have shape (N,) or (N, 1)"
-        )
-    null = _legacy_scalar(product, "mu0")
-    if isinstance(eta, bool) or not isinstance(eta, Real):
-        raise TypeError("eta must be a number")
-    value = float(eta)
-    if not math.isfinite(value) or value <= 0.0:
-        raise ValueError("eta must be positive and finite")
-    return statistic > value * null
-
+    raise ProductContractError(
+        f"product does not declare the current schema {PRODUCT_SCHEMA_TOKEN!r}; pre-v5 products are not read"
+    )
 
 
 def sha256_of(path: Path | str) -> str:
@@ -878,5 +758,5 @@ __all__ = [
     "ProductContractError", "ProductView", "SAMPLE_RATE_HZ", "SCHEMA_TOKEN",
     "SOURCE_EVENT_KEY_SCHEMA", "VALID_RULE", "coarse_reject_mask", "fine_bin_of_hz",
     "fine_hz_of_bin", "fine_offset_to_rf_hz", "fine_power_ratio", "grid_residual_hz",
-    "health_gate", "is_current_product", "legacy_reading", "open_product", "sha256_of",
+    "health_gate", "is_current_product", "open_product", "sha256_of",
 ]

@@ -95,12 +95,9 @@ def shelf_per_frame(d) -> tuple[np.ndarray, float]:
     behind by *every* flagger equally, including the pilot proxy's own, so it
     can only understate the detector's advantage.
     """
-    # Read through the residual view rather than the raw keys: legacy products
-    # call the shelf ``snr_shelf_db`` and v5 products
-    # ``estimated_data_shelf_snr_db``, and the view is the one place that
-    # difference is resolved. Reading the key directly meant this function
-    # worked only on the legacy schema, and failed with a KeyError the moment a
-    # v5 product was registered.
+    # Read through the residual view rather than the raw keys: the view checks
+    # the v5 contract and derives the shelf from the exact power terms, so
+    # every consumer reads the same validated values.
     view = open_product(d)
     shelf_db = np.asarray(view.shelf_db, dtype=float).reshape(-1)
     valid = np.asarray(view.valid, dtype=bool).reshape(-1)

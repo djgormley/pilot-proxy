@@ -2,14 +2,14 @@
 
 A per-pilot product reports, per frame, the marker's normalized excess
 converted to the emitter's in-band power relative to system noise in the band
-(the *shelf*, dB): v5 products call it ``estimated_data_shelf_snr_db`` and
-derive it from exact integer powers after correcting the quantized-weight null
-point; legacy products call it ``snr_shelf_db``. In both the conversion is
+(the *shelf*, dB): the product calls it ``estimated_data_shelf_snr_db`` and
+derives it from exact integer powers after correcting the quantized-weight null
+point, as
 
     shelf_db = excess_db + marker_to_band_db - 10 log10(B_band / bin_enbw)
+               - 10 log10(capture efficiency)
 
-and v5 also subtracts 10 log10 of the marker capture efficiency. It is finite
-only where the excess is positive.
+It is finite only where the excess is positive.
 
 :func:`shelf_statistics` measures what the product says about one band's
 shelf: the transmitter-on level, the sensitivity floor over a dated off epoch
@@ -227,9 +227,11 @@ def shelf_statistics(npz_path: str | Path, off_through: str | None = None,
     channel; frames at or before it define the sensitivity floor. For a
     sign-off channel, whose off epoch *follows* the on epoch, pass
     ``off_from`` (the first off month) instead; at most one of the two may be
-    given. Without either, the floor is taken from frames the detector
-    *kept*, which is a weaker bound (it is the floor only where the pilot
-    estimate stayed positive).
+    given. Without either, the floor is read from the frames the detector
+    *kept*; on a v5 product a kept frame's exact pilot excess is not
+    positive, so it carries no shelf and this floor is NaN with
+    ``n_off_frames`` 0 (only float rounding, with a power term above 2**53,
+    could leave a kept frame a finite shelf).
 
     The power split is a three-level nested variance decomposition of the
     linear shelf over the transmitter-on epoch, keyed on sidereal day and

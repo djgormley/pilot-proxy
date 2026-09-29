@@ -422,8 +422,7 @@ def _product_record(path: Path) -> tuple[ArchiveProductAccounting, dict]:
         raise ArchiveAcceptanceError(f"{path.name} is not an NPZ product")
     try:
         with loaded as product:
-            # read as the release did (a legacy product opens), so the refusal below keeps its own reason
-            view = open_product(product, allow_legacy=True)
+            view = open_product(product)
             if view.schema != PRODUCT_SCHEMA_TOKEN:
                 raise ArchiveAcceptanceError("archive cohort requires current v5 products")
             frame_count = int(view.valid.size)
