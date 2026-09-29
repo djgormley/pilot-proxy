@@ -192,13 +192,13 @@
       "unit": ""
     },
     {
-      "description": "The false-alarm limit: the higher (1 - alpha) quantile of the verified signal-free population (empty when unavailable).",
+      "description": "The false-alarm limit, in Q: the higher (1 - alpha) quantile of the verified signal-free population. Filled only when eta_pfa_status is available; empty on Z_rho rows.",
       "name": "eta_pfa",
       "type": "float",
       "unit": "statistic units"
     },
     {
-      "description": "available, unsupported: n_eff = N, unavailable: <reason>, undefined: no alpha declared, or not defined: control band ...",
+      "description": "available, unsupported: n_eff = N (the point is a diagnostic), unavailable: <reason>, undefined: no alpha declared, not defined: control band ..., or not computed: statistic Z_rho (fine rows).",
       "name": "eta_pfa_status",
       "type": "str",
       "unit": ""
@@ -210,7 +210,7 @@
       "unit": ""
     },
     {
-      "description": "Frames of the population the estimator read.",
+      "description": "Frames of the verified signal-free population the estimator read (0 when there is none).",
       "name": "null_frames",
       "type": "int",
       "unit": "frames"
@@ -234,7 +234,7 @@
       "unit": ""
     },
     {
-      "description": "The estimator on the current era of an independently verified but not signal-free band (a diagnostic, never eta_Pfa).",
+      "description": "A diagnostic, never eta_Pfa: the estimator on the current era of an independently verified but not signal-free band, or an unsupported point of a verified one (Q rows).",
       "name": "eta_pfa_diagnostic",
       "type": "float",
       "unit": "statistic units"
@@ -270,13 +270,19 @@
       "unit": ""
     },
     {
-      "description": "The product's fine_p_fa: the OS-CFAR design value under i.i.d. bulk; model-conditional; not verified; never eta_Pfa.",
+      "description": "How many frames it read (0 when there is no diagnostic).",
+      "name": "eta_pfa_diagnostic_frames",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "The product's fine_p_fa: the fine stage's OS-CFAR design value under i.i.d. bulk; model-conditional; not verified; never eta_Pfa (Z_rho rows only).",
       "name": "pfa_design_model",
       "type": "float",
       "unit": ""
     },
     {
-      "description": "The ideal F(2P, 4P) (1 - alpha) quantile of Q divided by the law's mean (mean-scaled; reference only; never used).",
+      "description": "The ideal F(2P, 4P) (1 - alpha) quantile of Q divided by the law's mean (mean-scaled; reference only; never used; Q rows only).",
       "name": "eta_pfa_ideal_model",
       "type": "float",
       "unit": ""
@@ -974,13 +980,13 @@
       "unit": ""
     },
     {
-      "description": "Empirical P_fa of this eta on a verified signal-free population (empty when none).",
+      "description": "Empirical P_fa of this eta on the verified signal-free population eta_Pfa reads (Q rows; empty when there is none, and on Z_rho rows).",
       "name": "pfa",
       "type": "float",
       "unit": ""
     },
     {
-      "description": "measured, undefined: no alpha declared, or unavailable: <reason>.",
+      "description": "measured (pfa is filled), unavailable: <reason>, undefined: no alpha declared, not defined: control band ..., or not computed: statistic Z_rho (fine rows: P_fa is estimated on Q only).",
       "name": "pfa_status",
       "type": "str",
       "unit": ""
@@ -1050,7 +1056,21 @@
       "coarse_surface",
       "coarse_ladder"
     ],
+    "eta_pfa_status": {
+      "prefixes": [
+        "unsupported: n_eff = ",
+        "unavailable: ",
+        "not defined: "
+      ],
+      "values": [
+        "available",
+        "undefined: no alpha declared",
+        "unsupported: too few frames",
+        "not computed: statistic Z_rho"
+      ]
+    },
     "evaluable": "kept >= 30 and eligible (both era halves keep enough frames)",
+    "false_alarm": "eta_Pfa and P_fa are estimated on Q only: Z_rho rows carry 'not computed: statistic Z_rho' and no Q value; eta_pfa is filled only when available; pfa_status measured implies a pfa in [0, 1]; pfa_design_model on Z_rho rows only",
     "fine_surface": "thinned: at most 200 candidates per rank, with each rank's least-residual candidate and the marked points",
     "marks": [
       "knee",
@@ -1063,6 +1083,17 @@
       "block",
       "candidate_order"
     ],
+    "pfa_status": {
+      "prefixes": [
+        "unavailable: ",
+        "not defined: "
+      ],
+      "values": [
+        "measured",
+        "undefined: no alpha declared",
+        "not computed: statistic Z_rho"
+      ]
+    },
     "populations": [
       "current_era_calibration_block",
       "all_valid_frames"

@@ -21,12 +21,15 @@ independently verified and null-like, inside the band's current era (the
 latest-era principle), sets eta_Pfa (:func:`false_alarm_limit`). The status
 strings keep a missing specification apart from a data gap:
 
-- ``available``;
-- ``unsupported: n_eff = N`` (a population, too few effective samples);
+- ``available`` (the only status with a value in ``eta_pfa``);
+- ``unsupported: n_eff = N`` (a population, too few effective samples; its
+  point value is a diagnostic, in ``eta_pfa_diagnostic``);
 - ``unavailable: <reason>`` (alpha declared, the data do not support it);
 - ``undefined: no alpha declared``;
 - ``not defined: control band ...`` (a band with no transmitter has no
-  eta_Pfa of its own).
+  eta_Pfa of its own);
+- ``not computed: statistic Z_rho`` (a fine row: eta_Pfa and the per-row
+  P_fa are estimated on the coarse statistic Q only).
 
 Two reference values are reported beside it and never used as eta_Pfa: the
 ideal-noise model's quantile (:func:`ideal_model_threshold`, the F(2P, 4P)
@@ -45,6 +48,7 @@ from __future__ import annotations
 from fractions import Fraction
 import math
 from numbers import Integral, Real
+from typing import Mapping
 
 import numpy as np
 from scipy import stats
@@ -52,6 +56,8 @@ from scipy.stats import beta, betabinom, binom
 from scipy.special import logsumexp
 
 from pilot_proxy.config.project import default_project
+
+from . import oc_table
 
 _PROJECT = default_project()
 _REGISTER = _PROJECT.register
@@ -263,9 +269,20 @@ MIN_FRAMES_PER_FALSE_ALARM = float(_REGISTER.value("detection.minimum_frames_per
 SUPPORT_N = MIN_FRAMES_PER_FALSE_ALARM / float(ALPHA)
 
 
-def higher_eta(sorted_q):
+def higher_eta(sorted_q, alpha=None):
+    """The higher (1 - alpha) order statistic of a sorted sample (alpha: the register's by default)."""
     n = len(sorted_q)
-    return float(sorted_q[higher_index(n, ALPHA)])
+    return float(sorted_q[higher_index(n, ALPHA if alpha is None else alpha)])
+
+
+def ideal_quantile(alpha=None) -> float:
+    """The ideal law's (1 - alpha) quantile of Q (``Q999_0`` at the register's alpha)."""
+    return Q999_0 if alpha is None else float(LAW.ppf(1 - float(alpha)))
+
+
+def support_frames(alpha=None) -> float:
+    """The support rule's effective-sample minimum, minimum_frames_per_false_alarm / alpha."""
+    return SUPPORT_N if alpha is None else MIN_FRAMES_PER_FALSE_ALARM / float(alpha)
 
 
 class DayBootstrap:
@@ -289,8 +306,9 @@ class DayBootstrap:
             yield self.q[idx]
 
 
-def boot_stats(q, day, thresholds, seed=SEED, reps=B):
+def boot_stats(q, day, thresholds, seed=SEED, reps=B, alpha=None):
     """Replicates of median, r68, p999, eta_Pfa and the exceedance at fixed thresholds."""
+    q999 = ideal_quantile(alpha)
     bs = DayBootstrap(q, day, seed=seed, reps=reps)
     rep = {"z_L": [], "r68": [], "p999": [], "eta_pfa": [], "n": []}
     for name in thresholds:
@@ -301,8 +319,8 @@ def boot_stats(q, day, thresholds, seed=SEED, reps=B):
         q16, q84 = float(np.quantile(s, P16)), float(np.quantile(s, P84))
         rep["z_L"].append((med - M0) / SIGMA0)
         rep["r68"].append((q84 - q16) / 2.0 / HALF68_0)
-        rep["p999"].append(float(np.mean(x > Q999_0)))
-        rep["eta_pfa"].append(higher_eta(s))
+        rep["p999"].append(float(np.mean(x > q999)))
+        rep["eta_pfa"].append(higher_eta(s, alpha))
         rep["n"].append(x.size)
         for name, t in thresholds.items():
             rep[f"exceed:{name}"].append(float(np.mean(x > t)))
@@ -314,42 +332,54 @@ def ci(v):
     return [float(np.quantile(v, 0.025)), float(np.quantile(v, 0.975))]
 
 
-def eta_pfa_block(q, day, label, seed=SEED):
-    """eta_Pfa(alpha) by the design definition, with its day bootstrap, n_eff, support and CP bound."""
+def eta_pfa_block(q, day, label, seed=SEED, alpha=None):
+    """eta_Pfa(alpha) by the design definition, with its day bootstrap, n_eff, support and CP bound.
+
+    ``alpha`` is the register's (``detection.false_alarm_target``) unless one
+    is given; the quantile, the ideal-law reference and the support rule all
+    follow it.
+    """
+    a = ALPHA if alpha is None else alpha
     q = np.asarray(q, dtype=float)
     n = q.size
     if n < 2:
         return {"label": label, "n": n, "status": "unsupported: too few frames"}
-    point = empirical_threshold(q, pfa=ALPHA) if n <= 200000 else None
+    point = empirical_threshold(q, pfa=a) if n <= 200000 else None
     s = np.sort(q)
-    eta = higher_eta(s)
+    eta = higher_eta(s, a)
     if point is not None and point["threshold"] != eta:
         raise SystemExit(f"{label}: higher-quantile mismatch {point['threshold']} vs {eta}")
     k = int(np.sum(q > eta))
     p_hat = k / n
-    rep, ndays = boot_stats(q, day, {"eta_pfa_point": eta}, seed=seed)
+    q999, support = ideal_quantile(alpha), support_frames(alpha)
+    rep, ndays = boot_stats(q, day, {"eta_pfa_point": eta}, seed=seed, alpha=alpha)
     var_boot = float(np.var(rep["exceed:eta_pfa_point"], ddof=1))
     binom = p_hat * (1 - p_hat) / n
     deff = var_boot / binom if binom > 0 else math.nan
     n_eff = n / max(deff, 1.0) if math.isfinite(deff) else math.nan
     k_eff = p_hat * n_eff if math.isfinite(n_eff) else math.nan
     cp_upper = float(stats.beta.ppf(0.95, k_eff + 1, n_eff - k_eff)) if math.isfinite(n_eff) else math.nan
-    supported = math.isfinite(n_eff) and n_eff >= SUPPORT_N
+    supported = math.isfinite(n_eff) and n_eff >= support
     return {
         "label": label, "n": n, "days": ndays,
         "eta_pfa": eta, "eta_pfa_z": (eta - M0) / SIGMA0,
-        "eta_minus_q999_sigma0": (eta - Q999_0) / SIGMA0,
-        "index": int(higher_index(n, ALPHA)), "exceedances": k, "achieved_pfa": p_hat,
+        "eta_minus_q999_sigma0": (eta - q999) / SIGMA0,
+        "index": int(higher_index(n, a)), "exceedances": k, "achieved_pfa": p_hat,
         "boot_ci_eta": ci(rep["eta_pfa"]), "boot_ci_eta_z": [(v - M0) / SIGMA0 for v in ci(rep["eta_pfa"])],
         "deff": deff, "n_eff": n_eff, "cp95_upper_pfa": cp_upper,
         "status": "available" if supported else f"unsupported: n_eff = {n_eff:.0f}",
-        "support_rule": f"n_eff >= {SUPPORT_N:.0f}",
+        "support_rule": f"n_eff >= {support:.0f}",
     }
 
 # ---------------------------------------------------------------- the band-level limit
 UNDEFINED = "undefined: no alpha declared"
 AVAILABLE = "available"
+MEASURED = "measured"
+# eta_Pfa and P_fa are estimated on the coarse statistic Q only; a fine (Z_rho) row says so instead of carrying a
+# Q value (the per-rank keep boundaries of a verified population would be needed, and none is verified today)
+NOT_COMPUTED_FINE = oc_table.NOT_COMPUTED_FINE
 PFA_DESIGN_MODEL_NOTE = "OS-CFAR design value under i.i.d. bulk; model-conditional; not verified"
+_REGISTER_ALPHA = object()
 
 
 def ideal_model_threshold(alpha=None) -> float:
@@ -363,27 +393,57 @@ def band_seed(band_id) -> int:
     return SEED + 100 + int(band_id)
 
 
+def verified_population(off_population, current_era) -> np.ndarray | None:
+    """The frames eta_Pfa and P_fa are read on: the verified signal-free off population inside the current era.
+
+    None when the band has none (no population, not signal-free, or not in
+    the current era: the latest-era principle).
+    """
+    if off_population is None or not off_population.signal_free or current_era is None:
+        return None
+    in_era = np.asarray(off_population.mask, dtype=bool) & np.asarray(current_era, dtype=bool)
+    return in_era if in_era.any() else None
+
+
+def exceedance(values, eta) -> float:
+    """Empirical P_fa of one threshold on a population: the fraction of its frames with ``statistic > eta``."""
+    x = np.asarray(values, dtype=float)
+    x = x[np.isfinite(x)]
+    if x.size == 0:
+        return math.nan
+    if eta is None:
+        return 0.0
+    return float(np.count_nonzero(x > float(eta)) / x.size)
+
+
 def false_alarm_limit(band_id, *, role: str, off_population=None, q=None, frame_time=None, current_era=None,
-                      alpha=None) -> dict:
-    """eta_Pfa of one band, or the reason it has none, as ``oc_summary`` columns.
+                      alpha=_REGISTER_ALPHA) -> dict:
+    """eta_Pfa of one band, or the reason it has none, as ``oc_summary`` columns of its Q rows.
 
     ``off_population`` is the band's :class:`~pilot_proxy.characterization.nulls.OffPopulation`;
     ``q`` and ``frame_time`` are the band's per-frame statistic and time, and
-    ``current_era`` the frame mask of its current era. A population that is
-    independently verified but not null-like, or not in the current era, has
-    no eta_Pfa; where it is independently verified, the estimator is still run
-    on the current era's frames and reported as a diagnostic.
+    ``current_era`` the frame mask of its current era. ``alpha`` is the
+    register's ``detection.false_alarm_target`` unless one is given, and
+    ``None`` declares none (``undefined: no alpha declared``).
+
+    ``eta_pfa`` is filled only when its status is ``available``. An
+    ``unsupported`` point, and the estimator run on the current era of a band
+    whose independently verified population is not signal-free, go to the
+    ``eta_pfa_diagnostic*`` columns; ``null_frames`` counts the verified
+    signal-free population only, and ``eta_pfa_diagnostic_frames`` the frames
+    a diagnostic read.
     """
-    a = ALPHA if alpha is None else alpha
+    a = ALPHA if alpha is _REGISTER_ALPHA else alpha
     out = {"pfa_target": (float(a) if a is not None else "not declared"), "eta_pfa": math.nan,
            "eta_pfa_status": "", "null_source": "", "null_frames": 0, "pfa_effective_samples": math.nan,
            "pfa_upper_95": math.nan, "null_rejection_reason": "",
            "eta_pfa_diagnostic": math.nan, "eta_pfa_diagnostic_boot_low": math.nan,
            "eta_pfa_diagnostic_boot_high": math.nan, "eta_pfa_diagnostic_n_eff": math.nan,
-           "eta_pfa_diagnostic_status": "", "eta_pfa_diagnostic_population": ""}
+           "eta_pfa_diagnostic_status": "", "eta_pfa_diagnostic_population": "", "eta_pfa_diagnostic_frames": 0}
     if a is None:
         out["eta_pfa_status"] = UNDEFINED
         return out
+    estimator_alpha = None if a == ALPHA else a
     if role == "control":
         out["eta_pfa_status"] = ("not defined: control band (no transmitter); its 1e-3 quantile is the surrogate "
                                  "Q37(1e-3) of the predeclared null, not an eta_Pfa")
@@ -397,26 +457,36 @@ def false_alarm_limit(band_id, *, role: str, off_population=None, q=None, frame_
         out["eta_pfa_status"] = f"unavailable: {NO_OFF_EPOCH}"
         return out
     out["null_source"] = f"transmitter-off epoch {off_population.dated}"
-    in_era = None
-    if off_population.mask is not None and current_era is not None:
-        in_era = np.asarray(off_population.mask, dtype=bool) & np.asarray(current_era, dtype=bool)
-    latest = bool(in_era is not None and in_era.any())
+    in_era = verified_population(off_population, current_era)
+    latest = bool(off_population.mask is not None and current_era is not None
+                  and (np.asarray(off_population.mask, dtype=bool) & np.asarray(current_era, dtype=bool)).any())
     if off_population.signal_free and not latest:
         reason = (f"transmitter-off epoch {off_population.dated} is not the current era "
                   "(latest-era principle)")
     elif not off_population.signal_free and not latest and off_population.off_through is not None:
         reason = reason + f"; the off epoch {off_population.dated} is not the current era (latest-era principle)"
     out["null_rejection_reason"] = reason
-    if off_population.signal_free and latest:
+    if in_era is not None:
         values = np.asarray(q, dtype=float)[in_era]
         times = np.asarray(frame_time, dtype=float)[in_era]
         keep = np.isfinite(values) & np.isfinite(times)
         block = eta_pfa_block(values[keep], np.floor(times[keep] / 86400.0).astype(np.int64),
-                              f"band {band_id} verified off population", seed=band_seed(band_id))
-        out.update({"eta_pfa": block.get("eta_pfa", math.nan), "eta_pfa_status": block["status"],
+                              f"band {band_id} verified off population", seed=band_seed(band_id),
+                              alpha=estimator_alpha)
+        out.update({"eta_pfa_status": block["status"],
                     "null_source": f"verified signal-free transmitter-off epoch {off_population.dated}",
-                    "null_frames": int(block["n"]), "pfa_effective_samples": block.get("n_eff", math.nan),
-                    "pfa_upper_95": block.get("cp95_upper_pfa", math.nan)})
+                    "null_frames": int(block["n"]), "pfa_effective_samples": block.get("n_eff", math.nan)})
+        if block["status"] == AVAILABLE:
+            out.update({"eta_pfa": block.get("eta_pfa", math.nan), "pfa_upper_95": block.get("cp95_upper_pfa", math.nan)})
+        else:
+            out.update({"eta_pfa_diagnostic": block.get("eta_pfa", math.nan),
+                        "eta_pfa_diagnostic_boot_low": block.get("boot_ci_eta", [math.nan, math.nan])[0],
+                        "eta_pfa_diagnostic_boot_high": block.get("boot_ci_eta", [math.nan, math.nan])[1],
+                        "eta_pfa_diagnostic_n_eff": block.get("n_eff", math.nan),
+                        "eta_pfa_diagnostic_status": block["status"],
+                        "eta_pfa_diagnostic_population": ("verified signal-free population, current era "
+                                                          "(below the support rule: a diagnostic, not eta_Pfa)"),
+                        "eta_pfa_diagnostic_frames": int(block["n"])})
         return out
     out["eta_pfa_status"] = (f"unavailable: {reason}" if off_population.independently_verified
                              else f"unavailable: no verified signal-free population ({reason})")
@@ -426,20 +496,41 @@ def false_alarm_limit(band_id, *, role: str, off_population=None, q=None, frame_
         times = np.asarray(frame_time, dtype=float)[era]
         keep = np.isfinite(values) & np.isfinite(times)
         block = eta_pfa_block(values[keep], np.floor(times[keep] / 86400.0).astype(np.int64),
-                              f"band {band_id} current era (diagnostic)", seed=band_seed(band_id))
+                              f"band {band_id} current era (diagnostic)", seed=band_seed(band_id),
+                              alpha=estimator_alpha)
         out.update({"eta_pfa_diagnostic": block.get("eta_pfa", math.nan),
                     "eta_pfa_diagnostic_boot_low": block.get("boot_ci_eta", [math.nan, math.nan])[0],
                     "eta_pfa_diagnostic_boot_high": block.get("boot_ci_eta", [math.nan, math.nan])[1],
                     "eta_pfa_diagnostic_n_eff": block.get("n_eff", math.nan),
                     "eta_pfa_diagnostic_status": block["status"],
                     "eta_pfa_diagnostic_population": "current era, finite Q and time (not signal-free)",
-                    "null_frames": int(block["n"])})
+                    "eta_pfa_diagnostic_frames": int(block["n"])})
     return out
 
 
+def fine_row_columns(limit: Mapping) -> dict:
+    """The false-alarm columns of a fine (Z_rho) summary row: no Q value, the population's description kept."""
+    return {**limit, "eta_pfa": math.nan, "eta_pfa_status": NOT_COMPUTED_FINE, "null_frames": 0,
+            "pfa_effective_samples": math.nan, "pfa_upper_95": math.nan,
+            "eta_pfa_diagnostic": math.nan, "eta_pfa_diagnostic_boot_low": math.nan,
+            "eta_pfa_diagnostic_boot_high": math.nan, "eta_pfa_diagnostic_n_eff": math.nan,
+            "eta_pfa_diagnostic_status": "", "eta_pfa_diagnostic_population": "", "eta_pfa_diagnostic_frames": 0}
+
+
+def row_pfa_status(limit: Mapping, statistic: str, population_available: bool) -> str:
+    """``pfa_status`` of one oc_table row: measured (Q, on a verified population), not computed (Z_rho), or the band's reason."""
+    status = limit["eta_pfa_status"]
+    if statistic != "Q":
+        return NOT_COMPUTED_FINE
+    if population_available:
+        return MEASURED
+    return status
+
+
 __all__ = ["ALPHA", "ALWAYS_MASKED_Q16", "AVAILABLE", "B", "DOF", "DayBootstrap", "LAW", "M0", "MAX_Q16",
-           "MIN_FRAMES_PER_FALSE_ALARM", "PFA_DESIGN_MODEL_NOTE", "Q999_0", "SEED", "SIGMA0", "SUPPORT_N",
-           "UNDEFINED", "accepted_count_limit", "band_seed", "boot_stats", "calibration_reference", "ci",
-           "empirical_threshold", "eta_pfa_block", "exact_q16_threshold", "false_alarm_limit",
-           "family_power_lower_bound", "gate_count_limit", "higher_eta", "higher_index", "higher_rank",
-           "ideal_model_threshold", "prospective_power"]
+           "MEASURED", "MIN_FRAMES_PER_FALSE_ALARM", "NOT_COMPUTED_FINE", "PFA_DESIGN_MODEL_NOTE", "Q999_0", "SEED",
+           "SIGMA0", "SUPPORT_N", "UNDEFINED", "accepted_count_limit", "band_seed", "boot_stats",
+           "calibration_reference", "ci", "empirical_threshold", "eta_pfa_block", "exact_q16_threshold", "exceedance",
+           "false_alarm_limit", "family_power_lower_bound", "fine_row_columns", "gate_count_limit", "higher_eta",
+           "higher_index", "higher_rank", "ideal_model_threshold", "ideal_quantile", "prospective_power",
+           "row_pfa_status", "support_frames", "verified_population"]

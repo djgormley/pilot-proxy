@@ -26,8 +26,8 @@
   "kept_months"
  ],
  "files": {
-  "oc_summary.csv": "1fde49b443a32487e7c416253a42057e4b730ad03b9f4652f037208253b8c628",
-  "oc_table.csv": "a1b9f2242a597c1d58cd65157bea9ef394162b3f9b83076fea8426f5a22c836a"
+  "oc_summary.csv": "957c35e849a6e26d0ae3880feaa4426775a7724df0bf38fcc917f2f2f07e22fd",
+  "oc_table.csv": "8611b3dbc71222f929db362174f45422b68cb36ad8d0f6edb0597fdca9e115a3"
  },
  "fine_surface_rows": "thinned: at most 200 candidates per rank, with each rank's least-residual candidate and the marked points",
  "inputs": {

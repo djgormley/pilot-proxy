@@ -52,6 +52,12 @@ POPULATIONS = ("current_era_calibration_block", "all_valid_frames")
 BLOCKS = ("calibration", "evaluation")
 STATISTICS = ("Q", "Z_rho")
 MARKS = ("knee", "least_residual")
+NOT_COMPUTED_FINE = "not computed: statistic Z_rho"
+# the status vocabularies: exact values, then prefixes followed by a reason
+PFA_STATUS_VALUES = ("measured", "undefined: no alpha declared", NOT_COMPUTED_FINE)
+PFA_STATUS_PREFIXES = ("unavailable: ", "not defined: ")
+ETA_PFA_STATUS_VALUES = ("available", "undefined: no alpha declared", "unsupported: too few frames", NOT_COMPUTED_FINE)
+ETA_PFA_STATUS_PREFIXES = ("unsupported: n_eff = ", "unavailable: ", "not defined: ")
 
 # (name, type, unit, description). Types: str, int, float, bool.
 OC_COLUMNS: tuple[tuple[str, str, str, str], ...] = (
@@ -89,8 +95,11 @@ OC_COLUMNS: tuple[tuple[str, str, str, str], ...] = (
     ("floor_share", "float", "", "Fraction of kept frames whose residual is the floor (no shelf estimate, or the "
                                  "floor at or above the shelf). Near 1, r_sys measures the measurement's "
                                  "sensitivity, not the interference."),
-    ("pfa", "float", "", "Empirical P_fa of this eta on a verified signal-free population (empty when none)."),
-    ("pfa_status", "str", "", "measured, undefined: no alpha declared, or unavailable: <reason>."),
+    ("pfa", "float", "", "Empirical P_fa of this eta on the verified signal-free population eta_Pfa reads (Q rows; "
+                         "empty when there is none, and on Z_rho rows)."),
+    ("pfa_status", "str", "", "measured (pfa is filled), unavailable: <reason>, undefined: no alpha declared, "
+                              "not defined: control band ..., or not computed: statistic Z_rho (fine rows: P_fa is "
+                              "estimated on Q only)."),
     ("mark", "str", "", "knee, least_residual, both ';'-joined, or empty."),
     ("rho", "int", "", "One-based background rank (cfar_rank + 1); fine rows."),
     ("bulk_size", "int", "bins", "Size of the bulk B; fine rows."),
@@ -144,26 +153,31 @@ SUMMARY_COLUMNS: tuple[tuple[str, str, str, str], ...] = tuple([
     ("candidates_total", "int", "", "Candidates of the family, evaluable or not."),
     ("candidates_evaluable", "int", "", "Evaluable candidates of the family."),
     ("pfa_target", "float", "", "The declared alpha (detection.false_alarm_target)."),
-    ("eta_pfa", "float", "statistic units", "The false-alarm limit: the higher (1 - alpha) quantile of the verified "
-                                            "signal-free population (empty when unavailable)."),
-    ("eta_pfa_status", "str", "", "available, unsupported: n_eff = N, unavailable: <reason>, undefined: no alpha "
-                                  "declared, or not defined: control band ..."),
+    ("eta_pfa", "float", "statistic units", "The false-alarm limit, in Q: the higher (1 - alpha) quantile of the "
+                                            "verified signal-free population. Filled only when eta_pfa_status is "
+                                            "available; empty on Z_rho rows."),
+    ("eta_pfa_status", "str", "", "available, unsupported: n_eff = N (the point is a diagnostic), unavailable: "
+                                  "<reason>, undefined: no alpha declared, not defined: control band ..., or not "
+                                  "computed: statistic Z_rho (fine rows)."),
     ("null_source", "str", "", "Where the null population comes from."),
-    ("null_frames", "int", "frames", "Frames of the population the estimator read."),
+    ("null_frames", "int", "frames", "Frames of the verified signal-free population the estimator read (0 when "
+                                     "there is none)."),
     ("pfa_effective_samples", "float", "", "n_eff = n / max(DEFF, 1), from a day-block bootstrap."),
     ("pfa_upper_95", "float", "", "One-sided 95% Clopper-Pearson upper bound on P_fa at eta_Pfa, n_eff trials."),
     ("null_rejection_reason", "str", "", "Why the band has no verified signal-free population."),
-    ("eta_pfa_diagnostic", "float", "statistic units", "The estimator on the current era of an independently verified "
-                                                       "but not signal-free band (a diagnostic, never eta_Pfa)."),
+    ("eta_pfa_diagnostic", "float", "statistic units", "A diagnostic, never eta_Pfa: the estimator on the current "
+                                                       "era of an independently verified but not signal-free band, "
+                                                       "or an unsupported point of a verified one (Q rows)."),
     ("eta_pfa_diagnostic_boot_low", "float", "", "Its day-bootstrap 95% interval, low."),
     ("eta_pfa_diagnostic_boot_high", "float", "", "Its day-bootstrap 95% interval, high."),
     ("eta_pfa_diagnostic_n_eff", "float", "", "Its effective sample count."),
     ("eta_pfa_diagnostic_status", "str", "", "Its support status."),
     ("eta_pfa_diagnostic_population", "str", "", "The frames it read."),
-    ("pfa_design_model", "float", "", "The product's fine_p_fa: the OS-CFAR design value under i.i.d. bulk; "
-                                      "model-conditional; not verified; never eta_Pfa."),
+    ("eta_pfa_diagnostic_frames", "int", "frames", "How many frames it read (0 when there is no diagnostic)."),
+    ("pfa_design_model", "float", "", "The product's fine_p_fa: the fine stage's OS-CFAR design value under "
+                                      "i.i.d. bulk; model-conditional; not verified; never eta_Pfa (Z_rho rows only)."),
     ("eta_pfa_ideal_model", "float", "", "The ideal F(2P, 4P) (1 - alpha) quantile of Q divided by the law's mean "
-                                         "(mean-scaled; reference only; never used)."),
+                                         "(mean-scaled; reference only; never used; Q rows only)."),
     ("coarse_raw_width_factor", "float", "", "Coarse null raw width / ideal width (nulls.csv)."),
     ("coarse_core_width_factor", "float", "", "Coarse null core width / ideal width (nulls.csv)."),
     ("fine_raw_width_factor", "float", "", "Fine null raw width / ideal width (nulls.csv)."),
@@ -331,6 +345,11 @@ def schema() -> dict:
                             "and the marked points",
             "candidate_sets": list(CANDIDATE_SETS), "populations": list(POPULATIONS), "blocks": list(BLOCKS),
             "marks": list(MARKS),
+            "pfa_status": {"values": list(PFA_STATUS_VALUES), "prefixes": list(PFA_STATUS_PREFIXES)},
+            "eta_pfa_status": {"values": list(ETA_PFA_STATUS_VALUES), "prefixes": list(ETA_PFA_STATUS_PREFIXES)},
+            "false_alarm": ("eta_Pfa and P_fa are estimated on Q only: Z_rho rows carry "
+                            f"'{NOT_COMPUTED_FINE}' and no Q value; eta_pfa is filled only when available; "
+                            "pfa_status measured implies a pfa in [0, 1]; pfa_design_model on Z_rho rows only"),
         },
     }
 
@@ -397,6 +416,18 @@ def check_oc_rules(path: Path | str) -> list[str]:
             problems.append(f"{where}: statistic {row['statistic']!r}")
         if row["mark"] and not set(row["mark"].split(";")) <= set(MARKS):
             problems.append(f"{where}: mark {row['mark']!r}")
+        status = row["pfa_status"]
+        if not _in_vocabulary(status, PFA_STATUS_VALUES, PFA_STATUS_PREFIXES):
+            problems.append(f"{where}: pfa_status {status!r}")
+        if status == "measured":
+            if row["statistic"] != "Q":
+                problems.append(f"{where}: a Z_rho row carries a measured pfa")
+            if not row["pfa"] or not 0.0 <= float(row["pfa"]) <= 1.0:
+                problems.append(f"{where}: pfa_status measured without a pfa in [0, 1]")
+        elif row["pfa"]:
+            problems.append(f"{where}: pfa filled with pfa_status {status!r}")
+        if row["statistic"] == "Z_rho" and status != NOT_COMPUTED_FINE:
+            problems.append(f"{where}: a Z_rho row's pfa_status is not {NOT_COMPUTED_FINE!r}")
         frames, kept, masked = int(row["frames"]), int(row["kept"]), int(row["masked"])
         if kept + masked != frames:
             problems.append(f"{where}: kept + masked != frames")
@@ -415,6 +446,52 @@ def check_oc_rules(path: Path | str) -> list[str]:
         if last_key is not None and order_key <= last_key:
             problems.append(f"{where}: rows out of order")
         last_key = order_key
+    return problems
+
+
+def _in_vocabulary(value: str, values: Sequence[str], prefixes: Sequence[str]) -> bool:
+    """An exact value, or a prefix followed by a non-empty reason."""
+    return value in values or any(value.startswith(p) and len(value) > len(p) for p in prefixes)
+
+
+# the columns that carry a value of the coarse estimator (Q), empty on fine rows
+_Q_ONLY = ("eta_pfa", "pfa_effective_samples", "pfa_upper_95", "eta_pfa_diagnostic", "eta_pfa_diagnostic_boot_low",
+           "eta_pfa_diagnostic_boot_high", "eta_pfa_diagnostic_n_eff", "eta_pfa_ideal_model")
+_DIAGNOSTIC = ("eta_pfa_diagnostic", "eta_pfa_diagnostic_boot_low", "eta_pfa_diagnostic_boot_high",
+               "eta_pfa_diagnostic_n_eff")
+
+
+def check_summary_rules(path: Path | str) -> list[str]:
+    """Row rules of oc_summary.csv's false-alarm columns (H2, M1, M2, L10): vocabulary, eta_Pfa only when
+    available, Q quantities on Q rows and the fine design value on fine rows only."""
+    problems = []
+    for number, row in enumerate(read_rows(path), start=2):
+        where = f"oc_summary.csv:{number}"
+        status = row["eta_pfa_status"]
+        fine = row["candidate_set"] == "fine_surface"
+        if not _in_vocabulary(status, ETA_PFA_STATUS_VALUES, ETA_PFA_STATUS_PREFIXES):
+            problems.append(f"{where}: eta_pfa_status {status!r}")
+        if bool(row["eta_pfa"]) != (status == "available"):
+            problems.append(f"{where}: eta_pfa {'filled' if row['eta_pfa'] else 'empty'} with status {status!r}")
+        if status == "available" and not row["pfa_upper_95"]:
+            problems.append(f"{where}: an available eta_pfa without its bound")
+        if fine:
+            if status != NOT_COMPUTED_FINE:
+                problems.append(f"{where}: a fine row's eta_pfa_status is not {NOT_COMPUTED_FINE!r}")
+            filled = [c for c in _Q_ONLY if row[c]]
+            if filled or row["eta_pfa_diagnostic_status"] or row["null_frames"] not in ("", "0"):
+                problems.append(f"{where}: a fine row carries Q values {filled}")
+            if not row["pfa_design_model"]:
+                problems.append(f"{where}: a fine row lacks the design value")
+        else:
+            if row["pfa_design_model"]:
+                problems.append(f"{where}: a Q row carries the fine design value")
+            if row["eta_pfa_diagnostic_status"] and not row["eta_pfa_diagnostic"]:
+                problems.append(f"{where}: a diagnostic status without a diagnostic value")
+            if any(row[c] for c in _DIAGNOSTIC) and not row["eta_pfa_diagnostic_status"]:
+                problems.append(f"{where}: a diagnostic value without its status")
+            if row["eta_pfa_diagnostic_frames"] not in ("", "0") and not row["eta_pfa_diagnostic"]:
+                problems.append(f"{where}: diagnostic frames without a diagnostic")
     return problems
 
 
@@ -448,6 +525,7 @@ def validate_directory(directory: Path | str) -> list[str]:
     problems += check_table(directory / "oc_summary.csv", SUMMARY_COLUMNS)
     if not problems:
         problems += check_oc_rules(directory / "oc_table.csv")
+        problems += check_summary_rules(directory / "oc_summary.csv")
     return problems
 
 
@@ -463,8 +541,10 @@ def write_manifest(directory: Path | str, manifest: Mapping, files: Iterable[str
     return path
 
 
-__all__ = ["BLOCKS", "CANDIDATE_SETS", "DETECTOR_PARAMETER_COLUMNS", "MARKS", "MASK_RULE", "OC_COLUMNS",
+__all__ = ["BLOCKS", "CANDIDATE_SETS", "DETECTOR_PARAMETER_COLUMNS", "ETA_PFA_STATUS_PREFIXES", "ETA_PFA_STATUS_VALUES",
+           "MARKS", "MASK_RULE", "NOT_COMPUTED_FINE", "OC_COLUMNS", "PFA_STATUS_PREFIXES", "PFA_STATUS_VALUES",
            "POPULATIONS", "SCHEMA_FILE", "SCHEMA_ID", "SCHEMA_NAME", "SCHEMA_VERSION", "STATISTICS",
-           "SUMMARY_COLUMNS", "canonical_json", "check_manifest", "check_oc_rules", "check_table", "column_names",
+           "SUMMARY_COLUMNS", "canonical_json", "check_manifest", "check_oc_rules", "check_summary_rules",
+           "check_table", "column_names",
            "read_rows", "schema", "schema_text", "sha256_file", "validate_directory", "write_gzip_copy",
            "write_manifest", "write_rows"]

@@ -185,7 +185,11 @@ def _fine_rows(key: dict, block: surface.BlockCharacterization, knee_op, replays
     return rows
 
 
-def _coarse_rows(key: dict, frontier: list[dict], unmasked: float, pfa_status: str) -> list[dict]:
+def _row_pfa(population, eta):
+    return false_alarm.exceedance(population, eta) if population is not None else None
+
+
+def _coarse_rows(key: dict, frontier: list[dict], unmasked: float, pfa_status: str, population=None) -> list[dict]:
     rows = []
     for order, f in enumerate(frontier):
         if not f["evaluable"]:
@@ -197,12 +201,12 @@ def _coarse_rows(key: dict, frontier: list[dict], unmasked: float, pfa_status: s
                      "kept": f["kept"], "masked": f["frames"] - f["kept"], "masked_fraction": f["masked_fraction"],
                      "exposure_cost_uniform_loss": 1.0 / (1.0 - f["masked_fraction"]) if f["masked_fraction"] < 1.0 else math.nan,
                      "r_var": 0.0, "r_sys": f["r_sys"], "r_sys_incoherent": f["r_sys_incoherent"],
-                     "r_unmasked": unmasked, "floor_share": f["floor_share"], "pfa": None, "pfa_status": pfa_status,
-                     "mark": ""})
+                     "r_unmasked": unmasked, "floor_share": f["floor_share"], "pfa": _row_pfa(population, f["eta_c"]),
+                     "pfa_status": pfa_status, "mark": ""})
     return rows
 
 
-def _ladder_rows(key: dict, rungs: list[dict], pfa_status: str) -> list[dict]:
+def _ladder_rows(key: dict, rungs: list[dict], pfa_status: str, population=None) -> list[dict]:
     rows = []
     keep_all = next((r for r in rungs if r["policy"] == "keep_all"), None)
     for block_name in ("calibration", "evaluation"):
@@ -220,7 +224,8 @@ def _ladder_rows(key: dict, rungs: list[dict], pfa_status: str) -> list[dict]:
                          "masked_fraction": (rec["frames"] - rec["kept"]) / rec["frames"] if rec["frames"] else math.nan,
                          "exposure_cost_uniform_loss": rec["mask_only_cost"], "r_var": 0.0,
                          "r_sys": rec["chain_allowance"], "r_sys_incoherent": rec["G1_allowance"],
-                         "r_unmasked": unmasked, "floor_share": None, "pfa": None, "pfa_status": pfa_status, "mark": "",
+                         "r_unmasked": unmasked, "floor_share": None, "pfa": _row_pfa(population, eta),
+                         "pfa_status": pfa_status, "mark": "",
                          "policy": rung["policy"], "kept_acquisitions": rec["kept_acquisitions"],
                          "kept_days": rec["kept_days"], "kept_months": rec["kept_supported_months"]})
     return rows
@@ -635,24 +640,33 @@ def characterize_band(path: str, out_dir: str, *, project_dir: str, campaign_las
     limit = false_alarm.false_alarm_limit(band.label, role=role, off_population=off, q=p.statistic,
                                           frame_time=p.frame_time, current_era=era_mask)
     record.add("false_alarm", limit)
-    pfa_status = ("measured" if limit["eta_pfa_status"] == false_alarm.AVAILABLE else limit["eta_pfa_status"])
+    # P_fa of each Q row on the frames eta_Pfa reads (a verified signal-free population in the current era); a fine
+    # (Z_rho) row carries no Q value (H2: eta_Pfa and P_fa are estimated on Q only)
+    pfa_frames = false_alarm.verified_population(off, era_mask)
+    pfa_population = p.statistic[pfa_frames] if pfa_frames is not None else None
+    q_status = false_alarm.row_pfa_status(limit, "Q", pfa_population is not None)
+    fine_status = false_alarm.row_pfa_status(limit, "Z_rho", pfa_population is not None)
 
     # 11. the handoff rows
     key = _band_key(band, table)
     oc_rows = []
     if block is not None and block.points:
-        oc_rows += _fine_rows(key, block, knee_op, replays, pfa_status, rule)
-    oc_rows += _coarse_rows(key, frontier_rows, block.unmasked_residual if block is not None else math.nan, pfa_status)
-    oc_rows += _ladder_rows(key, rungs, pfa_status)
+        oc_rows += _fine_rows(key, block, knee_op, replays, fine_status, rule)
+    oc_rows += _coarse_rows(key, frontier_rows, block.unmasked_residual if block is not None else math.nan, q_status,
+                            pfa_population)
+    oc_rows += _ladder_rows(key, rungs, q_status, pfa_population)
     fine_design = float(p.scalar("fine_p_fa"))
     exch = null_cal_exch.exchangeability
+    limit_columns = ("pfa_target", "eta_pfa", "eta_pfa_status", "null_source", "null_frames", "pfa_effective_samples",
+                     "pfa_upper_95", "null_rejection_reason", "eta_pfa_diagnostic", "eta_pfa_diagnostic_boot_low",
+                     "eta_pfa_diagnostic_boot_high", "eta_pfa_diagnostic_n_eff", "eta_pfa_diagnostic_status",
+                     "eta_pfa_diagnostic_population", "eta_pfa_diagnostic_frames")
+    q_limit = {k: limit[k] for k in limit_columns}
+    # the Q quantities on Q rows only, the fine stage's OS-CFAR design value on fine rows only
+    q_columns = {**q_limit, "pfa_design_model": math.nan, "eta_pfa_ideal_model": false_alarm.ideal_model_threshold()}
+    fine_columns = {**{k: v for k, v in false_alarm.fine_row_columns(q_limit).items() if k in limit_columns},
+                    "pfa_design_model": fine_design, "eta_pfa_ideal_model": math.nan}
     common = {**{k: v for k, v in key.items()}, "band_role": role,
-              **{k: limit[k] for k in ("pfa_target", "eta_pfa", "eta_pfa_status", "null_source", "null_frames",
-                                       "pfa_effective_samples", "pfa_upper_95", "null_rejection_reason",
-                                       "eta_pfa_diagnostic", "eta_pfa_diagnostic_boot_low", "eta_pfa_diagnostic_boot_high",
-                                       "eta_pfa_diagnostic_n_eff", "eta_pfa_diagnostic_status",
-                                       "eta_pfa_diagnostic_population")},
-              "pfa_design_model": fine_design, "eta_pfa_ideal_model": false_alarm.ideal_model_threshold(),
               "coarse_raw_width_factor": null_cal.coarse.raw_width_factor, "coarse_core_width_factor": null_cal.coarse.core_width_factor,
               "fine_raw_width_factor": null_cal.fine.raw_width_factor, "fine_core_width_factor": null_cal.fine.core_width_factor,
               "exch_rho": exch.rho if exch else exch_rho, "exch_frames": exch.frames if exch else None,
@@ -713,7 +727,7 @@ def characterize_band(path: str, out_dir: str, *, project_dir: str, campaign_las
             by_rho.setdefault(int(p_row["rho"]), []).append(p_row)
         for rho in sorted(block.candidates_by_rho):
             family = by_rho.get(rho, [])
-            summary_rows.append({**common, **notable, "candidate_set": "fine_surface",
+            summary_rows.append({**common, **fine_columns, **notable, "candidate_set": "fine_surface",
                                  "population": "current_era_calibration_block", "threshold_family": f"rho={rho}",
                                  "eta_eval": family[0]["eta"] if family else math.nan,
                                  "candidates_total": block.candidates_by_rho[rho], "candidates_evaluable": len(family)})
@@ -725,13 +739,14 @@ def characterize_band(path: str, out_dir: str, *, project_dir: str, campaign_las
                          "floor_share": least["floor_share"],
                          "exposure_cost_uniform_loss": 1.0 / (1.0 - least["masked_fraction"]) if least["masked_fraction"] < 1.0 else math.nan}
                         if least else None)
-        summary_rows.append({**common, **_point_columns("least_residual", coarse_point), "candidate_set": "coarse_surface",
+        summary_rows.append({**common, **q_columns, **_point_columns("least_residual", coarse_point),
+                             "candidate_set": "coarse_surface",
                              "population": "current_era_calibration_block", "threshold_family": "Q",
                              "eta_eval": evaluable[0]["eta_c"] if evaluable else math.nan,
                              "candidates_total": len(frontier_rows), "candidates_evaluable": len(evaluable)})
     if rungs:
         evaluable = [r for r in rungs if r["calibration"]["kept"] >= coarse_ladder.MINIMUM]
-        summary_rows.append({**common, "candidate_set": "coarse_ladder", "population": rungs[0]["population"],
+        summary_rows.append({**common, **q_columns, "candidate_set": "coarse_ladder", "population": rungs[0]["population"],
                              "threshold_family": "Q",
                              "eta_eval": min((r["eta"] for r in evaluable if r["eta"] is not None), default=math.nan),
                              "candidates_total": len(rungs), "candidates_evaluable": len(evaluable)})

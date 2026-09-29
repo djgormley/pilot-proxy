@@ -25,9 +25,10 @@ def test_a_verified_but_not_null_like_population_changes_no_table(tmp_path):
     gated_rows = oc_table.read_rows(gated_dir / "oc_table.csv")
     assert [{k: v for k, v in r.items() if k != "pfa_status"} for r in gated_rows] == \
         [{k: v for k, v in r.items() if k != "pfa_status"} for r in plain_rows]
-    assert {r["pfa_status"] for r in gated_rows if r["band_id"] == "29"} == {
-        "unavailable: " + next(r for r in oc_table.read_rows(gated_dir / "oc_summary.csv")
-                               if r["band_id"] == "29")["null_rejection_reason"]}
+    reason = next(r for r in oc_table.read_rows(gated_dir / "oc_summary.csv") if r["band_id"] == "29")["null_rejection_reason"]
+    assert {r["pfa_status"] for r in gated_rows if r["band_id"] == "29" and r["statistic"] == "Q"} == {"unavailable: " + reason}
+    assert {r["pfa_status"] for r in gated_rows if r["band_id"] == "29" and r["statistic"] == "Z_rho"} == {
+        oc_table.NOT_COMPUTED_FINE}
     # the residual chain reads transmitter-on frames outside any dated epoch, as the releases did; its shelf floor
     # describes the dated off frames and calibrates nothing
     chain_plain = oc_table.read_rows(plain_dir / "tables" / "chain.csv")

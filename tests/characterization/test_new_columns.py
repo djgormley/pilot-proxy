@@ -51,8 +51,13 @@ def test_the_ideal_model_threshold_is_the_null_laws_quantile_over_its_mean(hando
     alpha = float(project.register.value("detection.false_alarm_target"))
     expected = float(stats.f.isf(alpha, *dof) / stats.f.mean(*dof))
     assert false_alarm.ideal_model_threshold() == expected
-    assert {float(r["eta_pfa_ideal_model"]) for r in summary} == {expected}
-    assert {r["pfa_design_model"] for r in summary} == {repr(alpha)}
+    q_rows = [r for r in summary if r["candidate_set"] != "fine_surface"]
+    fine_rows = [r for r in summary if r["candidate_set"] == "fine_surface"]
+    assert q_rows and fine_rows
+    # a Q quantity on Q rows, the fine stage's OS-CFAR design value on fine rows (H2)
+    assert {float(r["eta_pfa_ideal_model"]) for r in q_rows} == {expected}
+    assert {r["pfa_design_model"] for r in fine_rows} == {repr(alpha)}
+    assert {r["eta_pfa_ideal_model"] for r in fine_rows} == {""} and {r["pfa_design_model"] for r in q_rows} == {""}
 
 
 def test_the_default_model_books_one_chain_component(handoff):
