@@ -65,7 +65,9 @@ section 6 records the instrument choice):
 - **Transition zone months belong to no era.** They lie inside the boundary
   interval: the boundary uncertainty is the number of calendar months
   strictly between the last month of the old state and the first month of the
-  new, reported with its unpopulated (gap) and populated-ambiguous parts.
+  new, reported with its unpopulated (gap) and populated-ambiguous parts. The
+  months are always populated months, including for an author-dated era
+  whose first month is dated before its first populated month.
 - **Station changes** are evaluated only on definite proxy-high months
   (``station_check_states``): a proxy-low month has no pilot and its peak
   location is noise. The running era location is the median of the accepted
@@ -87,7 +89,10 @@ section 6 records the instrument choice):
   (``'+'``-joined when kinds coincide), ``'archive start'`` for the first.
   An era's frames are every masked frame whose UTC month lies in
   ``[first_month, last_month]``; a frame without a recorded sample interval
-  (NaN time) follows its acquisition's ``unit_time`` month.
+  (NaN time) follows its acquisition's ``unit_time`` month. An author-dated
+  era (:func:`impose_eras`) may start before its first populated month only
+  when no frame of the product lies between the two, so its frames are those
+  of its populated months.
 - **Stale-latest** compares the current era's last populated month with
   ``campaign_last_month`` (the last populated month over the whole campaign,
   from :func:`campaign_last_populated_month`): the era is stale when it ends
@@ -386,7 +391,12 @@ class Excursion:
 
 @dataclass(frozen=True)
 class Era:
-    """One stable era: a contiguous run of populated months with one state and one instrument."""
+    """One stable era: a contiguous run of populated months with one state and one instrument.
+
+    ``first_month`` is the first populated month, except for an author-dated era
+    whose first month is dated inside a data gap (:func:`impose_eras`); no frame
+    lies between the two, and ``months`` holds the populated months only.
+    """
 
     index: int
     first_month: int
@@ -860,7 +870,13 @@ def impose_eras(table: EraTable, product: Product, spec: Sequence[Sequence[str]]
     ``spec`` is the channel's whole era list in calendar order, each entry
     ``(first_month, last_month, evidence)`` with months as ``YYYY-MM``. An era is
     the populated months inside its span, bounded by the first and last of them;
-    a populated month inside no span belongs to no era and is reported as a
+    its first month may instead be the span's own first month when that month
+    is dated before the first populated month and no frame of the product
+    (selected or not, timed or not) lies between the two, so the era's frames
+    never depend on where inside the gap the date falls; frames there refuse the
+    list. The boundary uncertainty is always the months strictly between the
+    previous era's last populated month and this era's first populated month.
+    A populated month inside no span belongs to no era and is reported as a
     transition-zone month, so the placement convention is the rule's. The state
     of an era is the section 8.1 state of its frame-median level. Everything the
     rule recorded per month (states, excursions, instrument changes, peak
@@ -887,10 +903,19 @@ def impose_eras(table: EraTable, product: Product, spec: Sequence[Sequence[str]]
         months = [m for m in sorted(record) if a <= m <= b]
         if not months:
             raise ValueError(f"era {blocks.month_label(a)}..{blocks.month_label(b)} holds no populated month")
-        first, last = months[0], months[-1]
+        first_populated, last = months[0], months[-1]
+        first = first_populated
+        if a < first_populated:
+            # a dated start inside a data gap: allowed only over months that hold no frame of the product,
+            # so the era's frames never depend on where inside the gap the date falls
+            lead = (months_all >= a) & (months_all < first_populated)
+            if lead.any():
+                raise ValueError(f"era {blocks.month_label(a)}..{blocks.month_label(b)}: {int(lead.sum())} frames lie "
+                                 "between the dated first month and the first populated month")
+            first = a
         prev_last = eras[-1].last_month if eras else None
-        uncertainty = 0 if prev_last is None else first - prev_last - 1
-        between = 0 if prev_last is None else sum(1 for m in record if prev_last < m < first)
+        uncertainty = 0 if prev_last is None else first_populated - prev_last - 1
+        between = 0 if prev_last is None else sum(1 for m in record if prev_last < m < first_populated)
         located = [(m, record[m].peak_offset_bins) for m in months
                    if raw[m] == PROXY_HIGH and math.isfinite(record[m].peak_offset_bins)]
         peaks = [v for _, v in located]

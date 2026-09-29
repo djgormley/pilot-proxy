@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import dataclasses
 import datetime as dt
 import hashlib
 import importlib.util
@@ -435,3 +436,79 @@ def test_an_author_dated_era_list_replaces_the_rule_eras_and_keeps_its_month_rec
                     [("2019-01", "2019-06", EVIDENCE_START)], []):
             with pytest.raises(ValueError):
                 eras.impose_eras(rule, p, bad)
+
+
+def _same(a, b):
+    """Equality with NaN equal to NaN (era fields and CSV rows carry NaN for absent peaks)."""
+    if isinstance(a, float) and isinstance(b, float):
+        return a == b or (math.isnan(a) and math.isnan(b))
+    return a == b
+
+
+def _changed(a: dict, b: dict) -> set:
+    assert a.keys() == b.keys()
+    return {k for k in a if not _same(a[k], b[k])}
+
+
+@pytest.fixture
+def gap_product_path(product_path):
+    """The synthetic product with month 11's (invalid) acquisitions moved into month 10, so month 11 holds no frame."""
+    with np.load(product_path, allow_pickle=False) as z:
+        time0 = np.array(z["unit_time0_ctime"], copy=True)
+    for u in range(11 * UNITS_PER_MONTH, 12 * UNITS_PER_MONTH):
+        time0[u] = dt.datetime(2020, 11, u % UNITS_PER_MONTH + 15, 12, tzinfo=dt.timezone.utc).timestamp()
+    v5_fixture._replace(product_path, unit_time0_ctime=time0)
+    return product_path
+
+
+def test_an_author_dated_first_month_inside_a_frameless_gap_moves_only_the_label(gap_product_path, tmp_path):
+    with Product(gap_product_path) as p:
+        months = eras.frame_months(p)
+        assert not (months == M0 + 11).any() and (months == M0 + 10).sum() == 2 * UNITS_PER_MONTH * FRAMES_PER_UNIT
+        rule = eras.era_table(p, p.selected, campaign_last_month=M0 + 23)
+        snapped = eras.impose_eras(rule, p, [("2020-01", "2020-10", EVIDENCE_START),
+                                             ("2021-01", "2021-10", eras.EVIDENCE_POWER)])
+        dated = eras.impose_eras(rule, p, [("2020-01", "2020-10", EVIDENCE_START),
+                                           ("2020-12", "2021-10", eras.EVIDENCE_POWER)])
+        a, b = snapped.eras[1], dated.eras[1]
+        assert (a.first_month, b.first_month) == (M0 + 12, M0 + 11) and a.last_month == b.last_month == M0 + 21
+        assert (a.months_spanned, b.months_spanned) == (10, 11) and (a.coverage, b.coverage) == (1.0, 10 / 11)
+        # the frames, the month record and the boundary interval are the snapped era's
+        assert b.months == a.months and b.frames == a.frames == 1000 and b.units == a.units
+        assert b.boundary_uncertainty_months == a.boundary_uncertainty_months == 2
+        assert b.boundary_gap_months == a.boundary_gap_months == 1
+        assert b.boundary_ambiguous_months == a.boundary_ambiguous_months == 1
+        assert _changed(dataclasses.asdict(a), dataclasses.asdict(b)) == {"first_month"}
+        assert _changed(dataclasses.asdict(snapped.eras[0]), dataclasses.asdict(dated.eras[0])) == set()
+        assert dated.transition_zone_months == snapped.transition_zone_months == (M0 + 10,)
+        for index in range(2):
+            assert np.array_equal(dated.era_mask(p, index), snapped.era_mask(p, index))
+        assert np.array_equal(dated.current_era_mask(p), snapped.current_era_mask(p))
+        # the written rows and the era JSON differ only in the dated start and what it spans
+        (r0, r1), (d0, d1) = eras.era_rows(snapped), eras.era_rows(dated)
+        assert _changed(r0, d0) == set() and _changed(r1, d1) == {"first_month", "months_spanned", "coverage"}
+        assert d1["first_month"] == "2020-12" and d1["months_spanned"] == 11
+        crow, drow = eras.channel_row(snapped), eras.channel_row(dated)
+        assert _changed(crow, drow) == {"current_first_month"} and drow["current_first_month"] == "2020-12"
+        js = json.loads(eras.write_era_json(snapped, tmp_path / "snapped.json").read_text())
+        jd = json.loads(eras.write_era_json(dated, tmp_path / "dated.json").read_text())
+        assert {k for k in js["eras"][1] if js["eras"][1][k] != jd["eras"][1][k]} == {
+            "first_month", "months_spanned", "coverage"}
+        js["eras"][1] = jd["eras"][1] = None
+        assert js == jd
+
+
+def test_an_author_dated_first_month_over_frames_is_refused(product_path):
+    with Product(product_path) as p:
+        # month 11's acquisitions are invalid: the month has no record, but its frames are frames of the product
+        months = eras.frame_months(p)
+        assert (months == M0 + 11).sum() == UNITS_PER_MONTH * FRAMES_PER_UNIT
+        assert not (p.selected & (months == M0 + 11)).any()
+        rule = eras.era_table(p, p.selected, campaign_last_month=M0 + 23)
+        with pytest.raises(ValueError, match="100 frames lie between the dated first month"):
+            eras.impose_eras(rule, p, [("2020-01", "2020-10", EVIDENCE_START),
+                                       ("2020-12", "2021-10", eras.EVIDENCE_POWER)])
+        # the same era started on its first populated month is accepted
+        table = eras.impose_eras(rule, p, [("2020-01", "2020-10", EVIDENCE_START),
+                                           ("2021-01", "2021-10", eras.EVIDENCE_POWER)])
+        assert table.eras[1].first_month == M0 + 12

@@ -31,18 +31,18 @@
  },
  "fine_surface_rows": "thinned: at most 200 candidates per rank, with each rank's least-residual candidate and the marked points",
  "inputs": {
-  "era_list_sha256": "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd",
+  "era_list_sha256": "a37b5fa6b28b22f51f310856e8271cfeab1ee31033f3c05f65f51f0dab2fe5b3",
   "products": {
    "537.npz": "fixture",
    "614.npz": "fixture"
   },
   "profile": {
-   "author_eras": "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd",
+   "author_eras": "a37b5fa6b28b22f51f310856e8271cfeab1ee31033f3c05f65f51f0dab2fe5b3",
    "detector_config": "a2aa470814b0f80ae6dab54bb810c408e1a52d58e3df261467cafa1a124038dd",
    "frequency_plan": "0bf530829e2e21b2d4d1af007c922563b88eb463196a9faaa0481d47cacb9762",
    "integration_model": "1deb2704f33d047c1fee86f567013a1754165ad9f45d98a19f4e6f4a88bc2fba",
    "interference_template": "a9664a9b82e80e0a66a83eb745945c5f63461a28948b285e7e60cfb12394b3a1",
-   "project": "a41e73c9f944b786fdc17d3a9fd9d83e1add05c6aa22a4e38000a7da7fa3282b",
+   "project": "7554acec83679542f8c8490aba83233407e37179820dcaaf1a23facb5ae94e6c",
    "register": "3669b76dfcbfe0b5c6a00262ba6557616110008106df4b62441fff77edcafe75",
    "transmitter_off": "9af6777a50d2e055f28d5f2caaec1dfbd9ff9ee23c465cfc0577b938dd2f95a7"
   },

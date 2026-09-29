@@ -2,7 +2,8 @@
 
 Per band, in order: the product's geometry and frame accounting; the eras
 (the predeclared rule on the selected frames, replaced by the project's
-author-dated era list where it dates the band); the band's dated
+author-dated era list where it dates the band, or by the named record's list
+under ``--record``); the band's dated
 transmitter-off population and the two tests that would make it a verified
 signal-free null; the chronological calibration/evaluation split of the
 current era; the anchors; the per-frame spectrum containment; the residual
@@ -56,6 +57,7 @@ from typing import Mapping, Sequence
 import numpy as np
 
 from pilot_proxy.config._files import ProfileError
+from pilot_proxy.config.eras import EraList
 from pilot_proxy.config.project import Project, default_project, load_project
 from pilot_proxy.detectors.narrowband_marker import NarrowbandMarkerAdapter, anchors, psd
 from pilot_proxy.detectors.narrowband_marker.scores import build_score_bundle
@@ -833,7 +835,7 @@ def _sort_oc(rows: list[dict]) -> list[dict]:
 
 
 def _handoff_manifest(project: Project, bands_written, products: Mapping[str, str], *, record_name, rule, model,
-                      replay_file, producer) -> dict:
+                      replay_file, producer, era_list: EraList) -> dict:
     adapter = NarrowbandMarkerAdapter(project)
     law = adapter.null_law()
     instrument, detector = project.instrument, project.detector_config
@@ -865,8 +867,8 @@ def _handoff_manifest(project: Project, bands_written, products: Mapping[str, st
                                       "Clopper-Pearson bound with n_eff trials"),
                         "minimum_frames_per_false_alarm": false_alarm.MIN_FRAMES_PER_FALSE_ALARM},
         "inputs": {"products": dict(sorted(products.items())), "profile": project.file_sha256(),
-                   "era_list_sha256": project.eras.source_sha256,
-                   "transmitter_off_sha256": project.eras.transmitter_off_sha256,
+                   "era_list_sha256": era_list.source_sha256,
+                   "transmitter_off_sha256": era_list.transmitter_off_sha256,
                    "replay_points": ({"path": str(replay_file), "sha256": oc_table.sha256_file(replay_file)}
                                      if replay_file else None)},
         "record": record_name, "tie_rule": rule.name,
@@ -891,9 +893,11 @@ def characterize_archive(products_dir: Path | str, out_dir: Path | str, *, proje
     producer = producer_identity()                   # read once, before any work: the code that runs is the code named
     rule = SELECTOR_ORDER
     model = project.integration_model
+    era_list = project.eras
     if record_name:
         rec = project.record_module("archive_releases").record(record_name)
         rule, model = rec.ties, rec.integration_model(project.integration_model)
+        era_list = project.era_list(rec.era_list, rec.era_list_sha256)     # the list the release ran
     screened = {int(b.label) for b in project.frequency_plan.bands("screened")}
     paths = sorted(products_dir.glob("*.npz"))
     opened = [Product(p, require_health=True) for p in paths]
@@ -905,7 +909,7 @@ def characterize_archive(products_dir: Path | str, out_dir: Path | str, *, proje
     by_band = {c: all_bands[c] for c in bands} if bands else all_bands
     products = {p.path.name: sha256_of(p.path) for c, p in sorted(all_bands.items())}
     replay = read_replay_points(replay_points)
-    overrides = project.eras.overrides_spec()
+    overrides = era_list.overrides_spec()
     jobs = [(str(p.path), str(out), dict(project_dir=project_dir, campaign_last_month=campaign_last, replicates=replicates,
                                          seed=seed, era_config=config, era_spec=overrides.get(c), record_name=record_name,
                                          replay=c in replay))
@@ -932,6 +936,7 @@ def characterize_archive(products_dir: Path | str, out_dir: Path | str, *, proje
     _write_outputs(out, results, project=project, products=products,
                    bands_written=[project.frequency_plan.band(str(r["record"].channel)) for r in results],
                    record_name=record_name, rule=rule, model=model, replay_file=replay_points, producer=producer,
+                   era_list=era_list,
                    run={"generated": generated or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
                         "products_dir": str(products_dir), "channels": sorted(by_band),
                         "campaign_last_month": blocks.month_label(campaign_last),
@@ -952,13 +957,13 @@ def characterize_archive(products_dir: Path | str, out_dir: Path | str, *, proje
             raise ValueError("a control product needs its own --control-run-dir")
         control = characterize_control(control_product, control_run_dir, project=project, campaign_last=campaign_last,
                                        replicates=replicates, seed=seed, era_config=config, record_name=record_name,
-                                       rule=rule, model=model, producer=producer)
+                                       rule=rule, model=model, producer=producer, era_list=era_list)
     return {"channels": [r["record"].channel for r in results], "errors": errors, "out": str(out),
             "replay_problems": replay_problems, "control": control, "seconds": time.time() - t0}
 
 
 def _write_outputs(out: Path, results: Sequence[dict], *, project: Project, products: Mapping[str, str], bands_written,
-                   record_name, rule, model, replay_file, producer, run: dict) -> None:
+                   record_name, rule, model, replay_file, producer, run: dict, era_list: EraList | None = None) -> None:
     tables = out / "tables"
     _write_csv([row for r in results for row in r["era_rows"]], tables / "eras.csv")
     _write_csv([r["era_channel_row"] for r in results], tables / "eras_channels.csv")
@@ -976,7 +981,7 @@ def _write_outputs(out: Path, results: Sequence[dict], *, project: Project, prod
     oc_table.write_rows([row for r in results for row in r["summary_rows"]], out / "oc_summary.csv",
                         oc_table.SUMMARY_COLUMNS)
     manifest = _handoff_manifest(project, bands_written, products, record_name=record_name, rule=rule, model=model,
-                                 replay_file=replay_file, producer=producer)
+                                 replay_file=replay_file, producer=producer, era_list=era_list or project.eras)
     manifest["tables"] = {p.name: oc_table.sha256_file(p) for p in sorted(tables.glob("*.csv"))}
     oc_table.write_manifest(out, manifest, ("oc_table.csv", "oc_table.csv.gz", "oc_summary.csv"))
     book = ledger.Ledger(run={**run, "producer": producer, "products": dict(products),
@@ -993,7 +998,7 @@ def _write_outputs(out: Path, results: Sequence[dict], *, project: Project, prod
 
 def characterize_control(product: Path | str, run_dir: Path | str, *, project: Project, campaign_last: int,
                          replicates: int, seed: int, era_config: eras.EraConfig, record_name, rule, model,
-                         producer) -> dict:
+                         producer, era_list: EraList | None = None) -> dict:
     """One control band (no transmitter) into its own directory: the rule's eras, no dated off epoch, no eta_Pfa."""
     product = Path(product)
     out = Path(run_dir) / "characterization"
@@ -1009,6 +1014,7 @@ def characterize_control(product: Path | str, run_dir: Path | str, *, project: P
                                record_name=record_name, replay=False, role="control")
     _write_outputs(out, [result], project=project, products={product.name: sha256_of(product)}, bands_written=[band],
                    record_name=record_name, rule=rule, model=model, replay_file=None, producer=producer,
+                   era_list=era_list,
                    run={"generated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
                         "control_product": str(product), "channels": [int(band.label)], "role": "control",
                         "campaign_last_month": blocks.month_label(campaign_last),

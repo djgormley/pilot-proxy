@@ -42,6 +42,9 @@ def test_the_tables_keep_the_release_layout_without_science_columns(run):
         assert not (out / "tables" / gone).exists()
     run_json = json.loads((out / "ledger" / "run.json").read_text())
     assert run_json["schema"] == ledger.SCHEMA and run_json["tie_rule"] == "selector_order"
+    # without a record the project's era list runs (r3's)
+    assert run_json["era_overrides"]["17"][1][0] == "2021-12"
+    assert run_json["era_overrides_sha256"] == "23cc1d42eed73567114f5f7df95656751c4824e412b29e38cd266afae681f819"
     assert run_json["bootstrap"] == {"replicates": 8, "seed": 91}
     text = (out / "oc_summary.csv").read_text().lower()
     for word in ("r_tol", "tolerance", "verdict", "excis"):
@@ -56,5 +59,9 @@ def test_the_booked_record_writes_the_split(tmp_path):
     assert {"intraday_share", "fast_share", "ground_filter_db", "n_coh_intraday"} <= set(rows[0])
     run_json = json.loads((out / "ledger" / "run.json").read_text())
     assert run_json["record"] == "archive_author_eras_2026_09_23" and run_json["tie_rule"] == "first_minimum"
-    assert json.loads((out / "manifest.json").read_text())["integration_model"]["variance_split"] == \
-        "booked_when_tau_usable"
+    manifest = json.loads((out / "manifest.json").read_text())
+    assert manifest["integration_model"]["variance_split"] == "booked_when_tau_usable"
+    # the record runs the era list its release ran, not the project's
+    assert run_json["era_overrides"]["17"][1][0] == "2022-10"
+    assert run_json["era_overrides_sha256"] == "81f5f20e075c8f6bde41928ecfdd8215b87488b2ee3ff512b5c9ab8343c81aae"
+    assert manifest["inputs"]["era_list_sha256"] == "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd"

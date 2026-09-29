@@ -36,6 +36,11 @@ def _screened():
     return P.frequency_plan.bands("screened")
 
 
+def _era_file(relative):
+    """A project era list as a record pins it: its path in the project and its sha256."""
+    return (relative, P.era_list(relative).source_sha256)
+
+
 def _labels_as_ints(role="screened"):
     return tuple(int(label) for label in P.frequency_plan.labels(role))
 
@@ -271,13 +276,33 @@ LITERALS = {
         "pinned", {19: "2024-12", 20: "2022-09", 26: "2023-04", 27: "2022-10", 32: "2023-02"},
         lambda: P.eras.off_from()),
     "release_author_eras_file": (
-        "results/archive_author_eras_2026-09-23/author_eras.json (byte copy)",
-        "pinned", "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd",
+        "results/archive_no_split_2026-09-24_r3/author_eras.json (byte copy)",
+        "pinned", "a37b5fa6b28b22f51f310856e8271cfeab1ee31033f3c05f65f51f0dab2fe5b3",
         lambda: P.eras.source_sha256),
     "release_era_overrides_digest": (
-        "results/archive_author_eras_2026-09-23/archive/ledger/run.json era_overrides_sha256",
-        "pinned", "81f5f20e075c8f6bde41928ecfdd8215b87488b2ee3ff512b5c9ab8343c81aae",
+        "results/archive_no_split_2026-09-24_r3/archive/ledger/run.json era_overrides_sha256",
+        "pinned", "23cc1d42eed73567114f5f7df95656751c4824e412b29e38cd266afae681f819",
         lambda: P.eras.overrides_sha256()),
+    "record_author_eras_file_2026_09_23": (
+        "results/archive_author_eras_2026-09-23/author_eras.json and results/archive_no_split_2026-09-24_r2/"
+        "author_eras.json (byte copies; the list of their records)",
+        "pinned", "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd",
+        lambda: P.era_list("eras/author_eras_2026-09-23.json").source_sha256),
+    "record_era_overrides_digest_2026_09_23": (
+        "results/archive_author_eras_2026-09-23/archive/ledger/run.json and results/archive_no_split_2026-09-24_r2/"
+        "archive/ledger/run.json era_overrides_sha256",
+        "pinned", "81f5f20e075c8f6bde41928ecfdd8215b87488b2ee3ff512b5c9ab8343c81aae",
+        lambda: P.era_list("eras/author_eras_2026-09-23.json").overrides_sha256()),
+    "records_era_list_2026_09_23": (
+        "pilot-proxy src/pilot_proxy/records/chime_atsc_2026/archive_releases.py ERAS_2026_09_23",
+        "pinned", ("eras/author_eras_2026-09-23.json",
+                   "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd"),
+        lambda: _era_file("eras/author_eras_2026-09-23.json")),
+    "records_era_list_2026_09_28": (
+        "pilot-proxy src/pilot_proxy/records/chime_atsc_2026/archive_releases.py ERAS_2026_09_28",
+        "pinned", ("eras/author_eras_2026-09-28.json",
+                   "a37b5fa6b28b22f51f310856e8271cfeab1ee31033f3c05f65f51f0dab2fe5b3"),
+        lambda: _era_file(P.files["author_eras"].relative_to(P.directory.resolve()).as_posix())),
     # ---- register ---------------------------------------------------------------
     "min_frames_per_false_alarm": (
         "pilot-proxy src/pilot_proxy/chime/injection_recovery.py:48 MIN_FRAMES_PER_FALSE_ALARM",

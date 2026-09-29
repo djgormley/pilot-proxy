@@ -1,0 +1,30 @@
+{
+  "version": "author-dated-eras-2026-09-28",
+  "criterion": "An era boundary is a hard power transition in the channel's own monthly spectrogram, dated by the author; frequency drift never cuts an era. Months strictly between one era's last month and the next era's first month belong to no era. A first month may be dated, from an external record, to a month before the era's first populated month when no frame lies between them; the era's frames are then those of its populated months.",
+  "unchanged_channels": [16, 21, 22, 23, 26, 28, 29, 30, 32, 34],
+  "channels": {
+    "14": [["2018-12", "2019-08", "archive start"], ["2019-10", "2026-08", "power transition"]],
+    "15": [["2018-12", "2021-04", "archive start"], ["2021-07", "2026-08", "power transition"]],
+    "17": [["2018-12", "2021-05", "archive start"], ["2021-12", "2026-08", "power transition"]],
+    "18": [["2018-12", "2024-05", "archive start"], ["2024-08", "2026-08", "power transition"]],
+    "19": [["2022-10", "2024-11", "archive start"], ["2024-12", "2026-04", "power transition"]],
+    "20": [["2018-12", "2022-08", "archive start"], ["2022-09", "2026-06", "power transition"]],
+    "24": [["2018-12", "2026-04", "archive start"]],
+    "25": [["2018-12", "2019-08", "archive start"], ["2019-10", "2026-08", "power transition"]],
+    "27": [["2018-12", "2020-11", "archive start"], ["2022-10", "2026-08", "power transition"]],
+    "31": [["2019-06", "2021-10", "archive start"], ["2022-10", "2026-04", "power transition"]],
+    "33": [["2018-12", "2020-09", "archive start"], ["2022-10", "2026-08", "power transition"]],
+    "35": [["2018-12", "2021-10", "archive start"], ["2021-11", "2026-08", "power transition"]],
+    "36": [["2018-12", "2026-08", "archive start"]]
+  },
+  "notes": {
+    "15": "2021-05..06 are the ramp of the transition and belong to no era; the current era also contains the 2023-08-19..24 drift onset and +0.23 dB level step",
+    "17": "dated 2021-12 by the author (DECISIONS item 67) from K17EV-D's FCC license change granted 2021-12-21 (a move to a new site, 0.1 to 0.2 kW): the Omak Mountain tower, K17EV-D's site, collapsed in mid-January 2021 and was to be rebuilt in summer 2021; 2021-05 is the last old-state month and the product holds no frame from 2021-06 to 2022-09, so the era's first frames are from 2022-10 and no frame changes era; 2026-08 (15 days: -1.9 dB, carrier pattern jump, input-map change) stays in the era as a flagged end-of-record excursion under the two-month persistence rule",
+    "19": "the rule's station-change cuts 2023-05, 2024-01, 2024-09 removed; the 2024-12 spectral-state transition kept",
+    "27": "the rule's 2019-03 station-change cut removed; the 2022-10 spectral-state transition kept",
+    "31": "the carrier's lock ended in the 2021-10-05 off-air event; 2021-10 stays in the earlier era as the rule placed it",
+    "33": "the current era spans the carrier-on proxy-high months and the later months where Q falls as the carrier drifts 2.2 to 3.7 kHz below nominal while its fine-spectrum power is unchanged",
+    "35": "the same boundary the rule found (sign-on 2021-10-22); the rule's nine station-change cuts removed; the 2022-08-17..10-18 outage is an excursion",
+    "36": "one era across the 2021-03..04 carrier-off months"
+  }
+}
