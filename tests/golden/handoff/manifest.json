@@ -33,8 +33,8 @@
  "inputs": {
   "era_list_sha256": "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd",
   "products": {
-   "537.npz": "e0558ba46b6b29abead4bc3ae8029fcf71d4f8704b9b3fcfe33e0feb414f1a36",
-   "614.npz": "0edc8e79b2d1be715bde93743574e6db619225ba6771ad6e2888c54b39af3649"
+   "537.npz": "fixture",
+   "614.npz": "fixture"
   },
   "profile": {
    "author_eras": "a988e813fcaca817670aa88b4db59b9e5ad92f130159a46524bc0bb722c95ffd",

@@ -109,7 +109,8 @@ def characterize(tmp: Path, *, products: Path | None = None, project_dir: Path |
 
 def write_golden(characterization: Path, dest: Path) -> Path:
     """The first candidates of each band's fine calibration surface, their families' summary rows, and a manifest
-    without the producer (informational, and it names the commit) or the local replay path."""
+    without the producer (informational, and it names the commit), the local replay path or the fixture products'
+    digests (the fixtures are written at test time, and their npz bytes depend on the numpy that wrote them)."""
     dest.mkdir(parents=True, exist_ok=True)
     rows = oc_table.read_rows(characterization / "oc_table.csv")
     chosen, seen = [], {}
@@ -129,6 +130,8 @@ def write_golden(characterization: Path, dest: Path) -> Path:
     manifest.pop("producer", None)
     manifest.pop("files", None)
     manifest.pop("tables", None)
+    if isinstance(manifest.get("inputs", {}).get("products"), dict):
+        manifest["inputs"]["products"] = {name: "fixture" for name in sorted(manifest["inputs"]["products"])}
     if isinstance(manifest.get("inputs", {}).get("replay_points"), dict):
         manifest["inputs"]["replay_points"]["path"] = Path(manifest["inputs"]["replay_points"]["path"]).name
     oc_table.write_manifest(dest, manifest, ("oc_table.csv", "oc_summary.csv"))
