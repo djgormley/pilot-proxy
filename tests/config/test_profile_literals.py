@@ -11,6 +11,9 @@ profile; ``REPLACED_NAMES`` below checks that they are no longer literals.
 ``pinned`` rows are copies that stay where they are for now (the detector's own
 constants, RFIsher, tools and frozen records); the refactor switches them to the
 profile in later milestones, and these rows fix the value they must keep.
+``moved`` rows sat in a capture script of record (cited by its frozen blob) whose
+code moved into ``src/pilot_proxy``, where the value is read from the profile;
+``MOVED_NAMES`` checks that the moved module no longer assigns the name.
 """
 from __future__ import annotations
 
@@ -27,6 +30,7 @@ pytest.importorskip("yaml")
 from pilot_proxy import paths  # noqa: E402
 from pilot_proxy.config.instrument import nyquist_sign  # noqa: E402
 from pilot_proxy.config.project import default_project  # noqa: E402
+from pilot_proxy.capture.markers import control_bands, marker_freq_ids  # noqa: E402
 
 P = default_project()
 DATA = Path(__file__).resolve().parent / "data"
@@ -43,6 +47,9 @@ def _labels_as_ints(role="screened"):
 def _freq_ids(role="screened"):
     return [P.target_freq_id(b) for b in P.frequency_plan.bands(role)]
 
+
+# The capture scripts' marker map (frame_residual.py L9 and the others): every band, the control band at 491.
+_FA_MARKERS = {14:844,15:829,16:813,17:798,18:783,19:767,20:752,21:736,22:721,23:706,24:690,25:675,26:660,27:644,28:629,29:614,30:598,31:583,32:568,33:552,34:537,35:521,36:506,37:491}
 
 # (location, status, literal as written, profile value)
 LITERALS = {
@@ -262,6 +269,58 @@ LITERALS = {
     "ruling_cap": (
         "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py:17 CAP (record)",
         "pinned", 86164.0905, lambda: P.integration_model.coherence_cap_seconds),
+    # ---- capture scripts of record, moved into pilot_proxy.capture (M4) -----------
+    "capture_frame_residual_nfft": (
+        "FA frame_residual.py (f2ec3277):7 NFFT", "moved", 16384, lambda: P.detector_config.nfft),
+    "capture_frame_residual_markers": (
+        "FA frame_residual.py (f2ec3277):9 PILOT", "moved", _FA_MARKERS, lambda: marker_freq_ids(P)),
+    "capture_frame_residual_control": (
+        "FA frame_residual.py (f2ec3277):104,106 channel 37", "moved", [37], lambda: control_bands(P)),
+    "capture_cadence_nfft": (
+        "FA cadence_tau.py (2a7a8a1d):17 NFFT", "moved", 16384, lambda: P.detector_config.nfft),
+    "capture_cadence_frame_seconds": (
+        "FA cadence_tau.py (2a7a8a1d):17 T_FRAME", "moved", 16384 * 2.56e-6, lambda: P.integration_model.frame_seconds),
+    "capture_cadence_sidereal": (
+        "FA cadence_tau.py (2a7a8a1d):17 SIDEREAL, CAP", "moved", 86164.0905,
+        lambda: P.integration_model.coherence_cap_seconds),
+    "capture_cadence_sample_seconds": (
+        "FA cadence_tau.py (2a7a8a1d):38, cadence_lags.py (262e0b8b):28 2.56e-6", "moved", 2.56e-6,
+        lambda: 1.0 / P.instrument.sample_rate_hz),
+    "capture_cadence_markers": (
+        "FA cadence_tau.py (2a7a8a1d):20, cadence_lags.py (262e0b8b):16, cadence_lags_tenclasses.py (b46451ea):16 PILOT",
+        "moved", _FA_MARKERS, lambda: marker_freq_ids(P)),
+    "capture_lag_reference_bands": (
+        "FA cadence_lags.py (262e0b8b):31, cadence_lags_tenclasses.py (b46451ea):31 (34, 37)", "moved", (34, 37),
+        lambda: P.record_module("capture_campaign").LAG_REFERENCE_BANDS),
+    "capture_class_excess_nfft": (
+        "FA class_excess_epochs.py (e33e9fa5):10, baseline_floor.py (af3624fc):12 NFFT", "moved", 16384,
+        lambda: P.detector_config.nfft),
+    "capture_class_excess_control": (
+        "FA class_excess_epochs.py (e33e9fa5):40, baseline_floor.py (af3624fc):44 channel 37", "moved", [37],
+        lambda: control_bands(P)),
+    "capture_marker_to_inband_markers": (
+        "FA pilot_to_inband.py (8ec3cf01):15-17 NFFT, PILOT (through capture marker-map)", "moved",
+        (16384, _FA_MARKERS), lambda: (P.detector_config.nfft, marker_freq_ids(P))),
+    "capture_marker_to_inband_events": (
+        "FA pilot_to_inband.py (8ec3cf01):19 SCI", "moved",
+        ["20260916162300", "20260917040230", "20260917090230", "20260917140230"],
+        lambda: list(P.record_module("capture_campaign").SCIENCE_EVENTS)),
+    "capture_ladder_markers": (
+        "FA ladder_place.py (053db723):11 PILOT (screened bands only)", "moved",
+        {k: v for k, v in _FA_MARKERS.items() if k != 37},
+        lambda: {int(b.label): P.target_freq_id(b) for b in P.frequency_plan.bands("screened")}),
+    "capture_table_of_record_markers": (
+        "FA table_of_record.py (f2372bf6):15-16 NFFT, PILOT (the detector half, capture oc-table)", "moved",
+        (16384, _FA_MARKERS), lambda: (P.detector_config.nfft, marker_freq_ids(P))),
+    "capture_diagnostics_geometry": (
+        "FRZ band_shape.py (208532a5):6, first_look.py, line_check.py (e2e02d5d):6 NFFT, W", "moved", (16384, 0.390625),
+        lambda: (P.detector_config.nfft, P.instrument.channel_width_hz / 1e6)),
+    "capture_detection_gate_sigma": (
+        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py:17 NSIG (record)", "pinned", 3.0,
+        lambda: P.register.value("capture.detection_gate_sigma")),
+    "capture_ruling_detection_gate_sigma": (
+        "capture ruling release r5.2 source/ruling_a18.py:143 NSIG (record d53fbe48)", "pinned", 3.0,
+        lambda: P.register.value("capture.detection_gate_sigma")),
     # ---- eras -------------------------------------------------------------------
     "rfisher_sign_on_off_through": (
         "RFIsher src/rfisher/residual.py:135 SIGN_ON_OFF_THROUGH",
@@ -316,7 +375,7 @@ LITERALS = {
 @pytest.mark.parametrize("key", sorted(LITERALS))
 def test_profile_reproduces_literal(key):
     location, status, literal, profile_value = LITERALS[key]
-    assert status in {"replaced", "pinned"}, location
+    assert status in {"replaced", "pinned", "moved"}, location
     value = profile_value()
     assert type(value) is type(literal), (location, value, literal)
     assert value == literal, (location, value, literal)
@@ -390,6 +449,28 @@ def test_replaced_names_read_the_profile(relative):
         assert status == "replaced", key
         value = getattr(module, name)
         assert type(value) is type(literal) and value == literal, (relative, name)
+
+
+# Modules the capture scripts' code moved into: the names below held the replaced literals in the scripts and
+# must not be assigned at module level any more (the values are read from the profile and passed in).
+MOVED_NAMES = {
+    "capture/frame_residual.py": {"NFFT", "W", "PILOT", "LAMBDA"},
+    "capture/cadence.py": {"NFFT", "T_FRAME", "SIDEREAL", "CAP", "PILOT"},
+    "capture/class_excess.py": {"NFFT", "FA", "OUT", "EPOCHS"},
+    "capture/control_level.py": {"NFFT", "DUMPS"},
+    "capture/ladder_place.py": {"PILOT", "ARCH"},
+    "capture/oc_table.py": {"NFFT", "PILOT", "ARCH", "TF", "CAP", "NSIG", "FA", "STOKES_I"},
+    "capture/tau_bounds.py": {"AC_LANE", "AC_CHECK", "FITS_CHECK", "B3_NULL", "B4_BOUNDS", "EVID"},
+    "capture/diagnostics/band_shape.py": {"NFFT", "W"},
+    "capture/diagnostics/line_check.py": {"NFFT", "W", "DK"},
+    "detectors/narrowband_marker/marker_to_inband.py": {"NFFT", "PILOT", "SCI", "OUT"},
+}
+
+
+@pytest.mark.parametrize("relative", sorted(MOVED_NAMES))
+def test_moved_modules_read_the_profile(relative):
+    assigned = _assigned_literals(paths.PACKAGE_ROOT / relative)
+    assert not MOVED_NAMES[relative] & set(assigned), (relative, sorted(MOVED_NAMES[relative] & set(assigned)))
 
 
 def test_every_replaced_row_is_checked_in_its_module():
