@@ -1,26 +1,21 @@
-"""The three named record configurations, their era lists, and a tie the two rules break differently."""
+"""The two named record configurations, and a tie the two rules break differently."""
 from __future__ import annotations
 
 import math
-import shutil
 
 import pytest
 
 from pilot_proxy.characterization import surface
-from pilot_proxy.config._files import ProfileError
-from pilot_proxy.config.project import default_project, default_project_dir, load_project
+from pilot_proxy.config.project import default_project
 from pilot_proxy.records.chime_atsc_2026 import archive_releases as ar
 
 
-def test_the_releases_are_named_with_their_choices():
-    assert set(ar.RECORDS) == {"archive_author_eras_2026_09_23", "archive_no_split_2026_09_24_r2",
-                               "archive_no_split_2026_09_24_r3"}
+def test_both_releases_are_named_with_their_choices():
+    assert set(ar.RECORDS) == {"archive_author_eras_2026_09_23", "archive_no_split_2026_09_24_r2"}
     booked = ar.record("archive_author_eras_2026_09_23")
     off = ar.record("archive_no_split_2026_09_24_r2")
-    dated = ar.record("archive_no_split_2026_09_24_r3")
     assert (booked.variance_split, booked.ties.name) == ("booked_when_tau_usable", "first_minimum")
     assert (off.variance_split, off.ties.name) == ("off", "selector_order")
-    assert (dated.variance_split, dated.ties.name) == ("off", "selector_order")
     base = default_project().integration_model
     assert base.variance_split == "off"
     model = booked.integration_model(base)
@@ -28,34 +23,6 @@ def test_the_releases_are_named_with_their_choices():
     assert (model.frame_seconds, model.coherence_cap_seconds) == (base.frame_seconds, base.coherence_cap_seconds)
     with pytest.raises(KeyError, match="unknown archive record"):
         ar.record("archive_v5_2026_09_07")
-
-
-def test_each_record_names_the_era_list_its_release_ran():
-    project = default_project()
-    lists = {name: project.era_list(rec.era_list, rec.era_list_sha256) for name, rec in ar.RECORDS.items()}
-    old, new = lists["archive_no_split_2026_09_24_r2"], lists["archive_no_split_2026_09_24_r3"]
-    assert lists["archive_author_eras_2026_09_23"] == old
-    assert (old.version, new.version) == ("author-dated-eras-2026-09-23", "author-dated-eras-2026-09-28")
-    # the default is the r3 configuration: the project's own list
-    assert new.source_sha256 == project.eras.source_sha256 == ar.ERAS_2026_09_28[1]
-    # the two lists differ only in channel 17's dated first month (and the note and criterion that say why)
-    changed = {c for c in set(old.overrides) | set(new.overrides) if old.overrides.get(c) != new.overrides.get(c)}
-    assert changed == {"17"}
-    assert [s.first_month for s in old.overrides["17"]] == ["2018-12", "2022-10"]
-    assert [s.first_month for s in new.overrides["17"]] == ["2018-12", "2021-12"]
-    assert old.unchanged_bands == new.unchanged_bands
-    assert {c for c in old.notes if old.notes[c] != new.notes.get(c)} == {"17"}
-
-
-def test_a_record_list_with_other_bytes_is_refused(tmp_path):
-    project = load_project(shutil.copytree(default_project_dir(), tmp_path / "project"))
-    rec = ar.record("archive_no_split_2026_09_24_r2")
-    path = project.directory / rec.era_list
-    path.write_bytes(path.read_bytes() + b"\n")
-    with pytest.raises(ProfileError, match="is not the recorded"):
-        project.era_list(rec.era_list, rec.era_list_sha256)
-    with pytest.raises(ProfileError, match="leaves the project directory"):
-        project.era_list("../outside.json")
 
 
 def _row(rho, eta_q16, f, r):
