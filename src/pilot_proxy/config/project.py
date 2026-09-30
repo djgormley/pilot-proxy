@@ -106,15 +106,6 @@ class Project:
         return load_era_list(self.files["author_eras"], self.files["transmitter_off"],
                              self.era_states)
 
-    def era_list(self, author_eras: str, sha256: str | None = None) -> EraList:
-        """Another author-dated era list of the project (a record's), with the profile's
-        transmitter-off record and states; refused when its bytes are not ``sha256``."""
-        path = self._inside(author_eras, str(self.directory / PROJECT_FILE))
-        eras = load_era_list(path, self.files["transmitter_off"], self.era_states)
-        if sha256 is not None and eras.source_sha256 != sha256:
-            raise ProfileError(f"{path}: sha256 {eras.source_sha256} is not the recorded {sha256}")
-        return eras
-
     @cached_property
     def register(self) -> Register:
         return load_register(self.files["register"], side="detector")
