@@ -28,8 +28,9 @@ def keys():
     return np.array([(ew, ns, p, p) for (ew, ns) in CLASSES for p in (0, 1)], dtype=np.int64)
 
 
-def write_dump(directory, *, seed, n_frames=11, t0=1.7e9, strength=None, dead=(3, 17)):
-    """One dump: a product per bin of BANDS. ``strength`` maps band -> coherent amplitude (default small)."""
+def write_dump(directory, *, seed, n_frames=11, t0=1.7e9, strength=None, dead=(3, 17), same_pols=False):
+    """One dump: a product per bin of BANDS. ``strength`` maps band -> coherent amplitude (default small);
+    ``same_pols`` writes the YY stacks equal to the XX stacks."""
     directory = Path(directory); directory.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(seed)
     strength = strength or {14: 2e-4, 15: 5e-5, 16: 1e-3, 37: 0.0}
@@ -44,6 +45,8 @@ def write_dump(directory, *, seed, n_frames=11, t0=1.7e9, strength=None, dead=(3
                 / np.sqrt(2 * NFFT * count)[None, :]
             drift = 1.0 + 0.05 * rng.standard_normal((n_frames, 1))
             stacks = ((coh * drift + noise) * (NFFT * P)[:, None]).astype(np.complex64)
+            if same_pols:
+                stacks[:, 1::2] = stacks[:, 0::2]
             meta = dict(freq_id=int(fid), channel=int(band), freq_mhz=800.0 - fid * W_MHZ, n_frames=int(n_frames),
                         time0_ctime=float(t0), j0=int(1000 * seed % 7), nfft=NFFT, is_pilot=bool(fid == marker),
                         pilot_fine_bin_naive=int(rng.integers(-3000, 3000)), seconds=n_frames * NFFT * 2.56e-6)
