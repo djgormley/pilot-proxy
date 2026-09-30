@@ -73,6 +73,7 @@ package-dir = {"" = "src"}
 [tool.setuptools.package-data]
 "pilot_proxy.instruments" = ["*.yaml"]
 "pilot_proxy.characterization" = ["schemas/*.json"]
+"pilot_proxy.capture" = ["schemas/*.json"]
 
 [tool.setuptools.dynamic]
 version = {attr = "pilot_proxy._version.__version__"}
