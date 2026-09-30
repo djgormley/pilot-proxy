@@ -803,6 +803,21 @@ CHARACTERIZE_STEPS = {
     "roc": "pilot_proxy.characterization.roc",
 }
 PRODUCTS_STEPS = {"check-archive": "pilot_proxy.products.acceptance"}
+# The capture characterization (reduced baseband dumps) and its handoff.
+CAPTURE_STEPS = {
+    "frame-residual": "pilot_proxy.capture.frame_residual",
+    "cadence": "pilot_proxy.capture.cadence",
+    "cadence-report": "pilot_proxy.capture.cadence_report",
+    "control-level": "pilot_proxy.capture.control_level",
+    "class-excess": "pilot_proxy.capture.class_excess",
+    "marker-map": "pilot_proxy.capture.marker_map",
+    "marker-to-inband": "pilot_proxy.detectors.narrowband_marker.marker_to_inband",
+    "ladder-place": "pilot_proxy.capture.ladder_place",
+    "tau-bounds": "pilot_proxy.capture.tau_bounds",
+    "oc-table": "pilot_proxy.capture.oc_table",
+}
+# Records of a campaign that run as they were run: each is executed as ``__main__`` with the given arguments.
+RECORD_STEPS = {"frame-policy": "pilot_proxy.records.chime_atsc_2026.frame_policy"}
 BENCH_STEPS = {"estimator-transfer": "pilot_proxy.testbench.harness.bench",
                "transfer-points": "pilot_proxy.testbench.harness.bench"}
 
@@ -816,6 +831,20 @@ def _cmd_step(steps: dict[str, str], *, pass_step: bool = False):
         status = module.main(argv)
         if status:
             raise SystemExit(status)
+    return run
+
+
+def _cmd_record(steps: dict[str, str]):
+    """Run a record module unchanged, as ``python -m <module> ARGS`` would (its own argument parser reads sys.argv)."""
+    def run(args: argparse.Namespace) -> None:
+        import runpy
+
+        saved = sys.argv
+        sys.argv = [steps[args.step], *args.step_args]
+        try:
+            runpy.run_module(steps[args.step], run_name="__main__", alter_sys=True)
+        finally:
+            sys.argv = saved
     return run
 
 
@@ -1957,12 +1986,22 @@ def build_parser() -> argparse.ArgumentParser:
          PRODUCTS_STEPS, False),
         ("bench", "Bench figures and tables from frozen releases (estimator-transfer, transfer-points).",
          BENCH_STEPS, True),
+        ("capture", "Capture characterization of reduced baseband dumps: frame residual, cadence coherence, "
+                    "class excess and control level, tau bounds, and the capture handoff (oc-table).",
+         CAPTURE_STEPS, False),
     ):
         group = _add_command(name, summary)
         group.add_argument("step", choices=sorted(steps))
         group.add_argument("step_args", nargs=argparse.REMAINDER,
                            help="arguments of the step (see pilot-proxy %s STEP --help)" % name)
         group.set_defaults(func=_cmd_step(steps, pass_step=pass_step))
+
+    records = _add_command("records", "Records of a campaign, run unchanged (frame-policy: the capture frame "
+                                      "policies of 2026-09).")
+    records.add_argument("step", choices=sorted(RECORD_STEPS))
+    records.add_argument("step_args", nargs=argparse.REMAINDER,
+                         help="arguments of the record (see pilot-proxy records STEP --help)")
+    records.set_defaults(func=_cmd_record(RECORD_STEPS))
 
     return parser
 

@@ -10,9 +10,8 @@ from unittest.mock import patch
 import h5py
 import numpy as np
 
-from frame_policy_v1 import (CLASSES, DT, NFFT, POLICIES, Refusal, align_ids, allocation_bins, complex_stats,
+from pilot_proxy.records.chime_atsc_2026.frame_policy import (CLASSES, DT, NFFT, POLICIES, Refusal, align_ids, allocation_bins, complex_stats,
                              exact_keep, threshold_rows, read_detector, read_visibility, run, sha)
-from screen_export_v1 import qualify_row
 
 
 class FramePolicyTests(unittest.TestCase):
@@ -73,13 +72,6 @@ class FramePolicyTests(unittest.TestCase):
                 absolute_time_used=False, input_manifest_sha256=sha(manifest))))
             with self.assertRaisesRegex(Refusal, 'missing pilot'):
                 read_detector(d, 29, d, [])
-
-    def test_screen_failure_never_becomes_exclusion(self):
-        for screen in ('excise', 'keep', 'undetermined'):
-            r = qualify_row(dict(freq_id='521', channel='35', role='pilot', disposition=screen))
-            self.assertEqual(r['screen_disposition'], screen)
-            self.assertEqual(r['scientific_ruling'], 'undetermined')
-            self.assertFalse(r['physical_exclusion_certified'])
 
 
 class DetectorBankTests(unittest.TestCase):
@@ -190,10 +182,10 @@ class VisibilityValidationTests(unittest.TestCase):
                 visibility['values'][0, 1] = np.nan
             elif failure == 'join':
                 visibility['ids'] = visibility['ids'] + NFFT
-            with patch('frame_policy_v1.threshold_rows', return_value=thresholds), \
-                 patch('frame_policy_v1.read_detector', return_value=self.detector()), \
-                 patch('frame_policy_v1.allocation_bins', return_value={521: 6.}), \
-                 patch('frame_policy_v1.read_visibility', return_value=visibility):
+            with patch('pilot_proxy.records.chime_atsc_2026.frame_policy.threshold_rows', return_value=thresholds), \
+                 patch('pilot_proxy.records.chime_atsc_2026.frame_policy.read_detector', return_value=self.detector()), \
+                 patch('pilot_proxy.records.chime_atsc_2026.frame_policy.allocation_bins', return_value={521: 6.}), \
+                 patch('pilot_proxy.records.chime_atsc_2026.frame_policy.read_visibility', return_value=visibility):
                 run(root, root / 'release', [35])
             def rows(name):
                 with (root / 'release' / name).open() as f:

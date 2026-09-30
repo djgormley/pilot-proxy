@@ -122,7 +122,7 @@ LITERALS = {
              644, 629, 614, 598, 583, 568, 552, 537, 521, 506])},
         lambda: dict(zip(_labels_as_ints(), _freq_ids()))),
     "frame_policy_pilot_freq_ids": (
-        "pilot-proxy tools/capture/frame_analysis/frame_policy_v1.py:15 PILOT (record c49ae37f)",
+        "pilot-proxy src/pilot_proxy/records/chime_atsc_2026/frame_policy.py:15 PILOT (record c49ae37f)",
         "pinned",
         dict(zip(range(14, 37), [844, 829, 813, 798, 783, 767, 752, 736,
                                  721, 706, 690, 675, 660, 644, 629, 614, 598, 583, 568,
