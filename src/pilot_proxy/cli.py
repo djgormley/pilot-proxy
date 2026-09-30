@@ -815,6 +815,10 @@ CAPTURE_STEPS = {
     "ladder-place": "pilot_proxy.capture.ladder_place",
     "tau-bounds": "pilot_proxy.capture.tau_bounds",
     "oc-table": "pilot_proxy.capture.oc_table",
+    "band-shape": "pilot_proxy.capture.diagnostics.band_shape",
+    "first-look": "pilot_proxy.capture.diagnostics.first_look",
+    "line-check": "pilot_proxy.capture.diagnostics.line_check",
+    "bearing": "pilot_proxy.capture.diagnostics.bearing",
 }
 # Records of a campaign that run as they were run: each is executed as ``__main__`` with the given arguments.
 RECORD_STEPS = {"frame-policy": "pilot_proxy.records.chime_atsc_2026.frame_policy"}

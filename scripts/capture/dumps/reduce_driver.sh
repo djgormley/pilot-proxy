@@ -8,6 +8,7 @@
 #   USER_DATA_DIR      the operator's user-data directory on the analysis host (products go to pilot_reduce/)
 #   BASEBAND_IMAGE     the CHIME/FRB baseband-analysis container image
 # Reading CHIME baseband data requires CHIME/FRB authorization; see README.md.
+# $DUMP_DIR/reduce/reduce_dump.py is a copy of src/pilot_proxy/instruments/chime/capture/reduce_dump.py.
 set -u
 : "${DUMP_DIR:?}" "${REMOTE_HOME:?}" "${BASEBAND_RAW_ROOT:?}" "${USER_DATA_DIR:?}" "${BASEBAND_IMAGE:?}"
 EV=$1; OUT=$2; NC=${3:-5}; NT=${4:-8}; MF=${5:-0}

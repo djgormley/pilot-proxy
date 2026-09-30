@@ -19,7 +19,7 @@ them from the collaboration, not from this repository.
 | `trigger_dump.py` | Posts one dump to coco's `/baseband` endpoint and deposits the baseband-converter Work, with the volume guards the shared buffer needs: a 2 TB hard cap, at most a quarter of the measured free space, a lead window of 60 to 2400 s, and a total the operator must restate in TB. Each event_id goes into a local ledger, `dumps.csv`, before the POST. Without `--dump` it only prints what it would send. |
 | `remote_wait_reduce.sh <event_id>` | On the analysis host. Waits up to 20 h until the converted event has at least 630 files and the count holds for two checks, then runs `reduce_driver.sh`. |
 | `reduce_driver.sh <event dir> <out dir> [containers] [threads] [max frames]` | Reduces the DTV-band files (freq_id 477 to 844, channels 14 to 37) of one event in parallel containers, on a common FPGA frame grid. |
-| `reduce_dump.py` | The per-frequency reducer the driver runs. It is the same as `../reduce_dump.py`. |
+| `reduce_dump.py` | The per-frequency reducer the driver runs: `src/pilot_proxy/instruments/chime/capture/reduce_dump.py`, copied to `$DUMP_DIR/reduce/`. |
 
 When they were used:
 
@@ -32,9 +32,9 @@ These are the local copies as last run, and the copies on the analysis host were
 `trigger_dump.py` is the revision the cadence campaign ran, after its lead window was widened to 2400 s. The pilot and
 science dumps ran an earlier revision, which was not kept.
 
-`../process_dump.sh` brought each reduced event home and ran the kernel and the frame analysis on it
-(`../frame_analysis/`). The campaign's record is in `../NEXT_STEPS_2026-09-18.md` and
-`../frame_analysis/FRAME_ANALYSIS_PREDECLARATION.md`.
+`../process_dump.sh` brought each reduced event home and ran the kernel and the frame analysis on it (now
+`pilot-proxy capture frame-residual` and `capture ladder-place`). The campaign's method is in
+`docs/capture/FRAME_ANALYSIS_PREDECLARATION.md` and the commands of record in `docs/capture/README.md`.
 
 ## Layout on the analysis host
 

@@ -1,16 +1,23 @@
-#!/usr/bin/env python3
-"""Bearing of each DTV pilot line from the per-input line phasors of one dump, after dividing out a gain solution.
+"""Bearing of each marker line from the per-input line phasors of one dump, after dividing out a gain solution.
 
-usage: bearing.py <products dir> <gain .h5 or 'none'> <unix time of the dump> [--selftest]
+usage: pilot-proxy capture bearing <products dir> <gain .h5, .npz or 'none'> <unix time of the dump> [--selftest]
 
 Model: plane wave from bearing beta (deg east of north) and elevation eps over the feed layout
 cylinder = id // 512 (EW 22.0 m per step), position = id % 256 (NS 0.3048 m per step). The EW and NS sign
 conventions of the layout are unknown, so every fit is done under the four sign choices; the one that puts the
 known stations (17 and 35 at 272 deg, 22 at 12 deg, 21 at 251 deg) nearest their census bearings is reported as
-the convention, and the unknown lines (33, 14, 36) are read under it.
+the convention, and the unknown lines (33, 14, 36) are read under it. The station bearings are the campaign's
+census values, a record of the 2026 capture.
 """
-import glob, json, os, sys
+from __future__ import annotations
+
+import glob
+import json
+import os
+import sys
+
 import numpy as np
+
 
 C = 299792458.0; EW_M = 22.0; NS_M = 0.3048
 KNOWN = {17: 272.2, 35: 272.1, 22: 11.6, 21: 251.3}
@@ -69,10 +76,14 @@ def selftest():
         cal = ph / inst
         print(f"  injected {beta:6.1f} deg, {eps:4.1f} deg ->", "  ".join(f"({sx:+d},{sy:+d}): {fit_plane_wave(cal, freq, sx, sy)[0]:6.1f}/{fit_plane_wave(cal, freq, sx, sy)[1]:4.1f} f={fit_plane_wave(cal, freq, sx, sy)[2]:.2f}" for sx, sy in ((1, 1), (-1, 1), (1, -1), (-1, -1))))
 
-if __name__ == "__main__":
-    if "--selftest" in sys.argv:
-        print("self-test with random instrumental phases, 30% amplitude scatter and noise at half the line amplitude:"); selftest(); sys.exit(0)
-    prod_dir, gainfile, t_unix = sys.argv[1], sys.argv[2], float(sys.argv[3])
+
+def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if "--selftest" in argv:
+        print("self-test with random instrumental phases, 30% amplitude scatter and noise at half the line amplitude:"); selftest(); return 0
+    if len(argv) < 3 or argv[0] in ("-h", "--help"):
+        print(__doc__.split("\n\n")[0].split("\n", 1)[1]); return 0 if argv and argv[0] in ("-h", "--help") else 2
+    prod_dir, gainfile, t_unix = argv[0], argv[1], float(argv[2])
     rows = []
     for f in sorted(glob.glob(os.path.join(prod_dir, "*.npz")), key=lambda p: int(os.path.basename(p)[:-4])):
         z = np.load(f); m = json.loads(str(z["meta"]))
@@ -98,3 +109,8 @@ if __name__ == "__main__":
     print("mean bearing error of the known stations per convention:", {k: round(v, 1) for k, v in scores.items()}, "-> convention", best)
     for ch, fid, ratio, tu, res in rows:
         if ch in UNKNOWN and best: print(f"  ch{ch}: bearing {res[best][0]:.1f} deg, elevation {res[best][1]:.1f} deg, fit fraction {res[best][2]:.2f}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

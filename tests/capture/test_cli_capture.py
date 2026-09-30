@@ -8,7 +8,8 @@ pytest.importorskip("yaml")
 from pilot_proxy import cli  # noqa: E402
 
 CAPTURE = {"frame-residual", "cadence", "cadence-report", "control-level", "class-excess", "marker-map",
-           "marker-to-inband", "ladder-place", "tau-bounds", "oc-table"}
+           "marker-to-inband", "ladder-place", "tau-bounds", "oc-table", "band-shape", "first-look", "line-check",
+           "bearing"}
 
 
 def test_the_capture_group_lists_its_steps(capsys):

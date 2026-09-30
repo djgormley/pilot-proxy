@@ -10,6 +10,8 @@ import pytest
 SRC = Path(__file__).resolve().parents[2] / "src" / "pilot_proxy"
 ALLOWED = {
     SRC / "detectors" / "narrowband_marker" / "marker_to_inband.py": {"numpy"},
+    # the reducer is copied to the analysis host and run there as a script
+    SRC / "instruments" / "chime" / "capture" / "reduce_dump.py": {"numpy", "scipy", "h5py"},
 }
 
 
