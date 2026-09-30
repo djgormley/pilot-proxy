@@ -750,7 +750,7 @@
       "rationale": "The capture's allowance for measurement systematics (the polarization choice, the coherence probe spread, the credit range): a residual must exceed its tolerance by more than this to be excised. It is a measurement allowance, not a science quantity.",
       "evidence": [
         "tools/capture/frame_analysis/ruling_baseline.py",
-        "tools/capture/frame_analysis/RULING_AUDIT_ROUND2_2026-09-18.md"
+        "docs/capture/RULING_AUDIT_ROUND2_2026-09-18.md"
       ],
       "sensitivity_values": []
     },

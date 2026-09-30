@@ -93,10 +93,12 @@ target-version = "py310"
 # docs/evidence holds frozen records of what was actually run, absolute paths and
 # all. They are read as evidence, never imported, and editing one to satisfy a
 # linter would alter the record it exists to preserve, so they are not linted.
-# tools/capture/frame_analysis holds the capture ruling's scripts of record,
-# byte copies of the frozen ruling tree whose hashes are pinned; the same holds.
-# table_of_record.py alone takes its inputs from a configurable location (its
-# README); given the same inputs it writes the same table.
+# tools/capture/frame_analysis holds the capture ruling's science scripts of
+# record (ruling_baseline, table_of_record, the credit, robustness and
+# baseline-domain scripts, ch24_2020_basis), byte copies of the frozen ruling
+# tree whose hashes are pinned, kept until their port to the science side; the
+# same holds. table_of_record.py alone takes its inputs from a configurable
+# location (its README); given the same inputs it writes the same table.
 extend-exclude = ["docs/evidence", "tools/capture/frame_analysis"]
 
 [tool.ruff.lint]

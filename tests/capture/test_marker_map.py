@@ -10,7 +10,7 @@ pytest.importorskip("yaml")
 from pilot_proxy.capture.marker_map import SCHEMA, main, marker_map  # noqa: E402
 from pilot_proxy.config.project import default_project  # noqa: E402
 
-# tools/capture/frame_analysis/pilot_to_inband.py (8ec3cf01) L15-19: NFFT, PILOT and SCI of record
+# the frozen frame_analysis pilot_to_inband.py (8ec3cf01) L15-19: NFFT, PILOT and SCI of record
 FA_NFFT = 16384
 FA_PILOT = {14:844,15:829,16:813,17:798,18:783,19:767,20:752,21:736,22:721,23:706,24:690,25:675,
             26:660,27:644,28:629,29:614,30:598,31:583,32:568,33:552,34:537,35:521,36:506,37:491}
