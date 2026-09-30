@@ -62,7 +62,7 @@ def main(argv=None):
     for r in rows:
         if r["is_pilot"]:
             where = f"control bin {r['freq_id']} (nominal ATSC pilot position)" if r["channel"] in control else f"fid {r['freq_id']}"
-        print(f"ch{r['channel']:02d} {where} frames {r['n_frames']} line ratio {r['line_ratio_min']}..{r['line_ratio_max']} "
+            print(f"ch{r['channel']:02d} {where} frames {r['n_frames']} line ratio {r['line_ratio_min']}..{r['line_ratio_max']} "
                   f"offset {r['line_offset_khz']} kHz bin spread {r['line_bin_spread']} snr med {r['line_snr_med']} inputs>3 {r['inputs_with_line']} dead {r['dead_inputs']}")
     return 0
 
