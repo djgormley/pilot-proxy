@@ -36,6 +36,16 @@ def unpack_4bit(packed: np.ndarray) -> np.ndarray:
     return (real + 1j * imag).astype(np.complex64)
 
 
+def decode_excess8(packed):
+    """Native CHIME byte: high nibble real, low imaginary, each excess-8."""
+    packed = np.asarray(packed)
+    if packed.dtype != np.uint8:
+        raise TypeError("packed samples must be uint8")
+    real = (packed >> 4).astype(np.float64) - 8
+    imag = (packed & 15).astype(np.float64) - 8
+    return real + 1j * imag
+
+
 def channel_center_hz(path: str) -> float:
     """Channel-centre frequency (Hz) read from the file's `freq` attribute (MHz)."""
     with h5py.File(path, "r") as h:
