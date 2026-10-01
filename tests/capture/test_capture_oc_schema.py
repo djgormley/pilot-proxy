@@ -24,7 +24,8 @@ def handoff(tmp_path_factory):
 def test_the_handoff_validates(handoff):
     assert oc_table.validate_directory(handoff) == []
     for name, cols in ((oc_table.TABLE, oc_table.TABLE_COLUMNS), (oc_table.SUMMARY, oc_table.SUMMARY_COLUMNS)):
-        header = next(csv.reader(open(handoff / name)))
+        with open(handoff / name, newline="") as fh:
+            header = next(csv.reader(fh))
         assert header == [c[0] for c in cols]
 
 

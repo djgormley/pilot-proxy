@@ -21,11 +21,12 @@ def lane(tmp_path):
         w.writerow([31, "bao_long", "3,0", 3.2, json.dumps({"science_median/rho0.5": 3.2, "all14_median/rho0.5": 4.0})])
     with open(ln / "lag_profiles.csv", "w", newline="") as fh:
         w = csv.writer(fh); w.writerow(["channel", "lag"]); [w.writerow([29, lag]) for lag in range(1, 33)]
-    json.dump({"primary_results_stokes_I": {"29 (0,32)": {"tau_lb95_s_exp_block": [0.7, 0.8]},
-                                            "31 (3,0)": {"tau_lb95_s_exp_block": [2.5, 2.9]}},
-               "least_over_variants": {"tau_lb95_s_without_lag_truncation": {"29 (0,32)": 0.61, "31": 2.4},
-                                       "tau_lb95_s_lags_1_2_only": {"29 (0,32)": 0.92, "31": 2.2},
-                                       "dchi2_thr_min": {"29": 1.0}}}, open(ck / "summary.json", "w"))
+    (ck / "summary.json").write_text(json.dumps(
+        {"primary_results_stokes_I": {"29 (0,32)": {"tau_lb95_s_exp_block": [0.7, 0.8]},
+                                      "31 (3,0)": {"tau_lb95_s_exp_block": [2.5, 2.9]}},
+         "least_over_variants": {"tau_lb95_s_without_lag_truncation": {"29 (0,32)": 0.61, "31": 2.4},
+                                 "tau_lb95_s_lags_1_2_only": {"29 (0,32)": 0.92, "31": 2.2},
+                                 "dchi2_thr_min": {"29": 1.0}}}))
     fits = [("29", "0,32", "primary", 0.7, 0.8, 0.7), ("29", "0,32", "dmax_2", 0.9, 0.9, 0.918),
             ("31", "3,0", "primary", 2.5, 2.9, 2.4), ("31", "3,0", "dmax_2", 2.2, 2.2, 2.2)]
     extra = ("perm_null", "mean_agg", "dumpmean_norm", "drop_pilot", "rho_ep_0", "rho_ep_1")
@@ -39,8 +40,8 @@ def lane(tmp_path):
         w = csv.writer(fh); w.writerow(["cls", "least_bound_s"])
         for i in range(91): w.writerow(["0,32" if i % 2 else "3,0", 0.01 * (i + 1)])
     b4 = tmp_path / "bounds_b4.json"
-    json.dump({"bounds": {"15|3,0": {"range": "bao_long", "variants": {"lane a": 55.0, "check dmax_2": 0.7, "check x": None}}}},
-              open(b4, "w"))
+    b4.write_text(json.dumps({"bounds": {"15|3,0": {"range": "bao_long",
+                                                     "variants": {"lane a": 55.0, "check dmax_2": 0.7, "check x": None}}}}))
     return dict(lane=str(ln), check=str(ck), b3_null=str(null), b4_bounds=str(b4), frame_seconds=TF)
 
 

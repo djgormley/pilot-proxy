@@ -56,7 +56,8 @@ def test_the_sidecar_reconstructs_the_fraction_above_any_threshold(tmp_path, mon
     rows = list(csv.DictReader(out.open()))
     ui = [r for r in rows if r["frames"] == "U_i"]
     assert ui and all(r["excess_inband_max"] == "" for r in ui) and len(held) == len(ui)
-    side = list(csv.DictReader(open(frame_residual.inputs_path(str(out)))))
+    with open(frame_residual.inputs_path(str(out))) as fh:
+        side = list(csv.DictReader(fh))
     for r, mem in zip(ui, held):
         U = np.array([float(s["U"]) for s in side if s["channel"] == r["channel"]], dtype=np.float32)
         assert all(s["n_frames"] == r["n_frames"] for s in side if s["channel"] == r["channel"])
