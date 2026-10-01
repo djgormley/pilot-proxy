@@ -1,1 +1,1 @@
-datatrail-cli @ git+https://github.com/WVURAIL/datatrail-cli.git@9863dbc2868ff62c7b503b28d3bfe5e626bc81ce
+datatrail-cli @ git+https://github.com/CHIMEFRB/datatrail-cli.git@9863dbc2868ff62c7b503b28d3bfe5e626bc81ce
