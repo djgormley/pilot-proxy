@@ -12,7 +12,9 @@ block's two calendar halves.
 
 ``population`` names the frames the thresholds are read from:
 ``current_era_calibration_block`` (the archive: the current era's calibration
-block, as the release's coarse retention diagnostic read it). The residual of
+block, as the release's coarse retention diagnostic read it) or
+``all_valid_frames`` (every valid, finite frame of the band's product: the
+ladder a capture dump is placed on, :func:`product_thresholds`). The residual of
 a rung is the kept-frame mean of the floor-bounded shelf at G = 1
 (``G1_allowance``) and that mean times the chain gain (``chain_allowance``);
 a missing floor stays missing. Pricing against a tolerance is the science
@@ -33,7 +35,7 @@ from .residual_chain import frame_residuals
 
 QUANTILES = (0.1, 0.5, 0.9)
 MINIMUM = 30
-POPULATIONS = ("current_era_calibration_block",)
+POPULATIONS = ("current_era_calibration_block", "all_valid_frames")
 
 
 def threshold(q, quantile):
@@ -135,5 +137,56 @@ def ladder(product, calibration: np.ndarray, evaluation: np.ndarray, floor, gain
     return rows
 
 
+def product_thresholds(path, quantiles=QUANTILES):
+    """The ladder over ``all_valid_frames`` of a band's archive product (``<freq_id>.npz``).
+
+    eta_q is the q-quantile (method 'higher') of Q = F / mu0 over every valid,
+    finite frame, with mu0 = 2 |t|^2 / sum |r|^2, the bank's null power ratio
+    from its norms. Returns ``{q: eta_q}`` with the frame count ``"n"`` and the
+    median ``"median"`` of Q beside them.
+    """
+    z = np.load(path, allow_pickle=True); v = z["valid"][:, 0].astype(bool)
+    mu0 = 2.0 * float(z["target_norm_sq"][0]) / float(z["reference_norm_sum_sq"][0])   # null_power_ratio of the bank
+    Q = z["coarse_power_ratio"][:, 0].astype(float) / mu0; Q = Q[v & np.isfinite(Q)]
+    out = {q: float(np.quantile(Q, q, method="higher")) for q in quantiles}; out["n"] = int(Q.size); out["median"] = float(np.median(Q))
+    return out
+
+
+def run_thresholds(path, quantiles=QUANTILES, band=None):
+    """The same ladder over a detector run's outputs (``chime_detector_outputs.npz``), with mu0 the run's own
+    ``null_power_ratio``: the ladder of a rescan with another bank. ``band`` reads the run's column of that
+    physical channel and is refused when the run does not hold it exactly once; without it the first column is read."""
+    z = np.load(path, allow_pickle=True); j = 0
+    if band is not None:
+        hits = np.flatnonzero(np.asarray(z["physical_channel"]) == int(band))
+        if hits.size != 1:
+            raise ValueError(f"{path}: band {band} is not one column of the run "
+                             f"(physical_channel {[int(c) for c in z['physical_channel']]})")
+        j = int(hits[0])
+    v = z["valid"][:, j].astype(bool)
+    Q = z["coarse_power_ratio"][:, j].astype(float) / float(z["null_power_ratio"][j]); Q = Q[v & np.isfinite(Q)]
+    out = {q: float(np.quantile(Q, q, method="higher")) for q in quantiles}; out["n"] = int(Q.size); out["median"] = float(np.median(Q))
+    return out
+
+
+def place_dumps(path, eta=None):
+    """Each band's placement of one dump (a detector run's ``chime_detector_outputs.npz``) on a ladder.
+
+    Returns ``{band: {"q_median": median Q of the dump's valid frames, "kept_fraction": {q: fraction of those
+    frames with Q <= eta_q}}}``; ``kept_fraction`` only for the bands ``eta`` (``{band: {q: eta_q}}``) holds.
+    """
+    d = np.load(path, allow_pickle=True)
+    ch_ = d["physical_channel"]; F = d["coarse_power_ratio"]; mu0 = d["null_power_ratio"]; v = d["valid"].astype(bool)
+    out = {}
+    for j, c in enumerate(ch_):
+        Q = F[:, j][v[:, j]] / float(mu0[j])
+        row = {"q_median": float(np.median(Q))}
+        if eta is not None and int(c) in eta:
+            row["kept_fraction"] = {q: float(np.mean(Q <= eta[int(c)][q])) for q in eta[int(c)] if not isinstance(q, str)}
+        out[int(c)] = row
+    return out
+
+
 __all__ = ["MINIMUM", "POPULATIONS", "QUANTILES", "block_record", "calendar_halves", "half_diagnostics",
-           "ladder", "mean_allowance", "symmetric_ratio", "threshold"]
+           "ladder", "mean_allowance", "place_dumps", "product_thresholds", "run_thresholds", "symmetric_ratio",
+           "threshold"]

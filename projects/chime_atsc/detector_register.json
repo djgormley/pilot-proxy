@@ -16,6 +16,7 @@
       "selection.minimum_retained_frames"
     ],
     "added": [
+      "capture.detection_gate_sigma",
       "detection.false_alarm_target",
       "detection.minimum_frames_per_false_alarm",
       "measurement_allowance_db"
@@ -23,6 +24,20 @@
     "evidence_paths": "Relative paths in evidence name files of the repository that recorded the entry: RFIsher for the copied entries, pilot-proxy for the added ones."
   },
   "decisions": [
+    {
+      "id": "capture.detection_gate_sigma",
+      "side": "detector",
+      "value": 3.0,
+      "units": "control scatters",
+      "basis": "policy",
+      "status": "locked",
+      "rationale": "A class of a capture band is measured above the control level when its excess A exceeds the control band's mean level by more than this many sample standard deviations of the control band's per-bin excess over the science dumps (the capture's amplitude test). The gate on the net amplitude is k s; in the power form it is (k s)^2 N n_b.",
+      "evidence": [
+        "tools/capture/frame_analysis/ruling_baseline.py",
+        "capture ruling release r5.2 (results/capture_ruling_a19_2026-09-25_r5_2), source/ruling_a18.py NSIG"
+      ],
+      "sensitivity_values": []
+    },
     {
       "id": "correlation.acquisition_summary",
       "side": "detector",
@@ -735,7 +750,7 @@
       "rationale": "The capture's allowance for measurement systematics (the polarization choice, the coherence probe spread, the credit range): a residual must exceed its tolerance by more than this to be excised. It is a measurement allowance, not a science quantity.",
       "evidence": [
         "tools/capture/frame_analysis/ruling_baseline.py",
-        "tools/capture/frame_analysis/RULING_AUDIT_ROUND2_2026-09-18.md"
+        "docs/capture/RULING_AUDIT_ROUND2_2026-09-18.md"
       ],
       "sensitivity_values": []
     },

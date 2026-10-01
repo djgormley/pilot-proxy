@@ -1,0 +1,758 @@
+{
+  "$id": "https://github.com/WVURAIL/pilot-proxy/docs/schemas/capture_operating_characteristic_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "The capture operating-characteristic handoff (``capture_operating_characteristic_v1``).",
+  "properties": {
+    "bands": {
+      "items": {
+        "required": [
+          "band_id",
+          "low_mhz",
+          "high_mhz",
+          "role",
+          "target_freq_id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "banks": {
+      "type": "object"
+    },
+    "classes": {
+      "type": "object"
+    },
+    "detection_gate_sigma": {
+      "type": "number"
+    },
+    "events": {
+      "type": "object"
+    },
+    "files": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "required": [
+        "capture_oc_table.csv",
+        "capture_oc_summary.csv",
+        "capture_tau_bounds.csv"
+      ],
+      "type": "object"
+    },
+    "inputs": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "integration": {
+      "required": [
+        "frame_seconds",
+        "coherence_cap_seconds",
+        "n_frame"
+      ],
+      "type": "object"
+    },
+    "measurement_allowance_db": {
+      "type": "number"
+    },
+    "null_policy": {
+      "required": [
+        "alpha",
+        "eta_pfa_status"
+      ],
+      "type": "object"
+    },
+    "producer": {
+      "description": "Informational; a consumer never requires it.",
+      "type": "object"
+    },
+    "products": {
+      "type": "object"
+    },
+    "r_reference": {
+      "type": "object"
+    },
+    "residual_shape": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "capture_operating_characteristic"
+    },
+    "schema_version": {
+      "const": 1
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "files",
+    "inputs",
+    "integration",
+    "measurement_allowance_db",
+    "detection_gate_sigma",
+    "null_policy",
+    "r_reference",
+    "residual_shape",
+    "bands",
+    "classes",
+    "events",
+    "products",
+    "banks"
+  ],
+  "title": "Capture operating characteristic handoff (detector to science)",
+  "type": "object",
+  "x-capture-oc-summary-columns": [
+    {
+      "description": "Band label (join key).",
+      "name": "band_id",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Lower band edge.",
+      "name": "low_mhz",
+      "type": "float",
+      "unit": "MHz"
+    },
+    {
+      "description": "Upper band edge.",
+      "name": "high_mhz",
+      "type": "float",
+      "unit": "MHz"
+    },
+    {
+      "description": "screened or control.",
+      "name": "role",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The coarse channel the band is read at: its marker channel, or the control band's declared target (the nominal marker position).",
+      "name": "target_freq_id",
+      "type": "int",
+      "unit": ""
+    },
+    {
+      "description": "Every coarse channel of the band as freq_id:bin_role, ';'-joined (roles marker, data, control_target).",
+      "name": "bins",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The capture products hold the band.",
+      "name": "in_capture",
+      "type": "bool",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps of the capture.",
+      "name": "n_science_dumps",
+      "type": "int",
+      "unit": "dumps"
+    },
+    {
+      "description": "The cal_q0.1 rung's threshold on the nominal bank.",
+      "name": "eta_cal_q0.1_nominal",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The cal_q0.5 rung's threshold on the nominal bank.",
+      "name": "eta_cal_q0.5_nominal",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The cal_q0.9 rung's threshold on the nominal bank.",
+      "name": "eta_cal_q0.9_nominal",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The cal_q0.1 rung's threshold on the measured_marker bank.",
+      "name": "eta_cal_q0.1_measured_marker",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The cal_q0.5 rung's threshold on the measured_marker bank.",
+      "name": "eta_cal_q0.5_measured_marker",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The cal_q0.9 rung's threshold on the measured_marker bank.",
+      "name": "eta_cal_q0.9_measured_marker",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Frames the nominal ladder is read over.",
+      "name": "eta_frames_nominal",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Frames the rescan ladder is read over.",
+      "name": "eta_frames_measured_marker",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Ladder and a science-dump reading on the nominal bank.",
+      "name": "ladder_evaluable_nominal",
+      "type": "bool",
+      "unit": ""
+    },
+    {
+      "description": "The same on the rescan bank.",
+      "name": "ladder_evaluable_measured_marker",
+      "type": "bool",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps cal_q0.1 keeps on the nominal bank, space-joined labels.",
+      "name": "kept_dumps_cal_q0.1_nominal",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps cal_q0.5 keeps on the nominal bank, space-joined labels.",
+      "name": "kept_dumps_cal_q0.5_nominal",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps cal_q0.9 keeps on the nominal bank, space-joined labels.",
+      "name": "kept_dumps_cal_q0.9_nominal",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps keep_all keeps on the nominal bank, space-joined labels.",
+      "name": "kept_dumps_keep_all_nominal",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps cal_q0.1 keeps on the measured_marker bank, space-joined labels.",
+      "name": "kept_dumps_cal_q0.1_measured_marker",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps cal_q0.5 keeps on the measured_marker bank, space-joined labels.",
+      "name": "kept_dumps_cal_q0.5_measured_marker",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps cal_q0.9 keeps on the measured_marker bank, space-joined labels.",
+      "name": "kept_dumps_cal_q0.9_measured_marker",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps keep_all keeps on the measured_marker bank, space-joined labels.",
+      "name": "kept_dumps_keep_all_measured_marker",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The channel ruling's archive gain bound (board_final.csv G_nocredit, frozen 2026-09-14).",
+      "name": "board_G_nocredit",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Its tau quality (verbatim).",
+      "name": "board_tau_quality",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Its booked tau (verbatim).",
+      "name": "board_tau_booked_s",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Science dumps with a frame-residual reading.",
+      "name": "frame_n_dumps",
+      "type": "int",
+      "unit": "dumps"
+    },
+    {
+      "description": "Frame residual, keep_all: median over the dumps of the in-band median excess on the 0.3 m class, the larger polarisation per dump.",
+      "name": "frame_A_ns1",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "The same on pol 0.",
+      "name": "frame_A_ns1_pol0",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "The same on pol 1.",
+      "name": "frame_A_ns1_pol1",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Median over the dumps of the median over every class and polarisation.",
+      "name": "frame_A_class_median",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Median over the dumps of the marker bin's within-dump gain on the polarisation that sets A.",
+      "name": "frame_G_dump",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Median over the dumps of the median over the three east-west classes of the larger-polarisation reading.",
+      "name": "frame_A_ew",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "The least 0.3 m in-band excess over every dump on the polarisation that sets A.",
+      "name": "frame_A_lowest_epoch",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Its event.",
+      "name": "frame_lowest_epoch",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The least east-west reading over every dump.",
+      "name": "frame_A_ew_lowest_epoch",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Its event.",
+      "name": "frame_ew_lowest_epoch",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "unavailable: <reason> for a screened band, not defined: control band.",
+      "name": "eta_pfa_status",
+      "type": "str",
+      "unit": ""
+    }
+  ],
+  "x-capture-oc-table-columns": [
+    {
+      "description": "Band label from the frequency plan (the join key, with the edges).",
+      "name": "band_id",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Lower band edge from the plan.",
+      "name": "low_mhz",
+      "type": "float",
+      "unit": "MHz"
+    },
+    {
+      "description": "Upper band edge from the plan.",
+      "name": "high_mhz",
+      "type": "float",
+      "unit": "MHz"
+    },
+    {
+      "description": "screened or control (the plan's role).",
+      "name": "role",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "East-west step of the redundant baseline class.",
+      "name": "class_ew",
+      "type": "int",
+      "unit": "cylinders"
+    },
+    {
+      "description": "North-south step of the redundant baseline class.",
+      "name": "class_ns",
+      "type": "int",
+      "unit": "feeds"
+    },
+    {
+      "description": "ns<k>, ew<k> or ew<k>ns<l>.",
+      "name": "class_name",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "xx, yy, stokes_i (the class stacks) or polmax (cadence readings of the per-band level file only).",
+      "name": "product",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "nominal (the archive's detector bank) or measured_marker (the band's rescan).",
+      "name": "bank",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The archive ladder rung: cal_q0.1, cal_q0.5, cal_q0.9 (Q = F/mu0 at or below the rung's eta) or keep_all.",
+      "name": "policy",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "A dump's event id, or 'kept' for the aggregate over the dumps the policy keeps.",
+      "name": "event",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Event rows: the dump is a science dump (the ladder is read on those only).",
+      "name": "science",
+      "type": "bool",
+      "unit": ""
+    },
+    {
+      "description": "Event rows: the dump's class excess, the in-band median over the band's bins (empty where no bin has a finite reading).",
+      "name": "excess",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Event rows: bins with a finite excess.",
+      "name": "n_bins",
+      "type": "int",
+      "unit": "bins"
+    },
+    {
+      "description": "Event rows: frames of the dump (the products' stacks axis 0).",
+      "name": "frames",
+      "type": "int",
+      "unit": "frames"
+    },
+    {
+      "description": "Event rows: median Q = F/mu0 of the dump's valid frames at the band's marker bin (science dumps with a detector reading on the bank).",
+      "name": "q_median",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Event rows of science dumps: the policy keeps the dump (q_median <= eta; keep_all keeps every science dump).",
+      "name": "kept",
+      "type": "bool",
+      "unit": ""
+    },
+    {
+      "description": "The rung's threshold on Q: the q-quantile (method higher) of Q over every valid, finite frame of the band's archive product (population all_valid_frames), or of the rescan on the measured_marker bank. Empty on keep_all.",
+      "name": "eta",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Event rows: the least coherence gain any tau allows for a reading over the dump's frames (the lower of the exponential and block models).",
+      "name": "G_admissible_min",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The band has a ladder on the bank and a detector reading of at least one science dump.",
+      "name": "ladder_evaluable",
+      "type": "bool",
+      "unit": ""
+    },
+    {
+      "description": "Kept rows: the science dumps the policy keeps, space-joined event ids.",
+      "name": "dumps_kept",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Kept rows: how many.",
+      "name": "n_dumps",
+      "type": "int",
+      "unit": "dumps"
+    },
+    {
+      "description": "Kept rows: median excess over the kept dumps with a reading.",
+      "name": "A",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "The control band's level on the class and product: the mean of its per-bin excess over the science dumps.",
+      "name": "control_mean",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Its sample standard deviation (ddof 1).",
+      "name": "control_sd",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Its count.",
+      "name": "control_n",
+      "type": "int",
+      "unit": "bin-dumps"
+    },
+    {
+      "description": "Kept rows: A - control_mean.",
+      "name": "A_net",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Kept rows: A > control_mean + k control_sd (the amplitude test), k = detection_gate_sigma.",
+      "name": "measured",
+      "type": "bool",
+      "unit": ""
+    },
+    {
+      "description": "k control_sd, the detection gate on A_net.",
+      "name": "gate",
+      "type": "float",
+      "unit": "amplitude"
+    },
+    {
+      "description": "Redundant baseline products averaged into the class stack (the products' count).",
+      "name": "n_b",
+      "type": "int",
+      "unit": "baselines"
+    },
+    {
+      "description": "N, the samples per frame.",
+      "name": "n_frame",
+      "type": "int",
+      "unit": "samples"
+    },
+    {
+      "description": "Kept rows: the per-frame covariance ratio A_net^2 N n_b (A_net itself where it is not positive).",
+      "name": "x_power",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The gate in the same form, gate^2 N n_b.",
+      "name": "gate_power",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The product's cadence coherence time on the class, in-band: measured, bound, constant, refused: <reason> or another status of the estimator (verbatim).",
+      "name": "tau_status",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "Its tau_c (as the level file writes it, one decimal).",
+      "name": "tau_c_s",
+      "type": "float",
+      "unit": "s"
+    },
+    {
+      "description": "Its upper end.",
+      "name": "tau_c_high_s",
+      "type": "float",
+      "unit": "s"
+    },
+    {
+      "description": "The level file's G (one decimal).",
+      "name": "tau_G",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "The trim probes, verbatim ('75: measured 144 | 90: ...').",
+      "name": "tau_probes",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The level file's pol column (0, 1, avg or I).",
+      "name": "tau_pol",
+      "type": "str",
+      "unit": ""
+    },
+    {
+      "description": "The least of the probes' values and tau_c (the probes alone where tau_c is empty).",
+      "name": "tau_least_s",
+      "type": "float",
+      "unit": "s"
+    },
+    {
+      "description": "min(tau_c, cap) / T_frame (empty where tau_c is).",
+      "name": "G_zero",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Phasor coherence of the class between the science dumps: the median over the dump pairs of the in-band reference-subtracted rho.",
+      "name": "gamma",
+      "type": "float",
+      "unit": ""
+    },
+    {
+      "description": "Pairs in that median.",
+      "name": "gamma_n",
+      "type": "int",
+      "unit": "pairs"
+    }
+  ],
+  "x-capture-tau-bounds-columns": [
+    {
+      "name": "censor"
+    },
+    {
+      "name": "source"
+    },
+    {
+      "name": "calibrate"
+    },
+    {
+      "name": "channel"
+    },
+    {
+      "name": "ew"
+    },
+    {
+      "name": "ns"
+    },
+    {
+      "name": "lane"
+    },
+    {
+      "name": "check"
+    },
+    {
+      "name": "variants"
+    },
+    {
+      "name": "lb"
+    },
+    {
+      "name": "least_variant"
+    },
+    {
+      "name": "span"
+    },
+    {
+      "name": "lb_priced"
+    },
+    {
+      "name": "capped"
+    },
+    {
+      "name": "b4"
+    },
+    {
+      "name": "calibration_fcr"
+    },
+    {
+      "name": "calibration_n_at_or_above"
+    },
+    {
+      "name": "calibration_n_cells"
+    },
+    {
+      "name": "calibration_fcr_same_class"
+    },
+    {
+      "name": "calibration_null_max_s"
+    },
+    {
+      "name": "calibration_null_max_same_class_s"
+    },
+    {
+      "name": "calibration_passes"
+    }
+  ],
+  "x-row-rules": {
+    "banks": [
+      "nominal",
+      "measured_marker"
+    ],
+    "bin_roles": [
+      "marker",
+      "data",
+      "control_target"
+    ],
+    "classes": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        8
+      ],
+      [
+        0,
+        32
+      ],
+      [
+        0,
+        64
+      ],
+      [
+        0,
+        128
+      ],
+      [
+        0,
+        255
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        32
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ]
+    ],
+    "kept": "event 'kept' aggregates the policy's kept science dumps; A, A_net, measured and x_power are filled only when a kept dump has a reading and the control level exists",
+    "order": [
+      "band (plan order)",
+      "class",
+      "product",
+      "bank",
+      "policy",
+      "event (file order, then kept)"
+    ],
+    "policies": [
+      "cal_q0.1",
+      "cal_q0.5",
+      "cal_q0.9",
+      "keep_all"
+    ],
+    "polmax": "cadence readings only: one row per band and class, empty bank, policy and event",
+    "products": [
+      "xx",
+      "yy",
+      "stokes_i",
+      "polmax"
+    ]
+  }
+}

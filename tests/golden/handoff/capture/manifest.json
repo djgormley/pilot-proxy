@@ -1,0 +1,385 @@
+{
+ "bands": [
+  {
+   "band_id": "14",
+   "high_mhz": 476.0,
+   "low_mhz": 470.0,
+   "role": "screened",
+   "target_freq_id": 844
+  },
+  {
+   "band_id": "15",
+   "high_mhz": 482.0,
+   "low_mhz": 476.0,
+   "role": "screened",
+   "target_freq_id": 829
+  },
+  {
+   "band_id": "16",
+   "high_mhz": 488.0,
+   "low_mhz": 482.0,
+   "role": "screened",
+   "target_freq_id": 813
+  },
+  {
+   "band_id": "17",
+   "high_mhz": 494.0,
+   "low_mhz": 488.0,
+   "role": "screened",
+   "target_freq_id": 798
+  },
+  {
+   "band_id": "18",
+   "high_mhz": 500.0,
+   "low_mhz": 494.0,
+   "role": "screened",
+   "target_freq_id": 783
+  },
+  {
+   "band_id": "19",
+   "high_mhz": 506.0,
+   "low_mhz": 500.0,
+   "role": "screened",
+   "target_freq_id": 767
+  },
+  {
+   "band_id": "20",
+   "high_mhz": 512.0,
+   "low_mhz": 506.0,
+   "role": "screened",
+   "target_freq_id": 752
+  },
+  {
+   "band_id": "21",
+   "high_mhz": 518.0,
+   "low_mhz": 512.0,
+   "role": "screened",
+   "target_freq_id": 736
+  },
+  {
+   "band_id": "22",
+   "high_mhz": 524.0,
+   "low_mhz": 518.0,
+   "role": "screened",
+   "target_freq_id": 721
+  },
+  {
+   "band_id": "23",
+   "high_mhz": 530.0,
+   "low_mhz": 524.0,
+   "role": "screened",
+   "target_freq_id": 706
+  },
+  {
+   "band_id": "24",
+   "high_mhz": 536.0,
+   "low_mhz": 530.0,
+   "role": "screened",
+   "target_freq_id": 690
+  },
+  {
+   "band_id": "25",
+   "high_mhz": 542.0,
+   "low_mhz": 536.0,
+   "role": "screened",
+   "target_freq_id": 675
+  },
+  {
+   "band_id": "26",
+   "high_mhz": 548.0,
+   "low_mhz": 542.0,
+   "role": "screened",
+   "target_freq_id": 660
+  },
+  {
+   "band_id": "27",
+   "high_mhz": 554.0,
+   "low_mhz": 548.0,
+   "role": "screened",
+   "target_freq_id": 644
+  },
+  {
+   "band_id": "28",
+   "high_mhz": 560.0,
+   "low_mhz": 554.0,
+   "role": "screened",
+   "target_freq_id": 629
+  },
+  {
+   "band_id": "29",
+   "high_mhz": 566.0,
+   "low_mhz": 560.0,
+   "role": "screened",
+   "target_freq_id": 614
+  },
+  {
+   "band_id": "30",
+   "high_mhz": 572.0,
+   "low_mhz": 566.0,
+   "role": "screened",
+   "target_freq_id": 598
+  },
+  {
+   "band_id": "31",
+   "high_mhz": 578.0,
+   "low_mhz": 572.0,
+   "role": "screened",
+   "target_freq_id": 583
+  },
+  {
+   "band_id": "32",
+   "high_mhz": 584.0,
+   "low_mhz": 578.0,
+   "role": "screened",
+   "target_freq_id": 568
+  },
+  {
+   "band_id": "33",
+   "high_mhz": 590.0,
+   "low_mhz": 584.0,
+   "role": "screened",
+   "target_freq_id": 552
+  },
+  {
+   "band_id": "34",
+   "high_mhz": 596.0,
+   "low_mhz": 590.0,
+   "role": "screened",
+   "target_freq_id": 537
+  },
+  {
+   "band_id": "35",
+   "high_mhz": 602.0,
+   "low_mhz": 596.0,
+   "role": "screened",
+   "target_freq_id": 521
+  },
+  {
+   "band_id": "36",
+   "high_mhz": 608.0,
+   "low_mhz": 602.0,
+   "role": "screened",
+   "target_freq_id": 506
+  },
+  {
+   "band_id": "37",
+   "high_mhz": 614.0,
+   "low_mhz": 608.0,
+   "role": "control",
+   "target_freq_id": 491
+  }
+ ],
+ "banks": {
+  "measured_marker": {
+   "bands": [
+    "33"
+   ],
+   "note": "a rescan with a bank built on the band's measured marker; ladder over the rescan's frames"
+  },
+  "nominal": "the archive's detector bank; ladder over the band's archive product"
+ },
+ "classes": {
+  "ew1": {
+   "ew": 1,
+   "n_b": 768,
+   "ns": 0
+  },
+  "ew1ns32": {
+   "ew": 1,
+   "n_b": 672,
+   "ns": 32
+  },
+  "ew2": {
+   "ew": 2,
+   "n_b": 512,
+   "ns": 0
+  },
+  "ew3": {
+   "ew": 3,
+   "n_b": 256,
+   "ns": 0
+  },
+  "ns1": {
+   "ew": 0,
+   "n_b": 1020,
+   "ns": 1
+  },
+  "ns128": {
+   "ew": 0,
+   "n_b": 512,
+   "ns": 128
+  },
+  "ns255": {
+   "ew": 0,
+   "n_b": 4,
+   "ns": 255
+  },
+  "ns32": {
+   "ew": 0,
+   "n_b": 896,
+   "ns": 32
+  },
+  "ns64": {
+   "ew": 0,
+   "n_b": 768,
+   "ns": 64
+  },
+  "ns8": {
+   "ew": 0,
+   "n_b": 992,
+   "ns": 8
+  }
+ },
+ "detection_gate_sigma": 3.0,
+ "events": {
+  "20260916162300": {
+   "frames": 11,
+   "label": "pilot",
+   "science": true
+  },
+  "20260917040230": {
+   "frames": 33,
+   "label": "D1",
+   "science": true
+  },
+  "20260917090230": {
+   "frames": 33,
+   "label": "D2",
+   "science": true
+  },
+  "20260917140230": {
+   "frames": 33,
+   "label": "D3",
+   "science": true
+  },
+  "20260917160208": {
+   "frames": 4,
+   "label": "C0",
+   "science": false
+  },
+  "20260917160223": {
+   "frames": 4,
+   "label": "C15",
+   "science": false
+  }
+ },
+ "files": {
+  "capture_oc_summary.csv": "2284f15a6e43b203a9f384df4cb60a0d479603b88c64ef41fe29cc0857ae244e",
+  "capture_oc_table.csv": "81f157c2f900d1f1aeae27e3be37e13a90a83f56002c56e5d498fd6ec9d0d60b",
+  "capture_tau_bounds.csv": "103ed35e7b7b31fb1cee3d6337df6744479fb482d1ac26b401baf61aecb03dbe"
+ },
+ "inputs": {
+  "board.csv": "86a6db1723be842358ff49806a31f06092abe35d2c3ca203e1eea4cda556d027",
+  "capture/cadence_tau.csv": "95a08d49c78da00461fe1614381295c0545c947525d555748cc70b4873d8aa8b",
+  "capture/cadence_tau_ew1.csv": "2114c0c6af0482840bba86d3a959eb24c3c211d4d21ffe490a5ba5082d69694a",
+  "capture/cadence_tau_ew1_pol0.csv": "2114c0c6af0482840bba86d3a959eb24c3c211d4d21ffe490a5ba5082d69694a",
+  "capture/cadence_tau_ew1_pol1.csv": "c1970155e2e1a0c18700bda82106c5651abe1978aa0a0c891d3a02aaf21e5ab1",
+  "capture/cadence_tau_ew2.csv": "3339a4337456097d937ad36216bbf21d45423bd7b63a24723c258399997645cb",
+  "capture/cadence_tau_ew2_pol0.csv": "3339a4337456097d937ad36216bbf21d45423bd7b63a24723c258399997645cb",
+  "capture/cadence_tau_ew2_pol1.csv": "c59249fb5453eef92ba1c754abb4f9ca4f5f9ef61e7d4c4d139e2c072ef4837b",
+  "capture/cadence_tau_ew3.csv": "f027deca6f183f65c1eba44a89f35c5e31623c374108270c53344b96acfd3df5",
+  "capture/cadence_tau_ew3_pol0.csv": "f027deca6f183f65c1eba44a89f35c5e31623c374108270c53344b96acfd3df5",
+  "capture/cadence_tau_ew3_pol1.csv": "af758e97ce418d36bb5f3a01eae87f5f040595bfaf2733c436a91f068ce070e8",
+  "capture/cadence_tau_ns128.csv": "8c8f842cbfbb35828427de2a0e5296bb527695354156d15c61e710d2228c6d1e",
+  "capture/cadence_tau_ns128_pol0.csv": "8c8f842cbfbb35828427de2a0e5296bb527695354156d15c61e710d2228c6d1e",
+  "capture/cadence_tau_ns128_pol1.csv": "dd0f2635a81b3dfe67b9ecb95c724a1507e7d0bc00b5848835db4570f8770aad",
+  "capture/cadence_tau_ns255.csv": "fe595f9d7b2d4093ade0fa56d66465fd93509e65de2f7281dc3b7e8e09698a71",
+  "capture/cadence_tau_ns255_pol0.csv": "fe595f9d7b2d4093ade0fa56d66465fd93509e65de2f7281dc3b7e8e09698a71",
+  "capture/cadence_tau_ns255_pol1.csv": "c5dd20d8b59230c5ccb85e23f16c6f80d9df048f8759d3c1cfb6b36654837a22",
+  "capture/cadence_tau_ns32.csv": "92b85c4a6a339c8ada3fa5ce687b408c4f3dd4ea6928d2b523290b60010c0d6a",
+  "capture/cadence_tau_ns32_pol0.csv": "92b85c4a6a339c8ada3fa5ce687b408c4f3dd4ea6928d2b523290b60010c0d6a",
+  "capture/cadence_tau_ns32_pol1.csv": "a80548e934b14d8ee399dc2b94074af86c2c2215c9ef03add2d7d1e136c33ba3",
+  "capture/cadence_tau_ns64.csv": "231cdb75e01893bab0c658cdedbcbeae9976474f3541c0acef4b213676e53a5e",
+  "capture/cadence_tau_ns64_pol0.csv": "231cdb75e01893bab0c658cdedbcbeae9976474f3541c0acef4b213676e53a5e",
+  "capture/cadence_tau_ns64_pol1.csv": "e187014953b0af0c7a43ba31cbeba844927c808fa53f521616e395ba64b828a6",
+  "capture/cadence_tau_pol0.csv": "95a08d49c78da00461fe1614381295c0545c947525d555748cc70b4873d8aa8b",
+  "capture/cadence_tau_pol1.csv": "34e2eab9281f620609a815c3f3fa43a9b82a856ec64e020415eb89d1b2236a94",
+  "capture/class_excess_epochs.csv": "56de1905e83c0cac00d315e2758797f717441b15ab89d9515293fee86361f4b5",
+  "capture/class_floor_bins.csv": "415db1e375eb69c69a35f4873d78fd27e14a31b2344486690edf0987395178a1",
+  "capture/frame_residual_20260916162300.csv": "23a7ae6c99b3351105898785f21a1db989db53de86a7b1e8bf2d3784ce19aace",
+  "capture/frame_residual_20260917040230.csv": "5c140c318d932a7115b666c3b53a3376484929adc1e75c733b9252a78ee5e261",
+  "capture/frame_residual_20260917090230.csv": "f44e9d9ddc3624a0cc927b0db7b70d0e877d5fa061223c3b68eb044e28a68a87",
+  "capture/frame_residual_20260917140230.csv": "af48dd321bafbaf3c949b9f1e7fbbbf940e724d90bb3d636a0780f9355d4628a",
+  "capture/frame_residual_20260917160208.csv": "f312e90d6bdc2e48b6e2d38b74ee4366542ac1e543fd63f7705091a2c71bd4ab",
+  "capture/frame_residual_20260917160223.csv": "084e5b816bb6f9fda634bf0567a506e484e4a1a3d3d294665fa1a98231c0a511",
+  "datasets/pilot_reduce_20260916162300/487.npz": "fixture",
+  "datasets/pilot_reduce_20260917040230/487.npz": "fixture",
+  "datasets/pilot_reduce_20260917090230/487.npz": "fixture",
+  "datasets/pilot_reduce_20260917140230/487.npz": "fixture",
+  "datasets/pilot_reduce_20260917160208/487.npz": "fixture",
+  "datasets/pilot_reduce_20260917160223/487.npz": "fixture",
+  "lags.csv": "6afe998e5250f72b3e16e9a3512ba119031ebbce5b04f7323048a0e92122c202",
+  "per_band/552.npz": "fixture",
+  "rescan/chime_detector_outputs.npz": "fixture",
+  "runs/kernel_20260916162300_k230/chime_detector_outputs.npz": "fixture",
+  "runs/kernel_20260916162300_k230_ch33measured/chime_detector_outputs.npz": "fixture",
+  "runs/kernel_20260917040230_k230/chime_detector_outputs.npz": "fixture",
+  "runs/kernel_20260917040230_k230_ch33measured/chime_detector_outputs.npz": "fixture",
+  "runs/kernel_20260917090230_k230/chime_detector_outputs.npz": "fixture",
+  "runs/kernel_20260917090230_k230_ch33measured/chime_detector_outputs.npz": "fixture",
+  "runs/kernel_20260917140230_k230/chime_detector_outputs.npz": "fixture",
+  "runs/kernel_20260917140230_k230_ch33measured/chime_detector_outputs.npz": "fixture",
+  "stokes_i/cadence_tau.csv": "d147bc42680a37232f4cb4f35a581107b6e92ac41f31362351fc8051ed103798",
+  "stokes_i/cadence_tau_ew1.csv": "5a81816ee5133ec295878c8f73bfb67ac70522879df99b8c5cbe4940e8147528",
+  "stokes_i/cadence_tau_ew2.csv": "2f5e7115b6003911b8e9847c2d115e2248c3ceae5c7ded3a60657bc80f317939",
+  "stokes_i/cadence_tau_ew3.csv": "f5cd9a2a1a63105d652064a67ac0d1b8de9777cdc9a9548979d92063af5d66eb",
+  "stokes_i/cadence_tau_ns128.csv": "d8dfbaa5ce008e54033b28dc5f97f22cdfb412d50fd77d199ff0d39c2d6bb909",
+  "stokes_i/cadence_tau_ns255.csv": "726a2c8db81a76dcedcdfd5c40b766f38cdd0525d10696c9b03524631d7e7468",
+  "stokes_i/cadence_tau_ns32.csv": "ae046235163de9afd0e0c3963264c294e55b3c42774c0a85fe5b53ac5a697b88",
+  "stokes_i/cadence_tau_ns64.csv": "0b184efa6a1391ed00781cf8e50c757d447c8d3a284ebaa585741afcaa888e71",
+  "stokes_i/class_excess_epochs.csv": "8abe9eab00a8200731f99ba9541cb238f0907ac019c8ac74d28293eb0dbdfd86",
+  "stokes_i/class_floor_bins.csv": "6e2f822cf94c7cfd3e17efa803bba153bf93d46dd6b24925fd051472eaed4089",
+  "tau_bounds.csv": "103ed35e7b7b31fb1cee3d6337df6744479fb482d1ac26b401baf61aecb03dbe"
+ },
+ "integration": {
+  "coherence_cap_seconds": 86164.0905,
+  "frame_seconds": 0.04194304,
+  "n_frame": 16384
+ },
+ "measurement_allowance_db": 3.0,
+ "null_policy": {
+  "alpha": 0.001,
+  "eta_pfa_status": {
+   "14": "unavailable: no verified signal-free population of the band on the capture",
+   "15": "unavailable: no verified signal-free population of the band on the capture",
+   "16": "unavailable: no verified signal-free population of the band on the capture",
+   "17": "unavailable: no verified signal-free population of the band on the capture",
+   "18": "unavailable: no verified signal-free population of the band on the capture",
+   "19": "unavailable: no verified signal-free population of the band on the capture",
+   "20": "unavailable: no verified signal-free population of the band on the capture",
+   "21": "unavailable: no verified signal-free population of the band on the capture",
+   "22": "unavailable: no verified signal-free population of the band on the capture",
+   "23": "unavailable: no verified signal-free population of the band on the capture",
+   "24": "unavailable: no verified signal-free population of the band on the capture",
+   "25": "unavailable: no verified signal-free population of the band on the capture",
+   "26": "unavailable: no verified signal-free population of the band on the capture",
+   "27": "unavailable: no verified signal-free population of the band on the capture",
+   "28": "unavailable: no verified signal-free population of the band on the capture",
+   "29": "unavailable: no verified signal-free population of the band on the capture",
+   "30": "unavailable: no verified signal-free population of the band on the capture",
+   "31": "unavailable: no verified signal-free population of the band on the capture",
+   "32": "unavailable: no verified signal-free population of the band on the capture",
+   "33": "unavailable: no verified signal-free population of the band on the capture",
+   "34": "unavailable: no verified signal-free population of the band on the capture",
+   "35": "unavailable: no verified signal-free population of the band on the capture",
+   "36": "unavailable: no verified signal-free population of the band on the capture",
+   "37": "not defined: control band"
+  },
+  "rule": "eta_Pfa is read only on a band's own verified, signal-free (off) population; the capture holds none, so no band has an eta_Pfa here"
+ },
+ "products": {
+  "polmax": "the per-band level file's own polarisation (cadence readings only)",
+  "stokes_i": "the complex mean of the XX and YY class stacks, (v_XX + v_YY)/2",
+  "xx": "pol 0 class stacks",
+  "yy": "pol 1 class stacks"
+ },
+ "r_reference": {
+  "frame_seconds": 0.04194304,
+  "n_frame": 16384,
+  "power_form": "A_net^2 N n_b, the per-frame covariance ratio",
+  "statistic": "A, the noise-bias-free coherent amplitude of a class stack over a dump's frames, in units of the per-frame live-input power times N"
+ },
+ "residual_shape": "class excess: the in-band median over a band's bins of A less the 10th-percentile sky reference over the bins within 40 MHz; the control level is the control band's per-bin excess over the science dumps",
+ "schema": "capture_operating_characteristic",
+ "schema_version": 1
+}

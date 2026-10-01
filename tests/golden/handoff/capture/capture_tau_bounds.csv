@@ -1,0 +1,5 @@
+censor,source,calibrate,channel,ew,ns,lane,check,variants,lb,least_variant,span,lb_priced,capped,b4,calibration_fcr,calibration_n_at_or_above,calibration_n_cells,calibration_fcr_same_class,calibration_null_max_s,calibration_null_max_same_class_s,calibration_passes
+False,summary,False,33,0,32,0.579,0.7237499999999999,"{""lane a"": 0.579, ""check b"": 0.7237499999999999}",0.579,lane a,1.34217728,0.579,False,False,,,,,,,
+False,summary,False,33,3,0,2.2,2.75,"{""lane a"": 2.2, ""check b"": 2.75}",2.2,lane a,1.34217728,1.34217728,True,False,,,,,,,
+True,fits,True,33,0,32,0.579,0.7237499999999999,"{""lane a"": 0.579, ""check b"": 0.7237499999999999}",0.579,lane a,1.34217728,0.579,False,False,0.0,0,91,0.0,0.121,0.1,True
+True,fits,True,33,3,0,2.2,2.75,"{""lane a"": 2.2, ""check b"": 2.75}",2.2,lane a,1.34217728,1.34217728,True,False,0.0,0,91,0.0,0.121,0.1,True

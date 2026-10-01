@@ -8,11 +8,13 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src" / "pilot_proxy"
-PACKAGES = ("characterization", "products", "detectors", "records", "testbench/harness")
+PACKAGES = ("capture", "characterization", "products", "detectors", "instruments", "records", "testbench/harness")
 TOKENS = re.compile(r"redshift|r_tol|fisher|cosmolog|bao|omega", re.IGNORECASE)
 # Frozen on-disk values the dissertation's importers check (K6); exempt by name, and only these.
 FROZEN = ("rfisher_results.archive.psd window spectra v1", "rfisher-archive-report", "WVURAIL/RFIsher",
-          "rfisher-dissertation-numbers")
+          "rfisher-dissertation-numbers",
+          # the capture frame-policy record writes this limitation into its receipt.json (record c49ae37f)
+          "Sample covariance is not a temporal covariance model, confidence bound, or Fisher residual.")
 # The detector register cites the release code each entry was read from; the sibling repository's name in a
 # provenance path is not a cosmology term.
 PROVENANCE = re.compile(r"(src/)?rfisher/[A-Za-z_/]+\.py|RFIsher|rfisher-threshold-decisions-v\d+")
