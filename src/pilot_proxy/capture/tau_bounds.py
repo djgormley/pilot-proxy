@@ -9,15 +9,18 @@ takes the least of every variant of both. Stokes I, the ruling's product. A
 bound longer than the longest lag the lane observes (32 frames, 1.34 s,
 ``lag_profiles.csv``) is an extrapolation of the exponential or block model
 (the lane's own caveat); a residual that stays coherent over the whole dump
-and then decorrelates is also consistent with the data, so the priced value is
-the bound capped at that span (``lb_priced``). The uncapped bound is kept
-beside it.
+and then decorrelates is also consistent with the data, so the reported bound
+is the bound capped at that span (``lb_priced``, the name the release code gives it).
+The uncapped bound is kept beside it.
 
 Options the releases use: ``censor`` adds the bounds the lane measured for
 the censored classes (``bounds_b4.json``); ``source="fits"`` reads the check's
 variants as fitted (``fits_check.csv``); ``calibrate`` adds the control band's
-null test of each priced bound (a bound beats the null when at most 5 % of the
+null test of each capped bound (a bound beats the null when at most 5 % of the
 91 null cells certify at or above it).
+
+The lane groups its classes into ranges; that grouping belongs to the science
+side's rule and is not carried here.
 
 The lane's own files are inputs (read only); this module does not rerun the
 lane. ``pilot-proxy capture tau-bounds`` writes ``capture_tau_bounds.csv``.
@@ -39,7 +42,7 @@ B3_FCR_MAX = 0.05          # B-3/PLAN.md section 3: a bound beats the null when 
 CHECK_FULL_LAGS = ("primary", "perm_null", "mean_agg", "dumpmean_norm", "drop_pilot", "rho_ep_0", "rho_ep_1")   # the check's fits without lag truncation
 # the settings of the releases of record: (censor, source, calibrate); r5, and r5.1 / r5.2
 SETTINGS = ((False, "summary", False), (True, "fits", True))
-COLUMNS = ["censor", "source", "calibrate", "channel", "ew", "ns", "range", "lane", "check", "variants", "lb",
+COLUMNS = ["censor", "source", "calibrate", "channel", "ew", "ns", "lane", "check", "variants", "lb",
            "least_variant", "span", "lb_priced", "capped", "b4", "calibration_fcr", "calibration_n_at_or_above",
            "calibration_n_cells", "calibration_fcr_same_class", "calibration_null_max_s",
            "calibration_null_max_same_class_s", "calibration_passes"]
@@ -58,13 +61,13 @@ def check_fits(fits_check):
 
 
 def null_bounds(b3_null):
-    """B-3's control-band null: the least bound of each of the 91 cells (13 bins x 7 classes), by the procedure that prices a class."""
+    """B-3's control-band null: the least bound of each of the 91 cells (13 bins x 7 classes), by the procedure that bounds a class."""
     rows = list(csv.DictReader(open(b3_null))); assert len(rows) == 91, len(rows)
     return [(_cls(r["cls"]), float(r["least_bound_s"])) for r in rows]
 
 
 def calibration(b, c, *, b3_null):
-    """B-3's test of a priced bound b on class c: the empirical false-certification rate FCR(b), the share of the null cells whose least
+    """B-3's test of a capped bound b on class c: the empirical false-certification rate FCR(b), the share of the null cells whose least
     bound is at or above b, over all 91 cells (the declared test) and over the cells of the same class (reported)."""
     nb = null_bounds(b3_null); n_all = sum(1 for _, x in nb if x >= b); same = [x for cc, x in nb if cc == c]
     fcr = n_all / len(nb)
@@ -79,7 +82,8 @@ def tau_lower_bounds(censor=False, source="summary", calibrate=False, *, lane, c
     least over the lane's and the check's variants, like the others.
     source="fits" reads the check's variants from fits_check.csv as fitted (the lags-1-and-2 fit is 0.918 s on 26 and 0.439 s
     on 27, which summary.json rounds to 0.92 and 0.44; the other variants agree with summary.json, asserted); calibrate=True adds
-    the control band's calibration of each priced bound (calibration(); a bound that does not beat the null does not price its class)."""
+    the control band's calibration of each capped bound (calibration(); a bound that does not beat the null has calibration
+    passes False)."""
     assert source in ("summary", "fits")
     out = {}
     for r in csv.DictReader(open(os.path.join(lane, "implications.csv"))):
@@ -87,7 +91,7 @@ def tau_lower_bounds(censor=False, source="summary", calibrate=False, *, lane, c
         lane_ = float(r["least_lb95_all_variants_s"])
         assert abs(lane_ - min(v.values())) <= 1e-9 * max(1.0, lane_), (k, lane_, v)   # the lane's least is the least of its variants
         assert k not in out
-        out[k] = dict(lane=lane_, variants=v, range=r["range"])
+        out[k] = dict(lane=lane_, variants=v)
     s = json.load(open(os.path.join(check, "summary.json")))
     prim = {}
     for key, x in s["primary_results_stokes_I"].items():
@@ -120,7 +124,7 @@ def tau_lower_bounds(censor=False, source="summary", calibrate=False, *, lane, c
             ch, c = key.split("|"); k = (int(ch), _cls(c)); assert k not in out, k
             v = {kk: (float(vv) if vv is not None else np.nan) for kk, vv in x["variants"].items()}; v = {kk: vv for kk, vv in v.items() if np.isfinite(vv)}
             if not v: continue                   # no finite bound on any variant: the class keeps the admissible minimum
-            out[k] = dict(lane=min((vv for kk, vv in v.items() if kk.startswith("lane")), default=np.nan), variants=v, range=x["range"],
+            out[k] = dict(lane=min((vv for kk, vv in v.items() if kk.startswith("lane")), default=np.nan), variants=v,
                           check=min((vv for kk, vv in v.items() if kk.startswith("check")), default=np.nan), b4=True)
     span = lb_span(lane, frame_seconds)
     for k, o in out.items():
@@ -150,7 +154,7 @@ def rows(settings=SETTINGS, **inputs):
         for (ch, c), o in sorted(lb.items()):
             cal = o.get("calibration", {})
             out.append({"censor": censor, "source": source, "calibrate": calibrate, "channel": ch, "ew": c[0], "ns": c[1],
-                        "range": o.get("range", ""), "lane": o.get("lane"), "check": o.get("check"),
+                        "lane": o.get("lane"), "check": o.get("check"),
                         "variants": json.dumps(o["variants"]), "lb": o["lb"], "least_variant": o["least_variant"],
                         "span": o["span"], "lb_priced": o["lb_priced"], "capped": o["capped"], "b4": bool(o.get("b4", False)),
                         **{f"calibration_{k}": cal.get(k) for k in ("fcr", "n_at_or_above", "n_cells", "fcr_same_class",

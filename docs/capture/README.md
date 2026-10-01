@@ -7,6 +7,9 @@ and the control band's level, the frame residual, the cadence coherence time and
 phasor coherence between dumps, the lag moments of the in-band voltages, and where each dump sits on the band's
 archive ladder. It writes one handoff for the science side, `capture_operating_characteristic_v1`. No tolerance,
 credit, gain model or disposition is computed here: the capture ruling (the table of record) is the science side's.
+One command still prints science values: `capture cadence-report` copies the table of record's dispositions and R
+values from the table it is given into its last section, as the frozen report did. It computes none of them, and
+that section is to move to RFIsher.
 
 Reading CHIME baseband data requires CHIME/FRB authorization. The dumps, their reduced products and the detector
 runs are collaboration data and are not published here.
@@ -24,7 +27,7 @@ runs are collaboration data and are not published here.
 | `capture class-excess` | Per epoch, class and product (`xx,yy` or `stokes_i`), each band's in-band excess, and the control band's per-bin excess. | `class_excess_epochs.csv`, `class_floor_bins.csv` |
 | `capture marker-map`, `marker_to_inband` | The marker-bin to in-band correction on the long baselines. `marker_to_inband` imports numpy and the standard library only (it ran under an interpreter without a YAML reader); the map is written first under a full interpreter. | `pilot_to_inband.csv` |
 | `capture ladder-place` | Each dump's median Q and the fraction of its frames each rung of the band's archive ladder keeps (population `all_valid_frames`). | stdout |
-| `capture tau-bounds` | The within-dump 95 % lower bounds on tau (amendment 19 item 35) from the autocorrelation lane and its check, at the settings of releases r5 and r5.1/r5.2. The lane's own files are inputs. | `capture_tau_bounds.csv` |
+| `capture tau-bounds` | The within-dump 95 % lower bounds on tau (amendment 19 item 35) from the autocorrelation lane and its check, at the settings of releases r5 and r5.1/r5.2. The lane's own files are inputs. The lane's grouping of classes into ranges is a science rule and is not carried. | `capture_tau_bounds.csv` |
 | `capture oc-table` | The handoff: `capture_oc_table.csv`, `capture_oc_summary.csv`, `capture_tau_bounds.csv`, `manifest.json` (schema `docs/schemas/capture_operating_characteristic_v1.schema.json`). | `<out>/capture/` |
 | `capture band-shape`, `first-look`, `line-check`, `bearing` | Diagnostics of one dump. | `band_shape.csv`, `first_look.csv`, stdout |
 | `records frame-policy` | The frozen coarse frame policies replayed on timestamp-matched capture correlations (`records/chime_atsc_2026/frame_policy.py`, byte-frozen; see below). | `frame_policies/<name>/` |

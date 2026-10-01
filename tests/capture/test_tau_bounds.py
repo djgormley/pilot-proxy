@@ -60,7 +60,7 @@ def test_censored_classes_and_the_fitted_check(lane):
     assert lb[(29, (0, 32))]["variants"]["check lags_1_2_only"] == 0.918
 
 
-def test_a_bound_prices_only_when_it_beats_the_null(lane):
+def test_a_bound_passes_only_when_it_beats_the_null(lane):
     lb = T.tau_lower_bounds(calibrate=True, **lane)
     cal = lb[(29, (0, 32))]["calibration"]
     n_at = sum(1 for i in range(91) if 0.01 * (i + 1) >= 0.58)
@@ -72,6 +72,8 @@ def test_a_bound_prices_only_when_it_beats_the_null(lane):
 def test_the_table_round_trips(lane, tmp_path):
     table = T.rows(**lane)
     T.write(table, tmp_path / "t.csv")
+    # the lane's range grouping (a science rule) is not carried into the detector table
+    assert (tmp_path / "t.csv").read_text().splitlines()[0].split(",") == T.COLUMNS and "range" not in T.COLUMNS
     back = T.read(tmp_path / "t.csv")
     for s in T.SETTINGS:
         lb = T.tau_lower_bounds(censor=s[0], source=s[1], calibrate=s[2], **lane)

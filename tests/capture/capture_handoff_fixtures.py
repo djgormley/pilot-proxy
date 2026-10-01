@@ -159,7 +159,7 @@ def _write_tau_bounds(path):
         for c, lb in (((0, 32), 0.579), ((3, 0), 2.2)):
             span = 32 * 16384 * 2.56e-6
             rows.append({"censor": censor, "source": source, "calibrate": calibrate, "channel": 33, "ew": c[0], "ns": c[1],
-                         "range": "long" if c[0] else "short", "lane": lb, "check": lb * 1.25,
+                         "lane": lb, "check": lb * 1.25,
                          "variants": json.dumps({"lane a": lb, "check b": lb * 1.25}), "lb": lb, "least_variant": "lane a",
                          "span": span, "lb_priced": min(lb, span), "capped": lb > span, "b4": False,
                          **{f"calibration_{k}": v for k, v in (dict(fcr=0.0, n_at_or_above=0, n_cells=91, fcr_same_class=0.0,
