@@ -9,7 +9,7 @@ from pilot_proxy.detector_reference import (
     quantize_complex_numpy,
 )
 from pilot_proxy.detector_weights import DetectorWeightBank
-from pilot_proxy.gpu import cuda_available
+from gpu import cuda_available
 from pilot_proxy.kernel import FStatKernel
 from pilot_proxy.paths import DEFAULT_LIB_PATH, DEFAULT_WEIGHTS_PATH
 

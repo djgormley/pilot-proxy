@@ -15,7 +15,7 @@ import pytest
 from pilot_proxy.chime.baseband_format import make_synth_file
 from pilot_proxy.detector_weights import DetectorWeightBank
 from pilot_proxy.fxfft import fine_power_fx
-from pilot_proxy.gpu import cuda_available
+from gpu import cuda_available
 from pilot_proxy.kernel import FStatKernel
 from pilot_proxy.paths import DEFAULT_LIB_PATH, DEFAULT_WEIGHTS_PATH
 

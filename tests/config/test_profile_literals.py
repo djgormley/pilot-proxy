@@ -100,7 +100,7 @@ LITERALS = {
         "RFIsher src/rfisher_results/archive/tolerances.py:24 CHANNELS",
         "pinned", tuple(range(14, 37)), _labels_as_ints),
     "export_expected_channels": (
-        "pilot-proxy src/pilot_proxy/dissertation_exports.py:372 range(14, 37) (frozen v1 export)",
+        "pilot-proxy src/pilot_proxy/records/chime_atsc_2026/dissertation_export_v1.py:373 range(14, 37) (frozen v1 export)",
         "pinned", set(range(14, 37)), lambda: set(_labels_as_ints())),
     "rfisher_pilot_base_hz": (
         "RFIsher src/rfisher/archive_acceptance.py:30 EXPECTED_PILOT_BASE_HZ",

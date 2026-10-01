@@ -63,12 +63,14 @@ never substitutes digitized artwork, inferred values, or synthetic data.
 ## Optional tables
 
 The optional tables are supplied to the exporter through `--census-psd`,
-`--worked-example-spectra` and `--bao-time-vs-masking`. The generators that
-used to build them here (`tools/make_dissertation_tables.py` and
-`tools/make_chain_table.py`) imported the released `rfisher` package and were
-removed when the detector characterization moved into this repository; the
-science-side tables are built in RFIsher. A table that is not supplied stays
-`pending` in `export_manifest.json`.
+`--worked-example-spectra` and `--bao-time-vs-masking`. Their generators
+(`tools/make_dissertation_tables.py@bdfcdce` and `tools/make_chain_table.py@bdfcdce`)
+were removed when the detector characterization moved into this repository;
+the science-side tables are built on the science side. A table that is not
+supplied stays `pending` in `export_manifest.json`. The exporter is the frozen
+v1 format (`src/pilot_proxy/records/chime_atsc_2026/dissertation_export_v1.py`):
+its table names, its `external-fisher-forecast` owner strings and its producer
+name `pilot_proxy.dissertation_exports` are the values its exports carry.
 
 ## Verify before import
 
@@ -141,9 +143,7 @@ acquisition diagnostic. Narrow measured +/-2-bin anchors are provisional
 UTC-quarter estimates with persistence/uniqueness evidence and refusal
 reasons; an outside-neighborhood line is only a sentinel and cannot move the
 pilot anchor.
-The report, policy, residual-chain, and histogram generators create transient
-minimal v1-filtered views for all path-only RFIsher calls; the census-PSD
-table uses the same exact spectrum correction.
+The census-PSD table uses the same exact spectrum correction.
 Do not call the fine-F heatmaps raw-voltage spectrograms, and do not call the
 relative spectra absolute PSDs.
 

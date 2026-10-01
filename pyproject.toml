@@ -83,7 +83,7 @@ where = ["src"]
 include = ["pilot_proxy*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", "tests/products"]
+pythonpath = ["src", "tests/products", "tests/support"]
 markers = [
   "cuda: requires CUDA runtime/GPU",
 ]

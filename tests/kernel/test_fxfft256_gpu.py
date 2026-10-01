@@ -32,7 +32,7 @@ from pilot_proxy.fxfft import (
     fine_power_fx,
     fxfft256,
 )
-from pilot_proxy.gpu import cuda_available
+from gpu import cuda_available
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
 GOLDEN_PATH = REPO / "tests" / "data" / "fxfft256_golden_v1.npz"

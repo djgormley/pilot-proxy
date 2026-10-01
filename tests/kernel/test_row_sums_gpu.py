@@ -16,7 +16,7 @@ from pilot_proxy.fine_reduction import (
     exact_coarse_power_by_term,
     fine_reduce,
 )
-from pilot_proxy.gpu import cuda_available
+from gpu import cuda_available
 from pilot_proxy.kernel import FStatKernel
 from pilot_proxy.paths import DEFAULT_LIB_PATH
 

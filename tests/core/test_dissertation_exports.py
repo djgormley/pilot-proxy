@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from pilot_proxy.dissertation_exports import (
+from pilot_proxy.records.chime_atsc_2026.dissertation_export_v1 import (
     ExportError,
     create_export,
     main,

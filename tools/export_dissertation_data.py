@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Thin command-line wrapper for the versioned dissertation data exporter."""
-from pilot_proxy.dissertation_exports import main
+from pilot_proxy.records.chime_atsc_2026.dissertation_export_v1 import main
 
 
 if __name__ == "__main__":

@@ -38,7 +38,7 @@ import pytest
 from pilot_proxy.fine_decision import fine_mask_decision, pack_bulk_mask
 from pilot_proxy.fine_reduction import independent_bin_mask
 from pilot_proxy.fxfft import fine_power_fx
-from pilot_proxy.gpu import cuda_available
+from gpu import cuda_available
 from pilot_proxy.kernel import FStatKernel
 from pilot_proxy.paths import DEFAULT_LIB_PATH
 

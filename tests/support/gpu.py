@@ -1,5 +1,5 @@
 # coding=utf-8
-"""GPU availability checks."""
+"""GPU availability checks for the kernel tests (on the test path through pyproject.toml)."""
 
 from __future__ import annotations
 

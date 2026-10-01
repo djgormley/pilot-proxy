@@ -28,6 +28,7 @@ from typing import Any, Iterable, Mapping, Sequence
 
 SCHEMA_NAME = "pilot-proxy-dissertation-export"
 SCHEMA_VERSION = 1
+# The module path when the v1 format was frozen; exports record it as their producer.
 PRODUCER = "pilot_proxy.dissertation_exports"
 PRODUCER_VERSION = 1
 DEFAULT_REPOSITORY = "WVURAIL/pilot-proxy"
@@ -581,7 +582,7 @@ def _write_export_readme(path: Path, manifest: Mapping[str, Any]) -> None:
         "and SHA-256 hashes.  Verify the directory before import with:",
         "",
         "```bash",
-        "PYTHONPATH=src python -m pilot_proxy.dissertation_exports --verify <this-directory>",
+        "PYTHONPATH=src python tools/export_dissertation_data.py --verify <this-directory>",
         "```",
         "",
     ]
