@@ -13,8 +13,12 @@ lands, so that neither repository is ever without a runnable table of record:
 | `ch24_2020_basis.py` | channel 24's 2020 basis |
 
 They are byte copies of the frozen ruling tree (`table_of_record.py` differs only in how it finds and records its
-inputs), read the frozen frame-analysis tree by path, and are not linted (`pyproject.toml`). The capture
-measurements they read (class excess, control bins, cadence levels, lags, frame residuals) are written by the
+inputs) and are not linted (`pyproject.toml`). `ruling_baseline.py`, `robustness_v8.py`, `blanket_credit.py` and
+`concession_stack.py` read their inputs from their own directory (`FA = os.path.dirname(__file__)`), and
+`ch24_2020_basis.py` reads `pilot_to_inband.csv` and, by default, its cohort directory from there, so they run only as copies
+placed in the frozen frame-analysis tree, not from here (the repository keeps `pilot_to_inband.csv` in
+`tests/capture/data/`). `credit_ledger.py` and `forecast_baseline_domain.py` take their inputs as arguments. The
+capture measurements they read (class excess, control bins, cadence levels, lags, frame residuals) are written by the
 package now: the same bytes, except that the frame residual no longer carries its two tolerance cells, which these
 scripts do not read.
 

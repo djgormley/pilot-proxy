@@ -35,14 +35,15 @@ per-dump noise floor is estimated from the frame-to-frame scatter and
 reported. rho near 1 at a lag means the residual's coherent part has not
 decorrelated over that lag (it counts toward G); rho near 0 means it has. The
 ``_x`` classes subtract a reference phasor, the mean over the bins of the
-``--reference-bands`` (bands with no emitter in the capture). Lags are grouped
+``--reference-bands`` (bands with no emitter in the capture; by default the
+project record's ``LAG_REFERENCE_BANDS``). Lags are grouped
 to the nearest predeclared class and averaged over pairs. ``--classes three``
 reads ns1, ns8 and ew1 (rows ns1, ns1_x, ns8_x, ew1_x); ``--classes ten`` the
 ten classes of the class excess (rows <class>_x, then ns1).
 
 usage: pilot-proxy capture cadence tau [--level polavg|stokesI|polmax] [--pol-table <table_of_record csv>]
            [--trim none|archive] [--class EW,NS] [--pol P] [--project DIR] <out csv> <label>=<products dir> [...]
-       pilot-proxy capture cadence lags --classes three|ten --reference-bands B[,B...] [--project DIR]
+       pilot-proxy capture cadence lags --classes three|ten [--reference-bands B[,B...]] [--project DIR]
            <out csv> <label>=<products dir> [...]
 """
 from __future__ import annotations
@@ -245,15 +246,24 @@ def load_dump(d, CLASSES, *, nfft, sample_seconds, reference_bands):
 def lags_main(argv):
     ap = argparse.ArgumentParser(prog="pilot-proxy capture cadence lags", description="Phasor coherence between dumps.")
     ap.add_argument("--classes", choices=sorted(LAG_CLASS_SETS), required=True)
-    ap.add_argument("--reference-bands", required=True, help="comma-separated bands with no emitter in the capture")
+    ap.add_argument("--reference-bands", default=None,
+                    help="comma-separated bands with no emitter in the capture (default: the project record's)")
     ap.add_argument("--project", default=None)
     ap.add_argument("out_csv")
     ap.add_argument("dumps", nargs="+", metavar="label=dir")
     a_ = ap.parse_args(argv)
-    pv = _profile_values(resolve_project(a_.project))
+    project = resolve_project(a_.project)
+    pv = _profile_values(project)
     markers = pv["markers"]
     CLASSES = LAG_CLASS_SETS[a_.classes]
-    reference_bands = tuple(int(b) for b in a_.reference_bands.split(","))
+    if a_.reference_bands:
+        reference_bands = tuple(int(b) for b in a_.reference_bands.split(","))
+    else:
+        from pilot_proxy.config._files import ProfileError
+        try:
+            reference_bands = tuple(int(b) for b in project.record_module("capture_campaign").LAG_REFERENCE_BANDS)
+        except ProfileError as exc:
+            ap.error(f"--reference-bands is required: {exc}")
     order = ("ns1", "ns1_x", "ns8_x", "ew1_x") if a_.classes == "three" else [c + "_x" for c in CLASSES] + ["ns1"]
     dumps = {}
     for arg in a_.dumps:

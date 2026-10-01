@@ -42,19 +42,29 @@ def test_no_tolerance_is_read_or_written():
     assert "channels.csv" not in source and "exact-time-reference" not in source
 
 
-def test_the_sidecar_reconstructs_the_fraction_above_any_threshold(tmp_path):
+def test_the_sidecar_reconstructs_the_fraction_above_any_threshold(tmp_path, monkeypatch):
+    # the U arrays the producer holds in memory: the first argument of each 90th-percentile call (the U_i rows only)
+    held, percentile = [], np.percentile
+
+    def spy(a, q, *args, **kw):
+        if q == 90:
+            held.append(np.array(a, copy=True))
+        return percentile(a, q, *args, **kw)
+    monkeypatch.setattr(np, "percentile", spy)
     out = _run(tmp_path)
+    monkeypatch.undo()
     rows = list(csv.DictReader(out.open()))
     ui = [r for r in rows if r["frames"] == "U_i"]
-    assert ui and all(r["excess_inband_max"] == "" for r in ui)
+    assert ui and all(r["excess_inband_max"] == "" for r in ui) and len(held) == len(ui)
     side = list(csv.DictReader(open(frame_residual.inputs_path(str(out)))))
-    for r in ui:
+    for r, mem in zip(ui, held):
         U = np.array([float(s["U"]) for s in side if s["channel"] == r["channel"]], dtype=np.float32)
         assert all(s["n_frames"] == r["n_frames"] for s in side if s["channel"] == r["channel"])
+        assert mem.dtype == np.float32 and np.array_equal(U, mem)
         # the row's median and 90th percentile are the sidecar's
         assert r["excess_pilot_bin"] == str(float(np.median(U)))
         assert r["excess_inband_median"] == str(float(np.percentile(U, 90)))
-        for lam in (-1.0, 0.0, float(np.median(U)), 1.0):
-            frac = float((U > lam).mean())
-            assert 0.0 <= frac <= 1.0
+        # the frozen producer's U_i fraction, float((U > lambda).mean()), is the same from the sidecar at any lambda
+        for lam in (-1.0, 0.0, float(np.median(mem)), float(mem.max()), 1.0, *map(float, mem[:5])):
+            assert float((U > lam).mean()) == float((mem > lam).mean())
     assert {int(r["channel"]) for r in ui} == {14, 15, 16, 37}   # the control band is read at its target too

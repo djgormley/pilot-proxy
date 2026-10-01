@@ -58,3 +58,13 @@ def test_both_lag_class_sets_keep_their_orders(tmp_path, epochs):
 
 def test_an_unknown_level_is_refused(tmp_path, epochs):
     assert cadence.main(["tau", "--level", "polmin", str(tmp_path / "x.csv"), *epochs]) == 2
+
+
+def test_the_reference_bands_default_to_the_record(tmp_path, epochs):
+    from pilot_proxy.config.project import default_project
+    bands = default_project().record_module("capture_campaign").LAG_REFERENCE_BANDS
+    given, default = tmp_path / "given.csv", tmp_path / "default.csv"
+    assert cadence.main(["lags", "--classes", "three", "--reference-bands", ",".join(map(str, bands)), str(given),
+                         *epochs[:3]]) == 0
+    assert cadence.main(["lags", "--classes", "three", str(default), *epochs[:3]]) == 0
+    assert default.read_bytes() == given.read_bytes()
