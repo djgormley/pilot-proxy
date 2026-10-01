@@ -485,7 +485,7 @@ class PilotProxyDetectorAnalyzer(Analyzer):
         kind="analyzer",
         summary="CHIME DTV local-reference power-ratio detector (PilotProxy parity; per-channel "
                 "fixed-point pilot detection + positive-excess mask).",
-        status=EXPERIMENTAL,  # real kernel-level + real-data parity is a CANFAR/GPU step
+        status=EXPERIMENTAL,  # a registry value, kept as it is; the local run of record supplied the real-data parity
         instruments=("chime", "kko", "gbo", "hco"),
         produces="<channel>.npz (chime_detector_outputs schema)",
         requires=("h5py", "pilot-proxy", "GPU+libfstatistic.so (CUDA kernel)"),

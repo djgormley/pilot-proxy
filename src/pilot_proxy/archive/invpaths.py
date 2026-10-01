@@ -21,13 +21,12 @@ from pathlib import Path
 from .names import validate_identifier
 
 ENV = "PILOT_PROXY_INVENTORY_ROOT"
-LEGACY_ENV = "DATATRAWL_INVENTORY_ROOT"
 DEFAULT_ROOT = "~/datatrawl-inventories"
 
 
 def inventory_root() -> Path:
     """The canonical inventory root (env override, else the default)."""
-    root = Path(os.environ.get(ENV, os.environ.get(LEGACY_ENV, DEFAULT_ROOT))).expanduser()
+    root = Path(os.environ.get(ENV, DEFAULT_ROOT)).expanduser()
     if not root.is_absolute():
         raise ValueError(
             f"{ENV} must be an absolute path, got {str(root)!r}")

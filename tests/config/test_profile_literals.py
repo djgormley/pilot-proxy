@@ -523,6 +523,36 @@ def test_hz_freq_id_helpers_agree_on_every_target():
         assert abs(centre - marker) <= P.instrument.channel_width_hz / 2
 
 
+# Evidence strings of the register that named files since deleted (M6): the file at the last commit that holds it.
+EVIDENCE_REWRITES = {
+    "src/rfisher/residual.py": ["src/rfisher/residual.py@e041d5e"],
+    "src/rfisher/thresholds.py": ["src/rfisher/thresholds.py@e041d5e"],
+    "src/rfisher/preparation.py": ["src/rfisher/preparation.py@e041d5e"],
+    "scripts/fine_operating_point.py": ["scripts/fine_operating_point.py@e041d5e"],
+    "pilot-proxy/analysis/ppcal/era_view.py": ["pilot-proxy/analysis/ppcal/era_view.py@30e50c2"],
+    "pilot-proxy/analysis/ppcal/eras.py": ["pilot-proxy/analysis/ppcal/eras.py@30e50c2"],
+    "pilot-proxy/analysis/validate_eras.py": ["pilot-proxy/analysis/validate_eras.py@30e50c2"],
+}
+
+
+def _rewritten_evidence(evidence):
+    return [new for e in evidence for new in EVIDENCE_REWRITES.get(e, [e])]
+
+
+def test_register_evidence_names_no_deleted_file():
+    root = paths.SOURCE_CHECKOUT_ROOT
+    if root is None:
+        pytest.skip("needs a source checkout")
+    for decision_id in P.register.ids():
+        for e in P.register.decision(decision_id).record()["evidence"]:
+            if e.startswith(("https://", "RFIsher ", "capture ruling release", "refactor design")) or "@" in e:
+                continue
+            if e.startswith(("src/rfisher/", "scripts/", "docs/architecture.md")):
+                continue   # RFIsher paths of the copied entries (source.evidence_paths), files at that repository's head
+            local = e[len("pilot-proxy/"):] if e.startswith("pilot-proxy/") else e
+            assert (root / local).exists(), (decision_id, e)
+
+
 def test_register_copies_the_detector_entries_value_for_value():
     golden = json.loads((DATA / "selection_policy_e041d5e_detector_entries.json").read_text())
     assert golden["snapshot_sha256"] == P.register.source["snapshot_sha256"]
@@ -531,7 +561,11 @@ def test_register_copies_the_detector_entries_value_for_value():
     for record in copied:
         mine = P.register.decision(record["id"]).record()
         assert mine.pop("side") == "detector"
-        assert mine == record, record["id"]
+        # the one declared difference: evidence naming a file that was since deleted cites it at the last commit
+        # that holds it (or names the file that holds the code now); every other key is the e041d5e record's
+        assert {k: v for k, v in mine.items() if k != "evidence"} == \
+            {k: v for k, v in record.items() if k != "evidence"}, record["id"]
+        assert mine["evidence"] == _rewritten_evidence(record["evidence"]), record["id"]
     added = set(P.register.ids()) - {d["id"] for d in copied}
     assert added == set(P.register.source["added"])
     transfer = {d["id"]: d["value"] for d in golden["decisions"] if d["id"].startswith("transfer.")}

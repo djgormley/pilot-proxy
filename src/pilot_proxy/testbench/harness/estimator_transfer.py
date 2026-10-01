@@ -10,8 +10,10 @@ the figure and the release it came from can be re-derived from each other.
 The secondary axes express the same quantities as one-bin pilot excess; the
 conversion needs the detector's pilot calibration, which the over-the-air
 release records in ``run/run_state.json`` and the digital release does not.
-Pass ``calibration`` explicitly for the latter (the values are the same
-sweep-to-sweep and are recorded in the release README).
+Pass ``calibration`` explicitly for the latter. The two releases were
+calibrated differently: the digital release used the waveform audit's pilot
+level, 11.918446870168612 dB below the data, and the settled sweep 11.264 dB
+(each is recorded with its release).
 """
 from __future__ import annotations
 

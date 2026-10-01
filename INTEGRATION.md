@@ -126,8 +126,7 @@ command prints the exact `inventory.jsonl` path. The default remains:
 ~/datatrawl-inventories/chime-pilots/inventory.jsonl
 ```
 
-Set `PILOT_PROXY_INVENTORY_ROOT` to an absolute path to change that root. The
-older `DATATRAWL_INVENTORY_ROOT` name remains a read-compatible fallback.
+Set `PILOT_PROXY_INVENTORY_ROOT` to an absolute path to change that root.
 
 Inspect the inventory without staging baseband data:
 

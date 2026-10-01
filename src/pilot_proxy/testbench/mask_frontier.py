@@ -22,15 +22,15 @@ convenient approximation of it:
 
 * the per-rank boundary is ``ceil(max_D F2 * 2^16 / F2_rho)`` on exact
   rationals, with ``ALWAYS_MASKED_Q16`` for a rank whose reference numerator
-  vanishes (``rfisher.residual_scores.bundle.required_multipliers_for_frame``);
+  vanishes (``pilot_proxy.detectors.narrowband_marker.scores.required_eta_q16_by_rank``);
 * a frame is kept when ``required <= eta`` and it is not always-masked
-  (``rfisher_results.archive.selection.kept_at``);
+  (``pilot_proxy.characterization.surface.kept_at``);
 * the candidate staircase is the sorted distinct deployable requirements plus
-  the policy floor of one (``rfisher.preparation.candidate_multiplier_q16_values``);
+  the policy floor of one (``pilot_proxy.detectors.narrowband_marker.scores.candidate_eta_q16``);
 * a candidate retaining fewer than ``MIN_RETAINED_FRAMES`` frames is not
-  evaluated (``rfisher.thresholds.optimize_threshold``);
+  evaluated (``pilot_proxy.characterization.surface.operating_surface``);
 * the floor is the 90th percentile of the shelf estimates of a verified off
-  population (``rfisher_results.archive.nulls.floor_estimate``).
+  population (``pilot_proxy.characterization.nulls.floor_estimate``).
 """
 from __future__ import annotations
 
