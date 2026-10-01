@@ -359,8 +359,9 @@ explicitly.
 
 ## Run ledger
 
-Copy [`LOCAL_ARCHIVE_RUN_LEDGER_TEMPLATE.md`](LOCAL_ARCHIVE_RUN_LEDGER_TEMPLATE.md)
-beside the run output before launch and record:
+Copy the run ledger template of the 2026-09 run
+(`docs/LOCAL_ARCHIVE_RUN_LEDGER_TEMPLATE.md@30e50c2`) beside the run output
+before launch and record:
 
 - UTC start time and operator;
 - complete command as executed;

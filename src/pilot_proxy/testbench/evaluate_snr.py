@@ -658,7 +658,7 @@ def _cpu_reference_measurements(
     decision, so the fields are the kernel's semantics without a GPU. The
     kernel <-> reference equivalence itself is CI-gated by the kernel parity
     suite; a small same-seed GPU spot check ties a CPU-produced sweep to the
-    deployed kernel (see docs/PUBLICATION_VALIDATION.md, item 2).
+    deployed kernel (see docs/PUBLICATION_VALIDATION.md@30e50c2, item 2).
     """
     fstat, sums = coarse_power_ratio_cpu_reference_packed(packed, weights, int(bits))
     p_target = int(round(float(sums[0])))

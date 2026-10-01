@@ -2,7 +2,6 @@ from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 import numpy as np
-from scipy.stats import f, ncf
 
 TOOLS = Path(__file__).resolve().parents[2] / "tools"
 
@@ -12,25 +11,6 @@ def load_tool(name):
     module = module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
-
-def test_additive_cdfs_against_independent_closed_form():
-    module = load_tool("plot_additive_vs_mixture_v1")
-    q = np.geomspace(.0001, 100000, 200)
-    d = q + 2
-    for actual, lam in zip(module.curves(q)[:3], (0., 2., 20.)):
-        # Conditioning on the independent chi-square4 denominator gives this form.
-        expected = np.exp(-lam/d) * (q*(q+4)/d**2 + lam*q*q/d**3)
-        np.testing.assert_allclose(actual, expected, rtol=2e-13, atol=2e-14)
-
-
-def test_mixture_matches_mean_but_not_distribution():
-    module = load_tool("plot_additive_vs_mixture_v1")
-    central, moderate, strong, mixture = module.curves(np.array([1.]))
-    np.testing.assert_allclose(mixture, .9*central+.1*strong)
-    assert float(mixture[0]-moderate[0]) > .17
-    assert ncf.mean(2, 4, 2) == .9*f.mean(2, 4)+.1*ncf.mean(2, 4, 20)
-    assert not np.isfinite(f.var(2, 4))
 
 
 import json

@@ -1,5 +1,5 @@
 """The CLI restores a usable SIGINT when a launcher left it ignored
-(POST_RUN_DEFERRED item 14)."""
+(docs/POST_RUN_DEFERRED.md@30e50c2 item 14)."""
 from __future__ import annotations
 
 import signal

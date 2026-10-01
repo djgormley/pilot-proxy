@@ -8,7 +8,7 @@
 #
 # This script does ONLY the assembly, because everything after it is already
 # scripts/generate_results.py's job: integrity checks, choosing the stacked
-# combine subset by the PRE-REGISTERED rule (PAPER_PLAN.md decision 1), the
+# combine subset by the PRE-REGISTERED rule (docs/PAPER_PLAN.md@30e50c2 decision 1), the
 # combine itself, validate, plot, the H0 tables, the cleaning tradeoff, the
 # per-channel full-depth pass, the census, and a small bundle to carry off
 # CANFAR. It runs CPU-only.

@@ -355,27 +355,11 @@ independently justified synthetic floor), not more manipulation of the NPZs.
 The audit does not rewrite `dissertation_summary_v3.json`,
 `channel_status.csv`, or `epoch_operating_points.csv`. Their status/epoch
 figures remain provisional legacy products and must not be called
-health-corrected by implication. Instead, after rebuilding policy and chain
-data, produce a portable, explicitly provisional v4 integration:
+health-corrected by implication. The provisional v4 integration of those files
+(`tools/make_dissertation_status_v4.py@30e50c2`) is kept in the history; it was
+not a new blinded BAO verdict.
 
-```bash
-PYTHONPATH=src python tools/make_dissertation_status_v4.py \
-  --base-summary data/provenance/dissertation_summary_v3.json \
-  --health-summary RELEASE/archive_health_summary.json \
-  --policy-data RELEASE/dissertation_policy/policy_data.json \
-  --chain-table RELEASE/dissertation_exports/bao_channel_chain_v4.csv \
-  --out RELEASE/dissertation_status_v4
-```
-
-The output contains `dissertation_summary_v4.json`, `channel_status_v4.csv`,
-and `epoch_operating_points_v4.csv`. It attaches the health, policy, chain, and
-provisional-quarter anchor evidence while explicitly retaining the old numeric
-operating points as not health-recomputed. In particular, it distinguishes the
-largest full-archive and epoch-specific null populations and removes the stale
-claim that channel 27's off-epoch chain is pending. This integration is not a
-new blinded BAO verdict and does not regenerate the old status/epoch figures.
-
-In contrast, rerunning the repaired `tools/make_dissertation_tables.py`
+In contrast, rerunning the repaired `tools/make_dissertation_tables.py@bdfcdce`
 produces final health-filtered `census_psd.csv` and
 `bao_time_vs_masking.csv` inputs; its optional worked example also refuses
 excluded frames.

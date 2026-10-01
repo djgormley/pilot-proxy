@@ -428,7 +428,7 @@ precision required for the plotted interval and record that choice. Add
 \(0\mathrm{Hz}\), and \(+1\mathrm{kHz}\) curves are needed; this triples the
 number of evaluated offset conditions.
 
-Large sweeps do not require a GPU. With \code{--detector-backend cpu-reference}, the primary fields come from the integer CPU reference and each row records the backend. Before interpreting a CPU-only sweep as representative of the CUDA implementation, compare a small same-seed sample across both backends as described in \code{docs/PUBLICATION_VALIDATION.md}:
+Large sweeps do not require a GPU. With \code{--detector-backend cpu-reference}, the primary fields come from the integer CPU reference and each row records the backend. Before interpreting a CPU-only sweep as representative of the CUDA implementation, compare a small same-seed sample across both backends as described in \code{docs/PUBLICATION_VALIDATION.md@30e50c2} (kept in the history):
 \begin{lstlisting}[style=shell]
 pilot-proxy evaluate-snr \
   --input-iq generated/atsc/atsc_8vsb_complex64.cfile \
@@ -770,7 +770,7 @@ intentionally part of the diagnostic.
 
 \begin{itemize}
   \item The synthetic testbench models GNU Radio ATSC 1.0 signals. It does not model other broadcast standards or establish telescope performance.
-  \item The CHIME real-data workflow (\code{chime-run}, \code{chime-scan}, and the HDF5 reader) is documented in \code{docs/CANFAR_RUNBOOK.md} and \code{docs/PUBLICATION_VALIDATION.md}.
+  \item The CHIME real-data workflow (\code{chime-run}, \code{chime-scan}, and the HDF5 reader) is documented in \code{docs/CANFAR_RUNBOOK.md} and \code{docs/CHIME_RUN_WORKFLOW.md}.
   \item The checked-in CHIME profile and stream map must still agree with the data product being processed. The 16,384-sample frame is the planned F-engine upgrade profile used by this repository, not a claim about the current deployed frame. \code{chime-run} uses its explicit override, and \code{chime-scan} uses the Pilot Proxy CHIME instrument \code{nfft}; neither path should be described as automatically discovering a universal HDF5 frame size.
   \item Synthetic threshold tests accept a shelf-SNR threshold. The CHIME path instead uses $F>\mu_0$, with \(\mu_0\) fixed by the weight norms. Neither rule is an empirically calibrated telescope false-positive threshold.
   \item Receiver profiles define an adapter contract; they do not establish that a telescope pipeline has been deployed or validated.

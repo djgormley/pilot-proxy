@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Publication P_d sweep (PUBLICATION_VALIDATION.md item 2), CPU-reference
+# Publication P_d sweep (docs/PUBLICATION_VALIDATION.md@30e50c2 item 2), CPU-reference
 # backend, sharded across cores with resume support.
 #
 #   bash run_pd_sweep.sh [TRIALS] [JOBS] [OUT]

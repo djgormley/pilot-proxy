@@ -648,36 +648,6 @@ products while diagnosing the run.
 
 ---
 
-## Optional retrospective forecasting export
-
-This optional export neither activates rho/eta nor establishes held-out
-detection performance. After a scan's per-pilot products pass their contract
-and audit, export the forecasting-side bundle directly from those products; no
-baseband access is needed:
-
-```bash
-RUN_DIR=/absolute/path/to/run
-python tools/export_rfisher_calibration.py \
-  --per-pilot-dir "$RUN_DIR/_per_pilot" \
-  --out "$RUN_DIR/rfisher_export"
-```
-
-The tool derives the per-frame decision statistic (max of the fine
-statistic over the per-channel designated window, measured-line anchored),
-histograms it per (channel, quarter), measures the empirical null from
-off-pilot windows and transmitter-off epochs, substitutes per-event
-maxima for the spec's 10 s windows (baseband snapshots contain no 10 s
-integrations --- recorded in `provenance.json`; an exploratory
-integrated-event pair adds the detect-on-integrated-spectra policy), and
-runs the spec's
-ingest-side validations before exiting. A nonzero exit means the bundle
-must not be shipped. Note the leakage caveat recorded in provenance: on
-occupied channels during on-epochs, off-pilot windows carry transmitter
-leakage; the `off_epoch_anchor_window` rows are the best available export null
-anchor, not a calibrated detection threshold.
-
----
-
 ## Archive policy
 
 For each accepted run, archive:
@@ -709,4 +679,4 @@ supervisor that resumes a shard across archive outages. The exact scripts,
 with the digests they assert, are committed under
 [`scripts/canfar/`](../scripts/canfar/README.md); the run ledger records what
 each of them found. The CADC outage encountered during that run is written up
-in [`CADC_OUTAGE_2026-09-01.md`](CADC_OUTAGE_2026-09-01.md).
+in `docs/CADC_OUTAGE_2026-09-01.md@30e50c2` (kept in the history).

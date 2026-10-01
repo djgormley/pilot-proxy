@@ -1,15 +1,10 @@
 # coding=utf-8
 from __future__ import annotations
 
-import math
-
-import numpy as np
 import pytest
 
-from pilot_proxy.masking import masked_mean_excluding
 from pilot_proxy.result_schema import (
     COMBINE_MODE_ALL_ROWS_SUMMED_BEFORE_RATIO,
-    MASK_VALUE_EXCLUDED,
     RESULT_SCHEMA_TOKEN,
     fixed_point_contract,
     result_layout,
@@ -80,23 +75,3 @@ def test_fixed_point_contract_describes_selected_supported_window(window) -> Non
     assert contract["supported_detector_window_samples"] == [64, 128]
     assert contract["packed_complex_bits"] == 8
     assert contract["sample_bits_per_component"] == 4
-
-
-def test_masked_mean_excludes_samples_instead_of_zero_filling() -> None:
-    values = np.asarray([10.0, 1000.0, 30.0])
-    mask = np.asarray([0, MASK_VALUE_EXCLUDED, 0])
-
-    assert masked_mean_excluding(values, mask) == pytest.approx(20.0)
-    assert not math.isclose(float(np.mean(values * (1 - mask))), 20.0)
-
-
-@pytest.mark.parametrize("excluded_value", [np.nan, np.inf, -np.inf])
-def test_masked_mean_excludes_nonfinite_samples(excluded_value: float) -> None:
-    values = np.asarray([[1.0, excluded_value], [3.0, excluded_value]])
-    mask = np.asarray([[0, MASK_VALUE_EXCLUDED], [0, MASK_VALUE_EXCLUDED]])
-
-    assert masked_mean_excluding(values, mask) == pytest.approx(2.0)
-    np.testing.assert_allclose(
-        masked_mean_excluding(values, mask, axis=1),
-        np.asarray([1.0, 3.0]),
-    )

@@ -307,8 +307,8 @@ denominator must be explicit.
 ## Injection-recovery and cleaning tradeoff
 
 Four publication-analysis commands operate on the staged files or the
-archive-scale products. Their procedures are in
-`docs/PUBLICATION_VALIDATION.md`.
+archive-scale products. Their procedures were written for the 2026-07 manuscript
+and are kept in the history (`docs/PUBLICATION_VALIDATION.md@30e50c2`).
 
 ```text
 pilot-proxy inject-pilot-tone

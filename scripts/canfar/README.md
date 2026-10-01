@@ -56,7 +56,7 @@ local WSL copy, with `--repo-dir` pointing at the checkout (the default is
 `~/pilot-proxy`) so the integrity script and the census table are found.
 
 It runs the per-product integrity checks, chooses the stacked combine subset
-by the **pre-registered rule** (`docs/PAPER_PLAN.md` decision 1), combines,
+by the **pre-registered rule** (`docs/PAPER_PLAN.md@30e50c2` decision 1), combines,
 validates, plots, builds the H0 zero-point tables and the cleaning tradeoffs,
 runs the census, and bundles the small outputs to carry off CANFAR.
 
@@ -69,7 +69,7 @@ the registered rule exists to prevent.
 ## What this run taught
 
 Each of these is in the run ledger, and where it is a code change, in
-`POST_RUN_DEFERRED.md`:
+`docs/POST_RUN_DEFERRED.md@30e50c2`:
 
 * a bash async job (`nohup cmd &`) inherits SIGINT ignored, so scans are
   started with `setsid -f` and stopped with INT then TERM;
@@ -89,4 +89,4 @@ Each of these is in the run ledger, and where it is a code change, in
   `git show origin/main:<path> > /tmp/<name>`.
 
 See `docs/CANFAR_RUNBOOK.md` for the general procedure and
-`docs/CADC_OUTAGE_2026-09-01.md` for the outage report filed during the run.
+`docs/CADC_OUTAGE_2026-09-01.md@30e50c2` for the outage report filed during the run.

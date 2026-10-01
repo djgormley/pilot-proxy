@@ -548,7 +548,6 @@ CADC/CANFAR sequences, order constraint, and post-processing commands:
 - **[docs/RERUN_PARAMETER_REGISTER.md](docs/RERUN_PARAMETER_REGISTER.md)** --- frozen scientific and product settings.
 - **[docs/VALIDATION_GATES.md](docs/VALIDATION_GATES.md)** --- mandatory local launch gates.
 - **[docs/LOCAL_PROCESSING.md](docs/LOCAL_PROCESSING.md)** --- measured local workstation profile and sole production command.
-- **[docs/LOCAL_ARCHIVE_RUN_LEDGER_TEMPLATE.md](docs/LOCAL_ARCHIVE_RUN_LEDGER_TEMPLATE.md)** --- launch and run record template.
 - **[INTEGRATION.md](INTEGRATION.md)** --- standalone archive integration contract.
 - **[docs/CANFAR_RUNBOOK.md](docs/CANFAR_RUNBOOK.md)** --- alternate bounded remote workflow.
 

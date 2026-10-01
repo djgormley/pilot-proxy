@@ -12,7 +12,7 @@ checkpoints on disk -- no GPU session required. Stages:
                 (failing products are excluded everywhere, loudly)
   3. subset     choose the stacked combine subset:
                   --stack-mode preregistered  (default) the registered greedy
-                     rule (PAPER_PLAN.md decision 1, 2026-07-08): drop the
+                     rule (docs/PAPER_PLAN.md@30e50c2 decision 1, 2026-07-08): drop the
                      most event-constraining channel while common events grow
                      >= --growth-percent, retain >= --min-channels
                   --stack-mode max-events     documented amendment: exact
@@ -293,7 +293,7 @@ def integrity_check(check_scan, paths: list[Path], runner: Runner) -> dict[int, 
 
 def preregistered_subset(event_sets: dict[int, set], *, min_channels: int,
                          growth_percent: float) -> dict:
-    """PAPER_PLAN.md pre-registered decision 1 (registered 2026-07-08).
+    """docs/PAPER_PLAN.md@30e50c2 pre-registered decision 1 (registered 2026-07-08).
 
     Greedy: repeatedly identify the most event-constraining channel (the one
     whose removal maximizes the remaining common-event count; ties broken by
@@ -355,7 +355,7 @@ def preregistered_subset(event_sets: dict[int, set], *, min_channels: int,
     return {
         "rule": ("drop most event-constraining channel while common events grow "
                  f">= {growth_percent:g}%, retain >= {min_channels} channels"),
-        "registered": "2026-07-08 (docs/PAPER_PLAN.md, decision 1)",
+        "registered": "2026-07-08 (docs/PAPER_PLAN.md@30e50c2, decision 1)",
         "start_channels": fids,
         "start_intersection_events": i_all,
         "kept_channels": kept,
@@ -964,7 +964,7 @@ def main(argv: list[str] | None = None) -> int:
             amendment_note = None
             if mode == "max-events-amendment":
                 amendment_note = (
-                    "Amendment to PAPER_PLAN.md pre-registered decision 1 "
+                    "Amendment to docs/PAPER_PLAN.md@30e50c2 pre-registered decision 1 "
                     "(registered 2026-07-08): stacked subset chosen to "
                     "maximize the common-event count subject to retaining at "
                     f"least {args.min_channels} channels (exhaustive subset "

@@ -115,14 +115,10 @@ The archive-health command also does **not** rewrite
 `data/provenance/dissertation_summary_v3.json`,
 `analysis/dissertation/data/channel_status.csv@30e50c2`, or
 `analysis/dissertation/data/epoch_operating_points.csv@30e50c2`. Figures built from
-those files remain legacy/provisional epoch-status products. The dedicated
-`tools/make_dissertation_status_v4.py` integration consumes the immutable v3
-snapshot, health summary, rebuilt policy data, and rebuilt chain table and
-writes portable `dissertation_summary_v4.json`, `channel_status_v4.csv`, and
-`epoch_operating_points_v4.csv` files. It corrects invalidated prose claims
-without pretending that the legacy numeric epoch operating points or their
-figures were health-recomputed. Do not describe the old rows or figures as
-health-corrected by implication.
+those files remain legacy/provisional epoch-status products. The provisional
+v4 integration of them (`tools/make_dissertation_status_v4.py@30e50c2`) is kept
+in the history. Do not describe the old rows or figures as health-corrected by
+implication.
 
 ## Large products
 
