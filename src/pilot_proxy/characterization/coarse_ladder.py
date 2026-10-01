@@ -152,11 +152,19 @@ def product_thresholds(path, quantiles=QUANTILES):
     return out
 
 
-def run_thresholds(path, quantiles=QUANTILES):
-    """The same ladder over a detector run's outputs (``chime_detector_outputs.npz``, first column), with mu0
-    the run's own ``null_power_ratio``: the ladder of a rescan with another bank."""
-    z = np.load(path, allow_pickle=True); v = z["valid"][:, 0].astype(bool)
-    Q = z["coarse_power_ratio"][:, 0].astype(float) / float(z["null_power_ratio"][0]); Q = Q[v & np.isfinite(Q)]
+def run_thresholds(path, quantiles=QUANTILES, band=None):
+    """The same ladder over a detector run's outputs (``chime_detector_outputs.npz``), with mu0 the run's own
+    ``null_power_ratio``: the ladder of a rescan with another bank. ``band`` reads the run's column of that
+    physical channel and is refused when the run does not hold it exactly once; without it the first column is read."""
+    z = np.load(path, allow_pickle=True); j = 0
+    if band is not None:
+        hits = np.flatnonzero(np.asarray(z["physical_channel"]) == int(band))
+        if hits.size != 1:
+            raise ValueError(f"{path}: band {band} is not one column of the run "
+                             f"(physical_channel {[int(c) for c in z['physical_channel']]})")
+        j = int(hits[0])
+    v = z["valid"][:, j].astype(bool)
+    Q = z["coarse_power_ratio"][:, j].astype(float) / float(z["null_power_ratio"][j]); Q = Q[v & np.isfinite(Q)]
     out = {q: float(np.quantile(Q, q, method="higher")) for q in quantiles}; out["n"] = int(Q.size); out["median"] = float(np.median(Q))
     return out
 

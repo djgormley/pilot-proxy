@@ -294,17 +294,25 @@ def read_gamma(path, inputs):
 
 
 def _frames_and_counts(datasets, events, record, inputs):
+    """Frames per dump and n_b per class, read from each dump's first product, as the ruling reads them.
+
+    n_b must agree between the polarisations and between the dumps (refused otherwise); ``capture class-excess``
+    holds it equal over every product of a dump. The frame count is the first product's: another product of the
+    same dump can hold fewer frames, and the per-bin estimators read each product's own."""
     frames, n_b = {}, {}
     for ev in events:
         p = units.first_product(record.dataset_dir(datasets, ev))
         z = inputs.load(p)
         frames[ev] = units.frames_per_dump(z)
-        if not n_b:
-            for c in CLASSES:
-                b0, b1 = units.class_baseline_count(z, c, 0), units.class_baseline_count(z, c, 1)
-                if b0 != b1:
-                    raise ValueError(f"{p}: class {c} counts differ between polarisations")
-                n_b[c] = b0
+        counts = {}
+        for c in CLASSES:
+            b0, b1 = units.class_baseline_count(z, c, 0), units.class_baseline_count(z, c, 1)
+            if b0 != b1:
+                raise ValueError(f"{p}: class {c} counts differ between polarisations")
+            counts[c] = b0
+        if n_b and counts != n_b:
+            raise ValueError(f"{p}: the class counts differ from those of the first dump")
+        n_b = n_b or counts
     return frames, n_b
 
 
@@ -326,7 +334,7 @@ def _ladders(args, project, markers, record, science, inputs):
     if args.measured_marker_rescan:
         rp = inputs.note(os.path.join(args.measured_marker_rescan, "chime_detector_outputs.npz"))
         for ch in rescanned:
-            eta["measured_marker"][ch] = run_thresholds(rp, tuple(QS.values()))
+            eta["measured_marker"][ch] = run_thresholds(rp, tuple(QS.values()), band=ch)
         for ev in science:
             path = os.path.join(args.detector_runs, record.DETECTOR_RUNS["measured_marker"].format(event=ev),
                                 "chime_detector_outputs.npz")

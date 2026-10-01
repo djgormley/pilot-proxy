@@ -142,7 +142,7 @@ def _write_products(root):
                      null_power_ratio=np.array([0.5, 1.0]), valid=np.ones((n, 2), bool))
     rescan = root / "rescan"; rescan.mkdir()
     np.savez(rescan / "chime_detector_outputs.npz", coarse_power_ratio=rng.gamma(40.0, 0.025, (400, 1)) * 0.45,
-             null_power_ratio=np.array([0.45]), valid=np.ones((400, 1), bool))
+             null_power_ratio=np.array([0.45]), valid=np.ones((400, 1), bool), physical_channel=np.array([33]))
     return datasets, arch, runs, rescan
 
 

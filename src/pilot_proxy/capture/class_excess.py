@@ -15,7 +15,9 @@ noise-bias-free estimator, so its debiasing uses its own per-frame noise
 
 Output: class_excess_epochs.csv (channel, epoch, ew, ns, pol, excess, n_bins)
 and class_floor_bins.csv (epoch, ew, ns, pol, freq_id, excess for the control
-band's bins); the file names are frozen.
+band's bins); the file names are frozen. Every product of an epoch must carry
+the same classes and baseline counts (``keys``, ``count``), which the OC table
+reads from the first product; a product that differs is refused.
 
 usage: pilot-proxy capture class-excess --epochs FILE --datasets DIR --products xx,yy|stokes_i --out-dir DIR [--project DIR]
        (FILE: whitespace-separated label=<dir ending in _<event>>, as epochs_14.txt)
@@ -45,9 +47,12 @@ def read_epochs(path):
 def measure(EPOCHS, PRODUCTS, *, datasets, nfft, control):
     rows, floor = [], []
     for ev in EPOCHS:
-        d = os.path.join(datasets, f"pilot_reduce_{ev}"); out = {}
+        d = os.path.join(datasets, f"pilot_reduce_{ev}"); out = {}; first = None
         for f in sorted(glob.glob(os.path.join(d, "*.npz")), key=lambda p: int(os.path.basename(p)[:-4])):
             z = np.load(f); m = json.loads(str(z["meta"])); k = z["keys"]
+            if first is None: first = (k, z["count"])
+            elif not (np.array_equal(k, first[0]) and np.array_equal(z["count"], first[1])):
+                raise ValueError(f"{f}: classes or baseline counts differ from the epoch's first product")
             P = z["autos"][:, z["autos"].mean(axis=0) > 0.5].mean(axis=1)
             a = {}
             for c in CLASSES:

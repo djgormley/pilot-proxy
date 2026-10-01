@@ -85,3 +85,19 @@ def test_the_golden_handoff_validates_and_regenerates_byte_identical(handoff, tm
     regenerated = write_golden(handoff, tmp_path / "golden")
     for name in (oc_table.TABLE, oc_table.SUMMARY, oc_table.TAU_BOUNDS, oc_table.MANIFEST):
         assert (regenerated / name).read_bytes() == (GOLDEN / name).read_bytes(), name
+
+
+def test_dumps_whose_baseline_counts_differ_are_refused(tmp_path):
+    from types import SimpleNamespace
+
+    import numpy as np
+    keys = np.array([(ew, ns, p, p) for (ew, ns) in oc_table.CLASSES for p in (0, 1)])
+    for i, ev in enumerate(("E0", "E1")):
+        d = tmp_path / f"pilot_reduce_{ev}"; d.mkdir()
+        np.savez(d / "487.npz", keys=keys, count=np.full(len(keys), 100 + i),
+                 stacks=np.zeros((4 + i, len(keys)), np.complex64))
+    record = SimpleNamespace(dataset_dir=lambda root, ev: str(Path(root) / f"pilot_reduce_{ev}"))
+    frames, n_b = oc_table._frames_and_counts(str(tmp_path), ["E0"], record, oc_table.Inputs())
+    assert frames == {"E0": 4} and set(n_b) == set(oc_table.CLASSES) and set(n_b.values()) == {100}
+    with pytest.raises(ValueError, match="differ from those of the first dump"):
+        oc_table._frames_and_counts(str(tmp_path), ["E0", "E1"], record, oc_table.Inputs())

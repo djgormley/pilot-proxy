@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 from pilot_proxy.characterization import coarse_ladder
 
@@ -56,3 +57,16 @@ def test_dumps_are_placed_by_their_median_and_kept_fraction(tmp_path):
     Q = F[:, 0] / 1.0
     assert placed[17]["kept_fraction"] == {q: float(np.mean(Q <= eta[17][q])) for q in (0.1, 0.5, 0.9)}
     assert "kept_fraction" not in placed[31]
+
+
+def test_a_rescan_is_read_on_its_band_column(tmp_path):
+    rng = np.random.default_rng(13)
+    F = rng.gamma(20.0, 0.05, (200, 2)); valid = np.ones((200, 2), bool)
+    run = tmp_path / "chime_detector_outputs.npz"
+    np.savez(run, physical_channel=np.array([37, 33]), coarse_power_ratio=F, null_power_ratio=np.array([1.0, 0.5]),
+             valid=valid)
+    got = coarse_ladder.run_thresholds(run, band=33)
+    assert got[0.5] == float(np.quantile(F[:, 1] / 0.5, 0.5, method="higher")) and got["n"] == 200
+    assert coarse_ladder.run_thresholds(run)[0.5] == float(np.quantile(F[:, 0], 0.5, method="higher"))
+    with pytest.raises(ValueError, match="band 31"):
+        coarse_ladder.run_thresholds(run, band=31)

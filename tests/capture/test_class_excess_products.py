@@ -70,3 +70,15 @@ def test_control_level_reads_the_control_band(tmp_path, datasets):
     for r in rows:
         by_class.setdefault((r["ew"], r["ns"], r["pol"]), set()).add((r["floor_mean"], r["floor_sd"]))
     assert all(len(v) == 1 for v in by_class.values())      # one control level per class and polarisation
+
+
+def test_a_product_with_other_counts_is_refused(tmp_path):
+    d = write_dump(tmp_path / "pilot_reduce_20260101000200", seed=40, n_frames=5)
+    epochs = tmp_path / "epochs.txt"
+    epochs.write_text(f"E0={d}")
+    f = sorted(d.glob("*.npz"))[3]
+    z = dict(np.load(f)); z["count"] = z["count"].copy(); z["count"][0] += 1
+    np.savez(f, **z)
+    with pytest.raises(ValueError, match="baseline counts differ"):
+        class_excess.main(["--epochs", str(epochs), "--datasets", str(tmp_path), "--products", "xx,yy",
+                           "--out-dir", str(tmp_path / "out")])
