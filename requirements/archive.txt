@@ -1,1 +1,3 @@
-datatrail-cli @ git+https://github.com/CHIMEFRB/datatrail-cli.git@9863dbc2868ff62c7b503b28d3bfe5e626bc81ce
+# The archive survey ran at the fork commit 9863dbc2 recorded in docs/runtime_freezes/.
+# Its changes are upstream since 1.0.0, and the fork no longer exists.
+datatrail-cli==1.0.2
