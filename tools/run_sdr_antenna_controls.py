@@ -23,8 +23,8 @@ for _variable in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS", 
     os.environ[_variable] = "1"
 
 REPO = Path(__file__).resolve().parents[1]
-CAPTURE_HELPER = REPO / "tools/lime_reference_capture_v1.py"
-TEST_SOURCE = REPO / "tests/testbench/test_sdr_antenna_controls_v1.py"
+CAPTURE_HELPER = REPO / "tools/lime_reference_capture.py"
+TEST_SOURCE = REPO / "tests/testbench/test_sdr_antenna_controls.py"
 MODES = ("noise", "txzero", "tone")
 LABELS = {"noise": "receiver-only ambient", "txzero": "TX-active zero-IQ", "tone": "commanded steady tone"}
 SEED = 20260909
@@ -84,7 +84,7 @@ def mode_order():
 
 
 def capture_helper():
-    spec = importlib.util.spec_from_file_location("lime_reference_capture_v1", CAPTURE_HELPER)
+    spec = importlib.util.spec_from_file_location("lime_reference_capture", CAPTURE_HELPER)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

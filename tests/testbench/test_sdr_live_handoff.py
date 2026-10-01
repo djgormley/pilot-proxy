@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-SOURCE = Path(__file__).resolve().parents[2] / "tools/run_sdr_live_handoff_v1.py"
+SOURCE = Path(__file__).resolve().parents[2] / "tools/run_sdr_live_handoff.py"
 SPEC = importlib.util.spec_from_file_location("live_handoff", SOURCE)
 live = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(live)

@@ -18,10 +18,10 @@ import subprocess
 import sys
 
 TOOLS = Path(__file__).resolve().parent
-RAW = TOOLS / 'validate_fine_detector_v1.py'
-REDUCE = TOOLS / 'reduce_fine_validation_v1.py'
-NULL_REPORT = TOOLS / 'report_fine_null_validation_v1.py'
-SENSITIVITY_REPORT = TOOLS / 'report_fine_sensitivity_v1.py'
+RAW = TOOLS / 'validate_fine_detector.py'
+REDUCE = TOOLS / 'reduce_fine_validation.py'
+NULL_REPORT = TOOLS / 'report_fine_null_validation.py'
+SENSITIVITY_REPORT = TOOLS / 'report_fine_sensitivity.py'
 
 
 def utc():

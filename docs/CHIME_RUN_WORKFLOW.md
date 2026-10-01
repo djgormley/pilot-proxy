@@ -50,7 +50,7 @@ CHIME HDF5 segments
 
 ## Data Contract
 
-The helper script `scripts/run_chime_local_calibration.sh` reads
+The helper script `scripts/run_chime_local_detector.sh` reads
 `PILOT_PROXY_CHIME_INPUT_DIR` and otherwise uses
 `$HOME/dataset/canfar_pilots_10s` as a fallback. The `pilot-proxy chime-run` command itself
 does not read that variable; it always requires `--input-dir`.

@@ -9,7 +9,7 @@ TOOLS=Path(__file__).resolve().parents[2]/"tools"
 
 
 def load():
-    spec=spec_from_file_location("coarse_gnu",TOOLS/"generate_canfar_coarse_gnuradio_v2.py")
+    spec=spec_from_file_location("coarse_gnu",TOOLS/"simulate_coarse_statistic.py")
     module=module_from_spec(spec);spec.loader.exec_module(module);return module
 
 

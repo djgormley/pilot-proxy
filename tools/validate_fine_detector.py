@@ -461,7 +461,7 @@ def _producer_contract(artifact, plan, status):
     ):
         raise ValueError("Dependent artifact status/scope/coordinate differs")
     sources = artifact.get("source_sha256")
-    reducer = str(ROOT / "tools/reduce_fine_validation_v1.py")
+    reducer = str(ROOT / "tools/reduce_fine_validation.py")
     if not isinstance(sources, dict) or reducer not in sources:
         raise ValueError("Dependent artifact omits its frozen producer")
     for path, digest in sources.items():
@@ -822,7 +822,7 @@ def freeze(args):
     for path in [
         ROOT / "src/pilot_proxy/testbench/fine_validation_stats.py",
         ROOT / "src/pilot_proxy/testbench/fine_validation_scores.py",
-        ROOT / "tools/reduce_fine_validation_v1.py",
+        ROOT / "tools/reduce_fine_validation.py",
     ]:
         if not path.is_file():
             raise ValueError(f"Required frozen analysis source is not ready: {path}")

@@ -1,6 +1,6 @@
 # Finite antenna-connected controls
 
-`tools/run_sdr_antenna_controls_v1.py` prepares and, only with explicit launch
+`tools/run_sdr_antenna_controls.py` prepares and, only with explicit launch
 flags, executes five triplets of receiver-only ambient, TX-active zero-IQ and
 commanded steady-tone records. All fifteen records are descriptive repeats.
 They provide receiver/TX-state comparisons, not a thermal null, absolute RF
@@ -67,7 +67,7 @@ USB reset, fine-detector campaign edit or process modification is included.
 
 ## Hardware-free checks
 
-`python -m pytest tests/testbench/test_sdr_antenna_controls_v1.py -q` uses an
+`python -m pytest tests/testbench/test_sdr_antenna_controls.py -q` uses an
 injected fake helper and non-executable fixture files. It verifies the fixed
 randomized schedule, source and reviewed-plan binding, explicit launch flags,
 single-use execution, fixed counts and stopping at failures including cleanup,

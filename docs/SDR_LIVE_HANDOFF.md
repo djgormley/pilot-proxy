@@ -1,6 +1,6 @@
 # Live antenna RX to CPU host handoff
 
-`tools/run_sdr_live_handoff_v1.py` measures a short **file-backed live host
+`tools/run_sdr_live_handoff.py` measures a short **file-backed live host
 handoff** using the unchanged qualified native LimeSDR reference worker and
 the existing CPU streaming digital adapter. It does not measure USB-call
 latency, physical RF calibration, a thermal-noise distribution, sustained
@@ -92,10 +92,10 @@ are development and are separate from the primary records.
 Set `PYTHONPATH=src` and `OPENBLAS_NUM_THREADS=OMP_NUM_THREADS=MKL_NUM_THREADS=NUMEXPR_NUM_THREADS=1`.
 
 ```
-python tools/run_sdr_live_handoff_v1.py prepare NEW_OUTPUT --kind smoke \
+python tools/run_sdr_live_handoff.py prepare NEW_OUTPUT --kind smoke \
   --build-manifest /home/djg/rail/results/sdr_reference_transport_2026-09-09/build-v1/build.json \
   --serial 0x1d423d9108f273
-python tools/run_sdr_live_handoff_v1.py run NEW_OUTPUT \
+python tools/run_sdr_live_handoff.py run NEW_OUTPUT \
   --hardware-authorized --rf-confined-authorized
 ```
 

@@ -7,7 +7,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location(
-    "native_coordinate_audit", ROOT / "tools/audit_fine_native_coordinates_v1.py"
+    "native_coordinate_audit", ROOT / "tools/audit_fine_native_coordinates.py"
 )
 AUDIT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(AUDIT)

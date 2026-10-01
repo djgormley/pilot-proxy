@@ -13,7 +13,7 @@ import pytest
 
 SPEC = importlib.util.spec_from_file_location(
     "channel29_generator",
-    Path(__file__).parents[2] / "tools/generate_channel29_residual_controls_v1.py",
+    Path(__file__).parents[2] / "tools/generate_channel29_residual_controls.py",
 )
 m = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(m)

@@ -8,7 +8,7 @@ import pytest
 
 @pytest.fixture
 def supervisor():
-    path = Path(__file__).resolve().parents[2] / 'tools/run_fine_validation_campaign_v1.py'
+    path = Path(__file__).resolve().parents[2] / 'tools/run_fine_validation_campaign.py'
     spec = importlib.util.spec_from_file_location('fine_supervisor_test', path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

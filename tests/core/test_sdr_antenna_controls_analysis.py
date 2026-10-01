@@ -6,7 +6,7 @@ import numpy as np
 
 TOOLS = Path(__file__).resolve().parents[2]/'tools'
 sys.path.insert(0, str(TOOLS))
-SPEC = importlib.util.spec_from_file_location('antenna_analysis', TOOLS/'analyze_sdr_antenna_controls_v1.py')
+SPEC = importlib.util.spec_from_file_location('antenna_analysis', TOOLS/'analyze_sdr_antenna_controls.py')
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 

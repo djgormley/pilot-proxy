@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-CORE_PATH=Path(__file__).with_name("analyze_noise_signal_references_v1.py")
+CORE_PATH=Path(__file__).with_name("analyze_noise_signal_references.py")
 spec=importlib.util.spec_from_file_location("reference_core_v1",CORE_PATH)
 core=importlib.util.module_from_spec(spec);spec.loader.exec_module(core)
 

@@ -19,8 +19,8 @@ def load(name, path):
     return module
 
 
-REPORT = load("report_fine_null_validation_tested", ROOT / "tools/report_fine_null_validation_v1.py")
-FIXTURES = load("fine_null_report_reducer_fixtures", ROOT / "tests/testbench/test_reduce_fine_validation_v1.py")
+REPORT = load("report_fine_null_validation_tested", ROOT / "tools/report_fine_null_validation.py")
+FIXTURES = load("fine_null_report_reducer_fixtures", ROOT / "tests/testbench/test_reduce_fine_validation.py")
 REDUCER = FIXTURES.REDUCER
 
 

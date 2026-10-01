@@ -47,7 +47,7 @@ def write_json(path, value):
 
 
 def sources():
-    return [Path(__file__).resolve(), ROOT/'tools/generate_gnuradio_reference_v1.py',
+    return [Path(__file__).resolve(), ROOT/'tools/generate_gnuradio_reference.py',
             ROOT/'src/pilot_proxy/integration/sdr_upgrade_adapter.py',
             ROOT/'src/pilot_proxy/detector_reference.py']
 
@@ -145,7 +145,7 @@ def run(out):
     write_json(out/'run.json', {'started_utc': datetime.now(timezone.utc).isoformat(),
                               'plan_sha256': sha(out/'plan.json')})
     (out/'records').mkdir()
-    generator = ROOT/'tools/generate_gnuradio_reference_v1.py'
+    generator = ROOT/'tools/generate_gnuradio_reference.py'
     env = dict(os.environ, PYTHONNOUSERSITE='1')
     all_records = []
     for spec in plan['records']:

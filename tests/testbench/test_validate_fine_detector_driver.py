@@ -10,7 +10,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-SOURCE = Path(__file__).resolve().parents[2] / "tools/validate_fine_detector_v1.py"
+SOURCE = Path(__file__).resolve().parents[2] / "tools/validate_fine_detector.py"
 spec = importlib.util.spec_from_file_location("fine_raw_driver_tests", SOURCE)
 d = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(d)
@@ -515,7 +515,7 @@ def test_grid_invalid_before_discovery_reads(tmp_path, monkeypatch, damage):
 )
 def test_producer_contract_refuses_false_scope(tmp_path, field, value):
     plan, _ = fixture_plan()
-    source = str(d.ROOT / "tools/reduce_fine_validation_v1.py")
+    source = str(d.ROOT / "tools/reduce_fine_validation.py")
     plan["source_sha256"] = {source: d.sha(source)}
     artifact = dict(
         status="calibrated",

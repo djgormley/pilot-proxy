@@ -1,6 +1,6 @@
 # Single-input distribution references
 
-`tools/run_sdr_distribution_reference_v1.py` freezes and runs actual GNU Radio
+`tools/run_sdr_distribution_reference.py` freezes and runs actual GNU Radio
 noise and steady-tone-plus-noise records through the unchanged batch adapter.
 The completed study is documented in
 `../../results/sdr_distribution_references_2026-09-09/README.md`.

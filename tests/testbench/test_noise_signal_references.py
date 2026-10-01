@@ -18,7 +18,7 @@ import pytest
 
 
 def core():
-    return load_tool("analyze_noise_signal_references_v1")
+    return load_tool("analyze_noise_signal_references")
 
 
 def test_fractional_absolute_frequency_still_gives_orthogonal_equal_norm_weights():

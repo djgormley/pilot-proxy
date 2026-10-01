@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT/'src'))
 from pilot_proxy.integration.sdr_upgrade_adapter import (  # noqa: E402
     DigitalAdapterConfig, adapt_record,
 )
-from run_sdr_distribution_reference_v1 import packed_recount  # noqa: E402
+from run_sdr_distribution_reference import packed_recount  # noqa: E402
 
 CONFIG = DigitalAdapterConfig(2_000_000, 100_000., 0, 500.)
 LABELS = {'noise': 'Receiver-only ambient', 'txzero': 'TX-active zero IQ',

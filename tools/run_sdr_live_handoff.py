@@ -28,11 +28,11 @@ WORKSPACE = ROOT.parent
 CONFIG = DigitalAdapterConfig(2000000, 100000., 0, 500.)
 BLOCK = 8192
 QUEUE_CHUNKS = 32
-SOURCES = [Path(__file__).resolve(), ROOT / "tools/lime_reference_capture_v1.py",
-           ROOT / "tools/lime_reference_worker_v1.cpp", ROOT / "src/pilot_proxy/detector_reference.py",
+SOURCES = [Path(__file__).resolve(), ROOT / "tools/lime_reference_capture.py",
+           ROOT / "tools/lime_reference_worker.cpp", ROOT / "src/pilot_proxy/detector_reference.py",
            ROOT / "src/pilot_proxy/integration/sdr_upgrade_adapter.py",
            ROOT / "src/pilot_proxy/integration/sdr_upgrade_streaming.py",
-           ROOT / "tests/testbench/test_sdr_live_handoff_v1.py", ROOT / "docs/SDR_LIVE_HANDOFF.md"]
+           ROOT / "tests/testbench/test_sdr_live_handoff.py", ROOT / "docs/SDR_LIVE_HANDOFF.md"]
 
 
 def sha(path):

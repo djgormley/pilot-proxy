@@ -13,7 +13,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parents[2]
 HEADERS = REPO / "tests/support/limesuite/include"
-DRIVER = runpy.run_path(str(REPO/"tools/lime_smoke_capture_v5.py"))
+DRIVER = runpy.run_path(str(REPO/"tools/limesdr_smoke_capture.py"))
 FAKE = r"""
 #include <lime/LimeSuite.h>
 #include <atomic>
@@ -108,7 +108,7 @@ def fake_build(tmp_path_factory):
     library = base/"libFakeLimeSmoke.so"
     worker = base/"worker"
     subprocess.run(["g++", "-std=c++17", "-shared", "-fPIC", "-pthread", "-I", str(HEADERS), str(source), "-o", str(library)], check=True)
-    subprocess.run(["g++", "-std=c++17", "-pthread", "-I", str(HEADERS), str(REPO/"tools/lime_smoke_worker_v5.cpp"), str(library), "-o", str(worker)], check=True)
+    subprocess.run(["g++", "-std=c++17", "-pthread", "-I", str(HEADERS), str(REPO/"tools/limesdr_smoke_worker.cpp"), str(library), "-o", str(worker)], check=True)
     manifest = base/"build.json"
     manifest.write_text(json.dumps({"worker": str(worker), "worker_sha256": DRIVER["sha"](worker),
                                    "library": str(library), "inputs": {str(source): DRIVER["sha"](source), str(library): DRIVER["sha"](library)}}))

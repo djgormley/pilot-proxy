@@ -3,7 +3,7 @@
 This campaign replaces the earlier preliminary finite-pool sensitivity study
 with literal frames at the current production geometry. The experiment lives
 at `../results/fine_detector_validation_2026-09-09/`; the generating program is
-`tools/validate_fine_detector_v1.py`. Its frozen plan, rather than this overview,
+`tools/validate_fine_detector.py`. Its frozen plan, rather than this overview,
 is the authoritative definition of a particular run.
 
 The scientific run began on 2026-09-09 at 14:21 UTC. Its plan SHA256 is

@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 sys.path.insert(0, str(ROOT / 'tools'))
 
 from pilot_proxy.testbench.fine_validation_stats import false_alarm_validation
-from reduce_fine_validation_v1 import (
+from reduce_fine_validation import (
     CAL_SCHEMA, FLOAT_STAGES, Q16_STAGE, load_contract, load_score_manifest,
     phase_ids, read_json, read_raw,
     reduce_powers, rehash, sha, utc, write_json,

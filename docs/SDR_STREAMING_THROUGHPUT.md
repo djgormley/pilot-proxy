@@ -68,17 +68,17 @@ must not be attributed to retained adapter state alone.
 
 ## Reproduction and audit
 
-`tools/benchmark_sdr_upgrade_streaming_v1.py` supports separate `freeze` and
+`tools/benchmark_sdr_upgrade_streaming.py` supports separate `freeze` and
 `run` commands. Freeze before generating IQ or collecting timings:
 
 ```
 PYTHONPATH=src OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
-nice -n 10 python tools/benchmark_sdr_upgrade_streaming_v1.py freeze NEW_OUTPUT
+nice -n 10 python tools/benchmark_sdr_upgrade_streaming.py freeze NEW_OUTPUT
 
 PYTHONPATH=src OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
-nice -n 10 python tools/benchmark_sdr_upgrade_streaming_v1.py run NEW_OUTPUT
+nice -n 10 python tools/benchmark_sdr_upgrade_streaming.py run NEW_OUTPUT
 ```
 
 `run` refuses changed frozen sources, changed NumPy/SciPy versions, missing
@@ -91,7 +91,7 @@ primary comparison requires all five complete runs to reach the nominal rate
 with matching output identities and valid counts/geometry/state bounds.
 That is an observed engineering comparison, not a future guarantee.
 
-`tools/audit_sdr_streaming_throughput_v1.py` independently recomputes rate,
+`tools/audit_sdr_streaming_throughput.py` independently recomputes rate,
 quantile, count and state summaries from every retained timing record and
 regenerates the input hash. All **18,514 checks** pass. Exact input byte identity
 requires the recorded complex-exponential expression and operation order;

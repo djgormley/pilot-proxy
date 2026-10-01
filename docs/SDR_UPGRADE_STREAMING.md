@@ -104,7 +104,7 @@ counted. The ratio remains `2*target/(lower+upper)` with no weight-norm adjustme
 
 Run `PYTHONPATH=src python -m pytest tests/core/test_sdr_upgrade_streaming.py -q`
 for continuity and boundary checks. Run
-`PYTHONPATH=src python tools/validate_sdr_upgrade_streaming_v1.py --output NEW_DIR`
+`PYTHONPATH=src python tools/validate_sdr_upgrade_streaming.py --output NEW_DIR`
 for a non-overwriting release with six deterministic noise/tone/zero/saturation
 records, five chunk partitions each (including all single-sample chunks),
 independent scalar FIR and packed-integer projection comparisons, per-record

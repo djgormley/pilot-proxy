@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-SPEC = importlib.util.spec_from_file_location("sdr_antenna_controls", ROOT / "tools/run_sdr_antenna_controls_v1.py")
+SPEC = importlib.util.spec_from_file_location("sdr_antenna_controls", ROOT / "tools/run_sdr_antenna_controls.py")
 runner = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(runner)
 

@@ -16,7 +16,7 @@ def load(name):
 
 def command(*args):
     env={**os.environ,"PYTHONNOUSERSITE":"1"}
-    return subprocess.run(["/usr/bin/python3",str(TOOLS/"generate_gnuradio_reference_v1.py"),*map(str,args)],env=env,text=True,capture_output=True,check=True)
+    return subprocess.run(["/usr/bin/python3",str(TOOLS/"generate_gnuradio_reference.py"),*map(str,args)],env=env,text=True,capture_output=True,check=True)
 
 
 def test_actual_gnuradio_reproducibility_gaussian_normalization_and_source_sum(tmp_path):
@@ -38,7 +38,7 @@ def test_actual_gnuradio_reproducibility_gaussian_normalization_and_source_sum(t
     assert np.array_equal(summed,noise+signal)
     assert not np.array_equal(first,noise)
     assert np.mean(np.abs(signal.astype(np.complex128))**2)==pytest.approx(20/256,rel=2e-5)
-    core=load("analyze_noise_signal_references_v1")
+    core=load("analyze_noise_signal_references")
     signal_projection=core.projections(signal)
     measured_lambda=2*np.mean(np.abs(signal_projection[:,0])**2)/128
     assert measured_lambda==pytest.approx(20,rel=3e-5)
@@ -48,7 +48,7 @@ def test_actual_gnuradio_reproducibility_gaussian_normalization_and_source_sum(t
 
 
 def test_density_per_dex_uses_all_samples_and_refuses_zero_or_invalid():
-    module=load("plot_gnuradio_sdr_references_v1")
+    module=load("plot_gnuradio_sdr_references")
     density,outside=module.density_per_dex(np.array([.001,.1,1.,10.,1000.]),np.array([-1.,0.,1.]))
     assert outside==2
     np.testing.assert_allclose(density,[.2,.4])
@@ -57,7 +57,7 @@ def test_density_per_dex_uses_all_samples_and_refuses_zero_or_invalid():
 
 
 def test_per_dex_jacobian_integrates_to_covered_cdf_probability():
-    module=load("plot_gnuradio_sdr_references_v1")
+    module=load("plot_gnuradio_sdr_references")
     x=np.linspace(-4,5,50000);r=10**x
     for lam in (0.,20.):
         model=module.core.distribution(lam)

@@ -143,8 +143,8 @@ def test_natural_projection_is_independently_signed_dft_bin():
 
 
 def test_tone_report_explicitly_labels_zero_other_power_lower_bound():
-    path = Path(__file__).parents[2] / "tools/validate_sdr_upgrade_adapter_v1.py"
-    spec = importlib.util.spec_from_file_location("validate_sdr_upgrade_adapter_v1", path)
+    path = Path(__file__).parents[2] / "tools/validate_sdr_upgrade_adapter.py"
+    spec = importlib.util.spec_from_file_location("validate_sdr_upgrade_adapter", path)
     tool = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tool)
     zero_other = tool.tone_power_comparison(np.array([17., 0., 0.]), 0)

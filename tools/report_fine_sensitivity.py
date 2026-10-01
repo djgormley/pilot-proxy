@@ -28,7 +28,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "tools"))
 from pilot_proxy.testbench.fine_validation_scores import construct_geometry, decode_requirements
 from pilot_proxy.testbench.fine_validation_stats import binomial_interval, raw_crossing_brackets
-from reduce_fine_validation_v1 import (
+from reduce_fine_validation import (
     CAL_SCHEMA, GRID_SCHEMA, FLOAT_STAGES, Q16_STAGE, load_contract, load_score_manifest,
     load_scores, phase_ids, read_json, read_raw, reduce_powers, rehash, sha, utc, write_json,
 )

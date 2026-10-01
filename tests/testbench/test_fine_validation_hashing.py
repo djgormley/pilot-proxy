@@ -10,12 +10,12 @@ TOOLS = Path(__file__).resolve().parents[2] / "tools"
 
 
 @pytest.mark.parametrize("name", [
-    "audit_fine_native_coordinates_v1.py",
-    "prepare_fine_validation_cache_v1.py",
-    "prepare_fine_validation_waveforms_v1.py",
-    "reduce_fine_validation_v1.py",
-    "run_fine_validation_campaign_v1.py",
-    "validate_fine_detector_v1.py",
+    "audit_fine_native_coordinates.py",
+    "prepare_fine_validation_cache.py",
+    "prepare_fine_validation_waveforms.py",
+    "reduce_fine_validation.py",
+    "run_fine_validation_campaign.py",
+    "validate_fine_detector.py",
 ])
 @pytest.mark.parametrize("payload", [b"", bytes(range(256)) * 8193])
 def test_sha_matches_standard_digest_without_file_digest(tmp_path, monkeypatch, name, payload):

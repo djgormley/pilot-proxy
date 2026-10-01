@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-PATH = Path(__file__).resolve().parents[2]/'tools/run_sdr_distribution_reference_v1.py'
+PATH = Path(__file__).resolve().parents[2]/'tools/run_sdr_distribution_reference.py'
 SPEC = importlib.util.spec_from_file_location('sdr_distribution_runner', PATH)
 RUNNER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RUNNER)

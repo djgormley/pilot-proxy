@@ -30,7 +30,7 @@ SOURCES = [
     "src/pilot_proxy/integration/sdr_upgrade_streaming.py",
     "src/pilot_proxy/detector_reference.py",
     "tests/core/test_sdr_upgrade_streaming.py",
-    "tools/validate_sdr_upgrade_streaming_v1.py",
+    "tools/validate_sdr_upgrade_streaming.py",
     "docs/SDR_UPGRADE_STREAMING.md",
 ]
 PARTITIONS = [[175_001], [1], [127, 128, 129, 8191, 8192, 8193], [83_890], [17, 65537, 3]]
@@ -273,7 +273,7 @@ def main():
         "New segments restart the phase/lattice; source indices provide a digital time label only. "
         "No filter history, incomplete frame or synthetic zero crosses a gap.\n\n"
         "Reproduce from the repository with `OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 PYTHONPATH=src "
-        "python tools/validate_sdr_upgrade_streaming_v1.py --output /path/to/new-release`. "
+        "python tools/validate_sdr_upgrade_streaming.py --output /path/to/new-release`. "
         "Existing outputs are never overwritten. Dependencies and source hashes are recorded.\n"
     )
     files = {str(p.relative_to(output)): {"sha256": sha(p), "bytes": p.stat().st_size}

@@ -8,7 +8,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
-import report_fine_sensitivity_v1 as R
+import report_fine_sensitivity as R
 from pilot_proxy.testbench.fine_validation_stats import empirical_null_threshold, exact_q16_null_threshold
 
 
@@ -100,7 +100,7 @@ def test_raw_grid_discretization_is_outer_difference_not_point_difference():
 
 
 def engineering_cohort(tmp_path):
-    spec = importlib.util.spec_from_file_location("sensitivity_fixture_builder", ROOT / "tests/testbench/test_reduce_fine_validation_v1.py")
+    spec = importlib.util.spec_from_file_location("sensitivity_fixture_builder", ROOT / "tests/testbench/test_reduce_fine_validation.py")
     helper = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = helper
     spec.loader.exec_module(helper)

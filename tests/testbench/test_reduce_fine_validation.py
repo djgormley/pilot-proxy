@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-SPEC = importlib.util.spec_from_file_location("reduce_fine_validation_v1_tested", ROOT / "tools/reduce_fine_validation_v1.py")
+SPEC = importlib.util.spec_from_file_location("reduce_fine_validation_v1_tested", ROOT / "tools/reduce_fine_validation.py")
 REDUCER = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = REDUCER
 SPEC.loader.exec_module(REDUCER)
