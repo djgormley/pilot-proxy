@@ -28,11 +28,14 @@ def keys():
     return np.array([(ew, ns, p, p) for (ew, ns) in CLASSES for p in (0, 1)], dtype=np.int64)
 
 
-def write_dump(directory, *, seed, n_frames=11, t0=1.7e9, strength=None, dead=(3, 17), same_pols=False):
+def write_dump(directory, *, seed, n_frames=11, t0=1.7e9, strength=None, dead=(3, 17), same_pols=False,
+               diagnostics=False):
     """One dump: a product per bin of BANDS. ``strength`` maps band -> coherent amplitude (default small);
-    ``same_pols`` writes the YY stacks equal to the XX stacks."""
+    ``same_pols`` writes the YY stacks equal to the XX stacks. ``diagnostics`` adds what the dump diagnostics read
+    (``block_psd`` per file with a line at each marker; ``peak_ratio``, ``peak_bin`` and ``pilot_cut`` per marker
+    file), drawn from a separate generator so the other arrays are unchanged."""
     directory = Path(directory); directory.mkdir(parents=True, exist_ok=True)
-    rng = np.random.default_rng(seed)
+    rng = np.random.default_rng(seed); drng = np.random.default_rng(seed + 7919)
     strength = strength or {14: 2e-4, 15: 5e-5, 16: 1e-3, 37: 0.0}
     k = keys(); count = np.array([COUNTS[(int(r[0]), int(r[1]))] for r in k])
     for band, (marker, fids) in BANDS.items():
@@ -50,9 +53,25 @@ def write_dump(directory, *, seed, n_frames=11, t0=1.7e9, strength=None, dead=(3
             meta = dict(freq_id=int(fid), channel=int(band), freq_mhz=800.0 - fid * W_MHZ, n_frames=int(n_frames),
                         time0_ctime=float(t0), j0=int(1000 * seed % 7), nfft=NFFT, is_pilot=bool(fid == marker),
                         pilot_fine_bin_naive=int(rng.integers(-3000, 3000)), seconds=n_frames * NFFT * 2.56e-6)
+            extra = _diagnostic_arrays(drng, meta, n_frames) if diagnostics else {}
             np.savez(directory / f"{fid}.npz", meta=np.array(json.dumps(meta)), keys=k, count=count, stacks=stacks,
-                     autos=autos)
+                     autos=autos, **extra)
     return directory
+
+
+def _diagnostic_arrays(rng, meta, n_frames, blocks=2):
+    psd = rng.gamma(4.0, 0.25, (n_frames, blocks, NFFT)).astype(np.float32)
+    out = {"block_psd": psd}
+    if meta["is_pilot"]:
+        line = (-meta["pilot_fine_bin_naive"] + 37) % NFFT          # the marker line, in the inverted fine sense
+        psd[:, :, line] += 40.0
+        out["peak_ratio"] = (40.0 + rng.standard_normal(n_frames)).astype(np.float32)
+        out["peak_bin"] = np.full(n_frames, line, np.int64) + rng.integers(-1, 2, n_frames)
+        phase = np.exp(1j * rng.uniform(0, 2 * np.pi, N_INPUTS))
+        cut = (rng.standard_normal((n_frames, N_INPUTS, 129)) + 1j * rng.standard_normal((n_frames, N_INPUTS, 129)))
+        cut[:, :, 64] += 30.0 * phase[None, :]
+        out["pilot_cut"] = cut.astype(np.complex64)
+    return out
 
 
 def write_detector_run(directory, *, seed, n_frames=11, bands=(14, 15, 16), null=1.0):
