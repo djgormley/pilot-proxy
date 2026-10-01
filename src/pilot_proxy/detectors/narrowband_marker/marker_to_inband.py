@@ -80,7 +80,8 @@ def main(argv=None):
     ap_.add_argument("--datasets", required=True, help="root holding pilot_reduce_<event>/")
     ap_.add_argument("--out", required=True)
     args = ap_.parse_args(argv)
-    spec = json.load(open(args.marker_map))
+    with open(args.marker_map) as fh:
+        spec = json.load(fh)
     if spec.get("schema") != "capture_marker_map_v1":
         raise SystemExit(f"{args.marker_map}: not a capture marker map")
     PILOT = {int(k): int(v) for k, v in spec["markers"].items()}

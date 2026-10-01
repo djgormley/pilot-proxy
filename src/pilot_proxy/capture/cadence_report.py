@@ -14,14 +14,19 @@ from collections import defaultdict
 import numpy as np
 
 
+def _rows(path):
+    with open(path) as fh:
+        return list(csv.DictReader(fh))
+
+
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     if len(argv) < 4 or argv[0] in ("-h", "--help"):
         print(__doc__.split("\n\n")[-1], file=sys.stderr)
         return 0 if argv and argv[0] in ("-h", "--help") else 2
     out, tau_csv, lag_csv, tor_csv = argv[0:4]; alt_csv = argv[4] if len(argv) > 4 else None
-    tau = list(csv.DictReader(open(tau_csv))); struct = list(csv.DictReader(open(tau_csv[:-4] + "_structure.csv")))
-    lag = list(csv.DictReader(open(lag_csv))); tor = list(csv.DictReader(open(tor_csv)))
+    tau = _rows(tau_csv); struct = _rows(tau_csv[:-4] + "_structure.csv")
+    lag = _rows(lag_csv); tor = _rows(tor_csv)
     chans = sorted({int(r["channel"]) for r in tau})
     classes = sorted({int(float(r["lag_class"])) for r in struct})
     L = []
@@ -51,7 +56,7 @@ def main(argv=None):
             pl = next((r["plateau"] for r in row.values()), "")
             L.append(f"| {ch} | " + " | ".join(cells) + f" | {pl} |")
     if alt_csv:
-        alt = list(csv.DictReader(open(alt_csv)))
+        alt = _rows(alt_csv)
         L.append("\n## The amendment-3 form beside it (both polarisations averaged, no trim; not the ruling's input)\n")
         L.append("| ch | status | tau_c (s) | G | plateau (A^2) |")
         L.append("|---|---|---|---|---|")
@@ -78,7 +83,9 @@ def main(argv=None):
     cnt = defaultdict(int)
     for r in tor: cnt[r["disposition"]] += 1
     L.append("\nRows by disposition: " + ", ".join(f"{k} {v}" for k, v in sorted(cnt.items())) + f" (of {len(tor)}).")
-    open(out, "w").write("\n".join(L) + "\n"); print(f"wrote {out}")
+    with open(out, "w") as fh:
+        fh.write("\n".join(L) + "\n")
+    print(f"wrote {out}")
     return 0
 
 

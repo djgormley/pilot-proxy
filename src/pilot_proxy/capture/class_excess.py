@@ -41,7 +41,8 @@ PRODUCT_SETS = {"xx,yy": (0, 1), "stokes_i": ("I",)}
 
 def read_epochs(path):
     """The events of an epochs file (label=<dir>_<event> tokens), in order."""
-    return [l.split("=")[1].split("_")[-1] for l in open(path).read().split()]
+    with open(path) as fh:
+        return [l.split("=")[1].split("_")[-1] for l in fh.read().split()]
 
 
 def measure(EPOCHS, PRODUCTS, *, datasets, nfft, control):

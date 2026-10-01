@@ -175,11 +175,12 @@ def tau_main(argv):
     out_csv = args[0]
     POL_OF = {}
     if opts["--level"] == "polmax" and opts["--pol-table"]:
-        for r in csv.DictReader(open(opts["--pol-table"])):
-            if r["role"] == "pilot" and r["A_keep_all_ns1_pol0"] and r["A_keep_all_ns1_pol1"]:
-                POL_OF[int(r["channel"])] = 1 if float(r["A_keep_all_ns1_pol1"]) > float(r["A_keep_all_ns1_pol0"]) else 0
-            elif r["role"] == "pilot" and r["A_keep_all_ns1_pol1"]: POL_OF[int(r["channel"])] = 1
-            elif r["role"] == "pilot": POL_OF[int(r["channel"])] = 0
+        with open(opts["--pol-table"]) as fh:
+            for r in csv.DictReader(fh):
+                if r["role"] == "pilot" and r["A_keep_all_ns1_pol0"] and r["A_keep_all_ns1_pol1"]:
+                    POL_OF[int(r["channel"])] = 1 if float(r["A_keep_all_ns1_pol1"]) > float(r["A_keep_all_ns1_pol0"]) else 0
+                elif r["role"] == "pilot" and r["A_keep_all_ns1_pol1"]: POL_OF[int(r["channel"])] = 1
+                elif r["role"] == "pilot": POL_OF[int(r["channel"])] = 0
     CLS = tuple(int(x) for x in opts["--class"].split(","))   # (EW cylinder step, NS feed step) of the baseline class
     TRIM_PROBES = (75.0, 90.0, 95.0) if opts["--trim"] == "archive" else (None,)
     PRIMARY_TRIM = 90.0 if opts["--trim"] == "archive" else None

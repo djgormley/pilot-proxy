@@ -48,6 +48,16 @@ COLUMNS = ["censor", "source", "calibrate", "channel", "ew", "ns", "lane", "chec
            "calibration_null_max_same_class_s", "calibration_passes"]
 
 
+def _rows(path):
+    with open(path) as fh:
+        return list(csv.DictReader(fh))
+
+
+def _json(path):
+    with open(path) as fh:
+        return json.load(fh)
+
+
 def _cls(s):
     a, b = s.strip().strip("()").split(","); return (int(a), int(b))
 
@@ -55,14 +65,14 @@ def _cls(s):
 def check_fits(fits_check):
     """{(channel, class): {variant: row}} from check_ac/fits_check.csv (read only)."""
     out = {}
-    for r in csv.DictReader(open(fits_check)):
+    for r in _rows(fits_check):
         out.setdefault((int(r["channel"]), _cls(r["cls"])), {})[r["variant"]] = r
     return out
 
 
 def null_bounds(b3_null):
     """B-3's control-band null: the least bound of each of the 91 cells (13 bins x 7 classes), by the procedure that bounds a class."""
-    rows = list(csv.DictReader(open(b3_null))); assert len(rows) == 91, len(rows)
+    rows = _rows(b3_null); assert len(rows) == 91, len(rows)
     return [(_cls(r["cls"]), float(r["least_bound_s"])) for r in rows]
 
 
@@ -86,13 +96,13 @@ def tau_lower_bounds(censor=False, source="summary", calibrate=False, *, lane, c
     passes False)."""
     assert source in ("summary", "fits")
     out = {}
-    for r in csv.DictReader(open(os.path.join(lane, "implications.csv"))):
+    for r in _rows(os.path.join(lane, "implications.csv")):
         k = (int(r["channel"]), _cls(r["cls"])); v = {f"lane {a}": float(b) for a, b in json.loads(r["variants_lb95_s"]).items()}
         lane_ = float(r["least_lb95_all_variants_s"])
         assert abs(lane_ - min(v.values())) <= 1e-9 * max(1.0, lane_), (k, lane_, v)   # the lane's least is the least of its variants
         assert k not in out
         out[k] = dict(lane=lane_, variants=v)
-    s = json.load(open(os.path.join(check, "summary.json")))
+    s = _json(os.path.join(check, "summary.json"))
     prim = {}
     for key, x in s["primary_results_stokes_I"].items():
         ch, c = key.split(" ", 1); prim[(int(ch), _cls(c))] = x
@@ -120,7 +130,7 @@ def tau_lower_bounds(censor=False, source="summary", calibrate=False, *, lane, c
         assert k in out, k                      # the check reads only classes the lane bounds
         out[k]["variants"].update(v); out[k]["check"] = min(v.values())
     if censor:
-        for key, x in json.load(open(b4_bounds))["bounds"].items():
+        for key, x in _json(b4_bounds)["bounds"].items():
             ch, c = key.split("|"); k = (int(ch), _cls(c)); assert k not in out, k
             v = {kk: (float(vv) if vv is not None else np.nan) for kk, vv in x["variants"].items()}; v = {kk: vv for kk, vv in v.items() if np.isfinite(vv)}
             if not v: continue                   # no finite bound on any variant: the class keeps the admissible minimum
@@ -136,7 +146,7 @@ def tau_lower_bounds(censor=False, source="summary", calibrate=False, *, lane, c
 
 def lb_span(lane, frame_seconds):
     """The longest within-dump lag the lane observes, in seconds (32 frames of the 33-frame dumps, 1.34 s)."""
-    m = max(int(r["lag"]) for r in csv.DictReader(open(os.path.join(lane, "lag_profiles.csv"))))
+    m = max(int(r["lag"]) for r in _rows(os.path.join(lane, "lag_profiles.csv")))
     return m * frame_seconds
 
 
@@ -171,7 +181,7 @@ def write(table, path):
 def read(path):
     """{(censor, source, calibrate): {(channel, (ew, ns)): row}} with the floats and flags parsed."""
     out = {}
-    for r in csv.DictReader(open(path)):
+    for r in _rows(path):
         key = (r["censor"] == "True", r["source"], r["calibrate"] == "True")
         f = lambda x: float(x) if x != "" else np.nan  # noqa: E731
         row = dict(r, lane=f(r["lane"]), check=f(r["check"]), lb=f(r["lb"]), span=f(r["span"]), lb_priced=f(r["lb_priced"]),
