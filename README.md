@@ -6,14 +6,50 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="license: MIT"></a>
 </p>
 
-`pilot-proxy` evaluates a local-reference power ratio detector for Advanced Television Systems
-Committee (ATSC) 1.0 digital television (DTV) signals. We use the narrow ATSC
-pilot tone as a measurable proxy for the broadband data shelf. This provides a
-narrow-band observable when the shelf is below the instantaneous noise level.
-The repository includes a standalone CUDA detector and a GNU Radio validation
-testbench.
+`pilot-proxy` detects Advanced Television Systems Committee (ATSC) 1.0
+digital television (DTV) interference in radio-telescope data and
+characterizes the detector. It uses the narrow ATSC pilot tone as a measurable
+proxy for the broadband data shelf, which is often below the instantaneous
+noise level. The repository holds the CUDA detector (the kernel of record), its
+GNU Radio testbench, the archive engine that runs it over CHIME baseband data,
+and the characterization that turns its products into an operating
+characteristic.
 
-The package has two main workflows:
+This is the detector side of the work: detection theory and nothing of
+cosmology. For every candidate threshold of a band it reports what masking
+costs (the masked fraction `f`) and what it leaves behind (the kept residual
+`r_sys`), and where a verified signal-free population exists the false-alarm
+rate. Whether that residual is acceptable for a science goal is decided on the
+science side, in [RFIsher](https://github.com/WVURAIL/RFIsher), which reads only
+the handoff files this repository writes.
+
+```mermaid
+flowchart LR
+  P["per-pilot products<br/>(kernel of record)"] --> C["characterization<br/>(eras, nulls, residual chain,<br/>candidate surface)"]
+  C --> OC["operating_characteristic_v1<br/>oc_table.csv, oc_summary.csv,<br/>manifest.json"]
+  D["capture dumps<br/>(reduced)"] --> K["capture<br/>(class amplitudes, cadence,<br/>control level, ladder)"]
+  K --> COC["capture_operating_characteristic_v1<br/>capture_oc_table.csv, capture_oc_summary.csv,<br/>capture_tau_bounds.csv, manifest.json"]
+  OC --> R["RFIsher<br/>(tolerance and verdict)"]
+  COC --> R
+```
+
+The two commands that write the handoff:
+
+```bash
+pilot-proxy characterize archive ...   # the archive's operating characteristic
+pilot-proxy capture oc-table ...       # the matched capture's
+```
+
+[docs/HANDOFF.md](docs/HANDOFF.md) says what crosses the boundary and gives the
+reading path through the code: the six modules that hold the method.
+[docs/ADAPTING.md](docs/ADAPTING.md) says what to change for another telescope,
+another emitter or another science model. What is specific to this project
+(CHIME, ATSC, the 2026 campaign) lives in `instruments/`, `projects/chime_atsc/`
+and `src/pilot_proxy/records/`; the vocabulary, with the symbols of the
+dissertation and the frozen on-disk tokens, is in
+[docs/TERMINOLOGY.md](docs/TERMINOLOGY.md).
+
+The repository also has the two original workflows:
 
 1. **Standalone synthetic/testbench mode** for clean (noise-free) ATSC
    generation, quantization, CUDA-kernel evaluation, and controlled SNR sweeps.
@@ -24,7 +60,10 @@ The package has two main workflows:
 
 The detector core is telescope-independent. A receiver integration supplies the
 metadata and arrays needed to satisfy the CUDA kernel contract; it does not
-change that contract.
+change that contract. Install with `python -m pip install -e ".[test]"`; the
+CUDA shared library is built from source (`make build-kernel`, section CUDA
+kernel below), and the archive products of record were made with the kernel
+`cuda/libfstatistic.so` of sha256 b129bb5c.
 
 ---
 

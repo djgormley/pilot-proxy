@@ -68,7 +68,7 @@ justification label.
 | Ordinary null location and scale | median; median minus P15.87 | Locked diagnostic method | literature | Robust center and one-standard-deviation left spread |
 | Fallback null location and scale | P25; `(P25 - P2.275) / 2` | Locked diagnostic method | literature | Lower-quantile robust estimator |
 | Fallback trigger fraction | 0.2 | Not used by this acquisition | Open | Nonblocking; selection belongs to later detection calibration |
-| Science-budget factor, `zeta` | Not used by this acquisition | Deferred | literature | Approval belongs to later detection calibration and does not block sufficient-statistic acquisition |
+| Science-budget factor, `zeta` | Not used by this acquisition | Science side | literature | A science entry (RFIsher `science.systematic_budget.primary_zeta`); it does not block sufficient-statistic acquisition |
 
 The production pre-flight must resolve `nfft = 16384`. Any other value changes
 frame time, windows, rows, fine-bin count, and fine-bin width. It should fail the
@@ -225,13 +225,16 @@ Source: [`LOCAL_PROCESSING.md`](LOCAL_PROCESSING.md).
 These decisions do not block archive acquisition. The scan records the exact
 fine terms while the fine decision remains inactive.
 
-## Downstream threshold preparation
+## Threshold preparation
 
-RFIsher owns the downstream decision register and evidence gate. The detector
-archive remains a threshold-independent input and does not choose these values.
-The current station-era defaults are passed explicitly by the RFIsher
-calibration path so one recorded policy snapshot controls the cross-project
-run.
+These values are the detector side's: eras, the residual floor, the rank and
+multiplier families and the drift margins are entries of this repository's
+detector register (`projects/chime_atsc/detector_register.json`, every entry
+tagged `side: detector`), read through `pilot_proxy.config.register`. The
+science side owns the science and selector entries (RFIsher
+`projects/chime_bao/`, its `docs/decision-register.md`). The detector archive
+remains a threshold-independent input: this side writes every evaluable
+candidate and does not choose one.
 
 | Decision | Current value | State | Basis |
 |---|---:|---|---|
@@ -254,11 +257,12 @@ run.
 | Candidate multiplier family | integer Q16 value 1 and every unique deployable required Q16 change point | Derived | Exact deployable empirical staircase; Q16 value 1 is eta = 1 / 65536, not eta = 1 |
 | Designated-set anchor and width | unset | Open | Requires a held-out latest-era calibration |
 
-The downstream selector must refuse an operational label while required
+The science side's selector refuses an operational label while required
 choices remain provisional, open, or conditional. A unity transfer may be
-used only for an explicitly labeled screening calculation. See RFIsher's
-`docs/threshold-decision-register.md` for the stable identifiers, literature,
-sensitivity values, and refusal behavior.
+used only for an explicitly labeled screening calculation. The stable
+identifiers, literature and sensitivity values of each entry are in the
+detector register; the science side's entries and refusal behavior are in
+RFIsher's `docs/decision-register.md`.
 
 The local calibration suite below is a historical report. Its keep/excise
 labels and fallback threshold are never operational exports. Threshold input

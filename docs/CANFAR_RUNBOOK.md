@@ -7,6 +7,8 @@ register, gates, production command, and run record are in
 [`RERUN_PARAMETER_REGISTER.md`](RERUN_PARAMETER_REGISTER.md),
 [`VALIDATION_GATES.md`](VALIDATION_GATES.md),
 [`LOCAL_PROCESSING.md`](LOCAL_PROCESSING.md), and the local run ledger.
+The archive products of record were made by the local run on the workstation,
+not on CANFAR; this guide records the CANFAR path as it was qualified.
 
 The approved run is historical estimation and sufficient-statistic
 reprocessing. The coarse positive-excess flag is retained as a bootstrap

@@ -1,3 +1,5 @@
+Historical: written before the kotekan pull requests 1669 to 1681 merged.
+
 # Kotekan Interface Preparation
 
 This note separates the tested PilotProxy runtime bundle from the proposed

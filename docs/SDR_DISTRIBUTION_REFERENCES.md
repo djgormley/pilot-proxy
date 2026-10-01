@@ -20,6 +20,7 @@ assumptions remain separate requirements.
 
 Use the runner's `freeze`, `run` and `report` stages with a new output directory.
 It invokes GNU Radio using isolated distro Python and limits numerical-library
-threads to one. Plot the completed summary with RFIsher's
-`scripts/plot_sdr_distribution_references_v1.py`. Focused tests are in
+threads to one. The summary was plotted by RFIsher's
+`scripts/plot_sdr_distribution_references_v1.py@f56916a` (kept in that
+repository's history). Focused tests are in
 `tests/core/test_sdr_distribution_reference.py`.

@@ -130,6 +130,11 @@ n = 66; signal = 2024+ on-epochs of the first three scanned channels):
 | 0.05 (P95) | 1.124 | 0.872 | 0.996 | 0.089 |
 | 0.015 (null max) | 1.146 | 0.805 | 0.996 | 0.071 |
 
+The "null" of this record is a dated transmitter-off epoch, inferred from the
+archive (ch35's off state), not a verified signal-free population; a
+false-alarm limit for deployment is set only on a band's own verified,
+null-like population (`characterization/false_alarm.py`).
+
 The same frames carry a fine designated-set Pd ~ 0.99 on all three
 channels at a measured Pfa of 0.091, with the crude +/-2-bin set and an
 uncalibrated CFAR multiplier. The fine axis is the only one that holds
@@ -328,6 +333,15 @@ are recorded for whoever does:
   contamination versus discarded clean time. Measured on this survey for
   reference; not adopted for deployment, because the masking costs are
   not equal.
+
+The deployable thresholds of a band now form an interval: its lower end is
+the false-alarm limit eta_Pfa (where a verified null exists; otherwise the
+tightest evaluable threshold), its upper end the science limit eta_sci, the
+largest threshold whose kept residual the science side's tolerance accepts.
+The detector side writes every evaluable candidate and chooses none; this is
+also why `characterization/roc.py` reports Youden's J and never selects a
+threshold with it: J prices a missed contamination and a discarded clean
+frame equally, and they are not equal.
 
 First calibration, 2020-2026 survey products (null = ch35 off-state,
 n = 66 frames, proxied across channels; Pfa granularity ~1.5%):
