@@ -14,6 +14,9 @@ profile in later milestones, and these rows fix the value they must keep.
 ``moved`` rows sat in a capture script of record (cited by its frozen blob) whose
 code moved into ``src/pilot_proxy``, where the value is read from the profile;
 ``MOVED_NAMES`` checks that the moved module no longer assigns the name.
+``deleted`` rows sat in a pilot-proxy script that was deleted once its code
+moved to the science side; they cite the file at the last commit that holds it
+(``path@commit``) and keep the value it must have.
 """
 from __future__ import annotations
 
@@ -264,11 +267,11 @@ LITERALS = {
         "RFIsher src/rfisher/residual.py:110 MAX_TAU_C_SECONDS (= correlation.sidereal_day_seconds)",
         "pinned", 86164.0905, lambda: P.integration_model.coherence_cap_seconds),
     "ruling_frame_seconds": (
-        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py:17 TF (record)",
-        "pinned", 16384 * 2.56e-6, lambda: P.integration_model.frame_seconds),
+        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py@30e50c2:17 TF (record)",
+        "deleted", 16384 * 2.56e-6, lambda: P.integration_model.frame_seconds),
     "ruling_cap": (
-        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py:17 CAP (record)",
-        "pinned", 86164.0905, lambda: P.integration_model.coherence_cap_seconds),
+        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py@30e50c2:17 CAP (record)",
+        "deleted", 86164.0905, lambda: P.integration_model.coherence_cap_seconds),
     # ---- capture scripts of record, moved into pilot_proxy.capture (M4) -----------
     "capture_frame_residual_nfft": (
         "FA frame_residual.py (f2ec3277):7 NFFT", "moved", 16384, lambda: P.detector_config.nfft),
@@ -316,7 +319,7 @@ LITERALS = {
         "FRZ band_shape.py (208532a5):6, first_look.py, line_check.py (e2e02d5d):6 NFFT, W", "moved", (16384, 0.390625),
         lambda: (P.detector_config.nfft, P.instrument.channel_width_hz / 1e6)),
     "capture_detection_gate_sigma": (
-        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py:17 NSIG (record)", "pinned", 3.0,
+        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py@30e50c2:17 NSIG (record)", "deleted", 3.0,
         lambda: P.register.value("capture.detection_gate_sigma")),
     "capture_ruling_detection_gate_sigma": (
         "capture ruling release r5.2 source/ruling_a18.py:143 NSIG (record d53fbe48)", "pinned", 3.0,
@@ -342,8 +345,8 @@ LITERALS = {
         "pilot-proxy src/pilot_proxy/chime/injection_recovery.py:48 MIN_FRAMES_PER_FALSE_ALARM",
         "replaced", 10.0, lambda: P.register.value("detection.minimum_frames_per_false_alarm")),
     "ruling_allowance_db": (
-        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py:17 ALLOW_DB (record)",
-        "pinned", 3.0, lambda: P.register.value("measurement_allowance_db")),
+        "pilot-proxy tools/capture/frame_analysis/ruling_baseline.py@30e50c2:17 ALLOW_DB (record)",
+        "deleted", 3.0, lambda: P.register.value("measurement_allowance_db")),
     "rfisher_min_retained_frames": (
         "RFIsher src/rfisher/selection_policy.py selection.minimum_retained_frames",
         "pinned", 30, lambda: P.register.value("selection.minimum_retained_frames")),
@@ -375,7 +378,7 @@ LITERALS = {
 @pytest.mark.parametrize("key", sorted(LITERALS))
 def test_profile_reproduces_literal(key):
     location, status, literal, profile_value = LITERALS[key]
-    assert status in {"replaced", "pinned", "moved"}, location
+    assert status in {"replaced", "pinned", "moved", "deleted"}, location
     value = profile_value()
     assert type(value) is type(literal), (location, value, literal)
     assert value == literal, (location, value, literal)
@@ -575,7 +578,7 @@ def test_pinned_code_rows_are_found():
     names = {key for key, _, _ in _pinned_code_rows()}
     assert {"detector_window", "fine_bins", "reference_bandwidth", "hdf5_coarse_width",
             "quantize_default_pilot_hz", "audit_freq_table", "frame_policy_pilot_freq_ids",
-            "ruling_cap", "mask_frontier_floor_percentile",
+            "mask_frontier_floor_percentile",
             "cleaning_tradeoff_width_mhz", "loader_default_nfft"} <= names
 
 

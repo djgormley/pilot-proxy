@@ -113,6 +113,9 @@ is not a contiguous integration.
 - The method and its amendments: `FRAME_ANALYSIS_PREDECLARATION.md`, `amendments.md` (in plain English), and the
   two ruling audits of 2026-09-18.
 - The science scripts of the capture ruling (`ruling_baseline.py`, `table_of_record.py` and the credit, robustness
-  and baseline-domain scripts) stay in `tools/capture/frame_analysis/` until their port to the science side lands.
+  and baseline-domain scripts) are ported to RFIsher, `src/rfisher/records/chime_atsc_2026/` (`capture_ruling.py`,
+  `table_of_record.py`, `robustness.py`, `cohort_basis.py`, `postprocessing.py`); the scripts as they ran are in the
+  frozen reduction tree's `frame_analysis/` directory, and the copies this repository held are in its history
+  (`tools/capture/frame_analysis/@30e50c2`).
 - The frozen outputs of the campaign are in the frozen reduction tree and its `frame_analysis/` directory; the SDR
   bench of 2026-09-18 is `docs/evidence/sdr_bench_2026-09-18/`.
