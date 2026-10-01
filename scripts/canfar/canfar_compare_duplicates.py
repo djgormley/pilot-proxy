@@ -10,7 +10,9 @@ confirmation: NaN in the same positions counts as equal, since NaN != NaN
 would otherwise report an identical file as differing."""
 import hashlib, sys
 import numpy as np
-D = sys.argv[1] if len(sys.argv) > 1 else "/home/djg/rail/pilot_proxy_runs/canfar_20260906"
+if len(sys.argv) < 2:
+    sys.exit("usage: canfar_compare_duplicates.py <local root>")
+D = sys.argv[1]
 PAIRS = [(767, 1, "merged"), (783, 2, "merged"),
          (813, 1, "independent"), (829, 1, "independent"),
          (798, 2, "independent"), (844, 2, "independent")]

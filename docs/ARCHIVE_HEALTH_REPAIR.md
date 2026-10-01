@@ -333,12 +333,14 @@ the coarse-policy and residual columns used by RFIsher, plus the source
 product hash and health counts. It omits the superseded fine-decision fields
 and is not a replacement canonical survey product.
 
-The dissertation-facing `make_report_data.py`, `make_policy_data.py`,
-`plot_channel_histograms.py`, and `tools/make_chain_table.py` now route every
-RFIsher call through those views. Direct per-frame policy denominators in
-`make_policy_data.py` also apply `evaluate_frame_health`. The census spectra in
-`tools/make_dissertation_tables.py` use the exact v1 spectral correction, and
-its worked-example search refuses excluded rows. This is the minimum boundary
+The dissertation-facing generators of the time
+(`analysis/make_report_data.py@30e50c2`, `analysis/make_policy_data.py@30e50c2`,
+`analysis/plot_channel_histograms.py@30e50c2` and
+`tools/make_chain_table.py@bdfcdce`) routed every science-side call
+through those views; their per-frame policy denominators also applied
+`evaluate_frame_health`. The census spectra of
+`tools/make_dissertation_tables.py@bdfcdce` used the exact v1 spectral
+correction, and its worked-example search refused excluded rows. This is the minimum boundary
 required before removing a manuscript qualifier that policy and chain values
 predate the archive health repair.
 

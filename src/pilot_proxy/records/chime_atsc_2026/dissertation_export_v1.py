@@ -6,7 +6,7 @@ products plus a manifest; it never writes figure artwork and the dissertation
 never imports :mod:`pilot_proxy` at build time.
 
 The default export is intentionally allowed to be partial.  Tables that require
-large archived products or an external Fisher forecast are recorded as
+large archived products or an external science forecast are recorded as
 ``pending`` instead of being replaced with inferred, digitized, or synthetic
 values.  Use ``--require-complete`` when preparing a final archival snapshot.
 """
@@ -391,7 +391,7 @@ def _validate_summary(summary: Mapping[str, Any]) -> None:
         if not key:
             raise ExportError(f"bao_policy_case.policies[{index}] has no policy_key")
         if key in keys:
-            raise ExportError(f"duplicate BAO policy_key: {key}")
+            raise ExportError(f"duplicate policy_key: {key}")
         keys.add(key)
 
 

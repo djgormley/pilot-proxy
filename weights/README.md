@@ -25,6 +25,5 @@ Do not rewrite that manifest merely to relocate it, because doing so would
 destroy the manuscript's byte-level provenance.
 
 The manuscript was removed from this repository; its provenance hash list is
-`paper/manuscript/provenance/hashes.sha256@30e50c2`, checked from a worktree at
-that commit with `sha256sum --check paper/manuscript/provenance/hashes.sha256
---ignore-missing`.
+`paper/manuscript/provenance/hashes.sha256@30e50c2`, checked with `sha256sum
+--check --ignore-missing` from a worktree at that commit.

@@ -53,6 +53,17 @@ def test_no_domain_word_in_the_layers_vocabulary(path):
     assert not found, found
 
 
+# Vocabulary retired by the refactor: a scenario is not a "world", and no variance split remains.
+RETIRED = re.compile(r"(?:^|_)worlds?(?:_|$)|^r_sys_no_split$", re.IGNORECASE)
+
+
+@pytest.mark.parametrize("path", GENERAL, ids=lambda p: str(p.relative_to(SRC)))
+def test_no_retired_name_in_the_layers_vocabulary(path):
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    found = sorted({f"{name} (line {line})" for name, line in _defined_names(tree) if RETIRED.search(name)})
+    assert not found, found
+
+
 def _code_constants(tree):
     docstrings = set()
     for node in ast.walk(tree):

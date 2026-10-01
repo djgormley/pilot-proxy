@@ -344,7 +344,7 @@ def parser() -> argparse.ArgumentParser:
     result_parser.add_argument("--min-gpu-free-mib", type=float, default=2500.0)
     result_parser.add_argument("--max-gpu-temperature-c", type=float, default=85.0)
     result_parser.add_argument(
-        "--certificate", type=Path, default=Path("/home/djg/.ssl/cadcproxy.pem")
+        "--certificate", type=Path, default=Path("~/.ssl/cadcproxy.pem").expanduser()
     )
     result_parser.add_argument("--min-certificate-hours", type=float, default=72.0)
     result_parser.add_argument("--log-tail-bytes", type=int, default=1024 * 1024)
