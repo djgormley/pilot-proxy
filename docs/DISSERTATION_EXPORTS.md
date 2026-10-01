@@ -113,8 +113,8 @@ the current export source.
 
 The archive-health command also does **not** rewrite
 `data/provenance/dissertation_summary_v3.json`,
-`analysis/dissertation/data/channel_status.csv`, or
-`analysis/dissertation/data/epoch_operating_points.csv`. Figures built from
+`analysis/dissertation/data/channel_status.csv@30e50c2`, or
+`analysis/dissertation/data/epoch_operating_points.csv@30e50c2`. Figures built from
 those files remain legacy/provisional epoch-status products. The dedicated
 `tools/make_dissertation_status_v4.py` integration consumes the immutable v3
 snapshot, health summary, rebuilt policy data, and rebuilt chain table and

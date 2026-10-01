@@ -408,7 +408,7 @@ in 2020 Q3 against quiet 2025-26 endpoints). Second, the shipped census
 lists at least one station on every physical channel 14-36, so a strictly
 station-free control does not exist in this pilot set; use the most
 isolated channels as approximate controls and take the operating zero point
-from the empirical calibration (`analysis/build_empirical_thresholds.py`)
+from the empirical calibration (`analysis/build_empirical_thresholds.py@30e50c2`)
 rather than from a census assumption.
 
 Run the bounded scan for the census-control channel and for one quiet channel

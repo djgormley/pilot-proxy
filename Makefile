@@ -95,7 +95,7 @@ commit-check:
 release-clean:
 	rm -rf .pytest_cache .ruff_cache .idea build dist generated inspection \
 	    __pycache__ src/pilot_proxy.egg-info docs/auxil docs/out docs/generated
-	find src tests analysis scripts tools -type d -name __pycache__ -prune \
+	find src tests scripts tools -type d -name __pycache__ -prune \
 	    -exec rm -rf {} +
 	$(MAKE) -C cuda clean
 

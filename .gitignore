@@ -29,7 +29,6 @@ cuda/.config_*.stamp
 .ipynb_checkpoints/
 build/
 work/
-analysis/dissertation/out/
 generated/
 results/
 

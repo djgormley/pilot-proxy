@@ -184,11 +184,12 @@ operating documentation as follows:
 
 We commit documentation sources and the small, explicitly named artifacts
 needed for reproducibility: shipped weight banks and manifests, frozen test
-fixtures, manuscript figures, and dated scientific-provenance snapshots.
+fixtures and dated scientific-provenance snapshots.
 Ordinary run products, rebuilt plots, formal-document PDFs, generated TeX
 facts, and CUDA shared libraries are ignored build artifacts. The active and
-historical weight-bank boundary is documented in `weights/README.md`; the
-manuscript's artifact policy is documented in `paper/README.md`.
+historical weight-bank boundary is documented in `weights/README.md`. The
+2026-07 manuscript and its artifact policy are kept in the history
+(`paper/README.md@30e50c2`).
 
 Built wheels include the shipped receiver profiles, stream map, weight bank, and
 weight manifest. The CUDA shared library is architecture-specific and is not
