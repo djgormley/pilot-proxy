@@ -94,7 +94,25 @@ def test_control_level_writes_every_band_class_and_polarisation(tmp_path, capsys
     assert "control level (band 37)" in capsys.readouterr().out
 
 
-def test_cadence_report_renders_its_sections(epochs, tmp_path):
+def test_cadence_report_renders_the_detector_sections(epochs, tmp_path, capsys):
+    tau, alt, lag = tmp_path / "cadence_tau.csv", tmp_path / "cadence_tau_a3.csv", tmp_path / "lag.csv"
+    assert cadence.main(["tau", "--level", "polmax", "--trim", "archive", str(tau), *epochs]) == 0
+    assert cadence.main(["tau", str(alt), *epochs]) == 0
+    assert cadence.main(["lags", "--classes", "three", "--reference-bands", "37", str(lag), *epochs[:4]]) == 0
+    out = tmp_path / "CADENCE_DETECTOR.md"
+    assert cadence_report.main([str(out), str(tau), str(lag), str(alt)]) == 0
+    text = out.read_text()
+    for heading in ("## Pilot bin: tau_c and G", "## In-band median: tau_c and G", "## The amendment-3 form beside it",
+                    "## Phase coherence of the reference-subtracted excess"):
+        assert heading in text
+    assert "## Table of record" not in text and text.endswith(" |\n")
+    out3 = tmp_path / "CADENCE_DETECTOR_3.md"
+    assert cadence_report.main([str(out3), str(tau), str(lag)]) == 0
+    assert "## The amendment-3 form beside it" not in out3.read_text()
+    assert cadence_report.main([str(out)]) == 2
+
+
+def test_cadence_report_refuses_the_table_of_record(epochs, tmp_path, capsys):
     tau, alt, lag = tmp_path / "cadence_tau.csv", tmp_path / "cadence_tau_a3.csv", tmp_path / "lag.csv"
     assert cadence.main(["tau", "--level", "polmax", "--trim", "archive", str(tau), *epochs]) == 0
     assert cadence.main(["tau", str(alt), *epochs]) == 0
@@ -103,21 +121,13 @@ def test_cadence_report_renders_its_sections(epochs, tmp_path):
     cols = ["channel", "freq_id", "role", "disposition", "policy_or_reason", "tau_c_s", "tau_c_status", "G_measured",
             "R_none_Gmeasured", "R_deployed_Gmeasured", "R_deployed_G1"]
     with open(tor, "w", newline="") as fh:
-        w = csv.writer(fh); w.writerow(cols)
-        for band, (marker, fids) in sorted(BANDS.items()):
-            for fid in fids:
-                w.writerow([band, fid, "pilot" if fid == marker else "data", f"d{band % 2}", "r", "60", "bound", "4",
-                            "1.0", "2.0", "3.0"])
+        csv.writer(fh).writerow(cols)
     out = tmp_path / "CADENCE_REPORT.md"
-    assert cadence_report.main([str(out), str(tau), str(lag), str(tor), str(alt)]) == 0
-    text = out.read_text()
-    for heading in ("## Pilot bin: tau_c and G", "## In-band median: tau_c and G", "## The amendment-3 form beside it",
-                    "## Phase coherence of the reference-subtracted excess", "## Table of record at the measured gain"):
-        assert heading in text
-    table = text.split("## Table of record at the measured gain", 1)[1].splitlines()
-    assert len([line for line in table if line.startswith("| 1") or line.startswith("| 3")]) == len(BANDS)
-    assert text.rstrip().endswith(f"(of {N_FILES}).")
-    assert cadence_report.main([str(out)]) == 2
+    capsys.readouterr()
+    assert cadence_report.main([str(out), str(tau), str(lag), str(tor), str(alt)]) == 2
+    assert cadence_report.main([str(out), str(tau), str(lag), str(tor)]) == 2
+    err = capsys.readouterr().err
+    assert "rfisher records cadence-report" in err and not out.exists()
 
 
 def test_ladder_place_places_each_band_of_a_run(tmp_path, capsys):

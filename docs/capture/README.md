@@ -7,9 +7,8 @@ and the control band's level, the frame residual, the cadence coherence time and
 phasor coherence between dumps, the lag moments of the in-band voltages, and where each dump sits on the band's
 archive ladder. It writes one handoff for the science side, `capture_operating_characteristic_v1`. No tolerance,
 credit, gain model or disposition is computed here: the capture ruling (the table of record) is the science side's.
-One command still prints science values: `capture cadence-report` copies the table of record's dispositions and R
-values from the table it is given into its last section, as the frozen report did. It computes none of them, and
-that section is to move to RFIsher.
+`capture cadence-report` writes the cadence report up to its phase-coherence section; the report of record goes on
+with the table of record's dispositions, which RFIsher appends (`rfisher records cadence-report`).
 
 Reading CHIME baseband data requires CHIME/FRB authorization. The dumps, their reduced products and the detector
 runs are collaboration data and are not published here.
@@ -22,7 +21,7 @@ runs are collaboration data and are not published here.
 | `capture frame-residual` | Per band, class, polarisation and frame set (all, the detector's kept and rejected frames, the archive's ladder): the noise-bias-free coherent amplitude less the sky reference, in-band median and maximum, the marker bin's value and structure function; the per-input retained power against the control band (`U_i`). No tolerance is read: the fraction of inputs above one is the science side's, from the per-input sidecar. | `frame_residual_<event>.csv`, `frame_residual_<event>_inputs.csv` |
 | `capture cadence tau` | The cadence coherence time of a class's level across the dumps (predeclaration, amendments 3 and 5), with the archive's trim probes. `--level polavg`, `stokesI` or `polmax`. | `cadence_tau[_<class>][_pol<p>].csv`, `..._structure.csv` |
 | `capture cadence lags` | The phasor coherence between dumps per class and lag class, raw and less the reference bands' mean phasor. `--classes three` or `ten`. | `lag_coherence_14.csv`, `lag_coherence_tenclasses_D.csv` |
-| `capture cadence-report` | Renders the cadence tables and the table of record's dispositions (computes nothing on the table). | `CADENCE_REPORT.md` |
+| `capture cadence-report` | Renders the cadence tables and the phase coherence; RFIsher appends the table of record's section. | the report up to that section |
 | `capture control-level` | Per band and class, A over the science dumps and the control band's level (mean and scatter of its per-bin excess). | `baseline_floor.csv` |
 | `capture class-excess` | Per epoch, class and product (`xx,yy` or `stokes_i`), each band's in-band excess, and the control band's per-bin excess. | `class_excess_epochs.csv`, `class_floor_bins.csv` |
 | `capture marker-map`, `marker_to_inband` | The marker-bin to in-band correction on the long baselines. `marker_to_inband` imports numpy and the standard library only (it ran under an interpreter without a YAML reader); the map is written first under a full interpreter. | `pilot_to_inband.csv` |
@@ -56,7 +55,8 @@ pilot-proxy capture cadence tau --level stokesI --trim archive --class 0,32 cade
 pilot-proxy capture cadence tau cadence_tau_a3.csv <label>=<dir> ...
 pilot-proxy capture cadence lags --classes three --reference-bands 34,37 lag_coherence_14.csv <label>=<dir> ...
 pilot-proxy capture cadence lags --classes ten --reference-bands 34,37 lag_coherence_tenclasses_D.csv pilot=<dir> D1=<dir> D2=<dir> D3=<dir>
-pilot-proxy capture cadence-report CADENCE_REPORT.md cadence_tau.csv lag_coherence_14.csv table_of_record_v10.csv cadence_tau_a3.csv
+pilot-proxy capture cadence-report CADENCE_DETECTOR.md cadence_tau.csv lag_coherence_14.csv cadence_tau_a3.csv
+rfisher records cadence-report --detector-report CADENCE_DETECTOR.md --table-of-record table_of_record_v10.csv --out CADENCE_REPORT.md
 pilot-proxy capture control-level --datasets $E --out-dir DIR
 pilot-proxy capture class-excess --epochs $FRZ/frame_analysis/epochs_14.txt --datasets $E --products xx,yy --out-dir DIR
 pilot-proxy capture class-excess --epochs $FRZ/frame_analysis/epochs_14.txt --datasets $E --products stokes_i --out-dir DIR

@@ -1,10 +1,12 @@
-"""Cadence campaign report: tau_c per band, the structure function by lag class, the phase coherence, and the
-table of record's dispositions, rendered from their CSVs (the report computes nothing on the table of record).
+"""Cadence campaign report, the detector part: tau_c per band, the structure function by lag class and the phase
+coherence, rendered from their CSVs.
 
 The rendered text is frozen: it names the estimator scripts of record (cadence_tau.py, cadence_lags.py), whose
-code is ``pilot-proxy capture cadence tau`` and ``cadence lags``.
+code is ``pilot-proxy capture cadence tau`` and ``cadence lags``. The report of record goes on with the table of
+record's dispositions; that section is the science side's (``rfisher records cadence-report``), which appends it
+to this file. This module writes everything before it, byte for byte as the report of record has it.
 
-usage: pilot-proxy capture cadence-report <out md> <cadence_tau csv> <lag_coherence csv> <table_of_record csv> [<amendment-3 cadence_tau csv>]"""
+usage: pilot-proxy capture cadence-report <out md> <cadence_tau csv> <lag_coherence csv> [<amendment-3 cadence_tau csv>]"""
 from __future__ import annotations
 
 import csv
@@ -19,14 +21,26 @@ def _rows(path):
         return list(csv.DictReader(fh))
 
 
+SCIENCE_COMMAND = "rfisher records cadence-report --detector-report MD --table-of-record CSV --out MD"
+
+
+def _is_table_of_record(path):
+    with open(path) as fh:
+        return "disposition" in (csv.DictReader(fh).fieldnames or [])
+
+
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
-    if len(argv) < 4 or argv[0] in ("-h", "--help"):
+    if len(argv) < 3 or argv[0] in ("-h", "--help"):
         print(__doc__.split("\n\n")[-1], file=sys.stderr)
         return 0 if argv and argv[0] in ("-h", "--help") else 2
-    out, tau_csv, lag_csv, tor_csv = argv[0:4]; alt_csv = argv[4] if len(argv) > 4 else None
+    if len(argv) > 4 or (len(argv) == 4 and _is_table_of_record(argv[3])):
+        print("the table of record is not an input of this report: its section is written by the science side, "
+              f"`{SCIENCE_COMMAND}`, from the file this command writes", file=sys.stderr)
+        return 2
+    out, tau_csv, lag_csv = argv[0:3]; alt_csv = argv[3] if len(argv) > 3 else None
     tau = _rows(tau_csv); struct = _rows(tau_csv[:-4] + "_structure.csv")
-    lag = _rows(lag_csv); tor = _rows(tor_csv)
+    lag = _rows(lag_csv)
     chans = sorted({int(r["channel"]) for r in tau})
     classes = sorted({int(float(r["lag_class"])) for r in struct})
     L = []
@@ -71,18 +85,6 @@ def main(argv=None):
     L.append("|---|" + "---|" * len(lclasses))
     for ch in chans:
         L.append(f"| {ch} | " + " | ".join(f"{np.mean(lc[ch][c]):+.2f}" if lc[ch].get(c) else "" for c in lclasses) + " |")
-    L.append("\n## Table of record at the measured gain (one line per channel; the CSV has one row per freq_id)\n")
-    L.append("| ch | disposition | policy or reason | tau_c (s) | status | G measured | R none G_meas | R deployed G_meas | R deployed G=1 |")
-    L.append("|---|---|---|---|---|---|---|---|---|")
-    seen = set()
-    for r in tor:
-        ch = int(r["channel"])
-        if ch in seen or r["role"] == "pilot": continue
-        seen.add(ch)
-        L.append(f"| {ch} | {r['disposition']} | {r['policy_or_reason']} | {r['tau_c_s']} | {r['tau_c_status']} | {r['G_measured']} | {r['R_none_Gmeasured']} | {r['R_deployed_Gmeasured']} | {r['R_deployed_G1']} |")
-    cnt = defaultdict(int)
-    for r in tor: cnt[r["disposition"]] += 1
-    L.append("\nRows by disposition: " + ", ".join(f"{k} {v}" for k, v in sorted(cnt.items())) + f" (of {len(tor)}).")
     with open(out, "w") as fh:
         fh.write("\n".join(L) + "\n")
     print(f"wrote {out}")
