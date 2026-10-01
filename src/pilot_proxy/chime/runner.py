@@ -12,8 +12,6 @@ from typing import Any, Callable, Mapping, Protocol, Sequence
 import numpy as np
 
 from pilot_proxy.detect import detect_packed_detector_input
-from pilot_proxy.detector_geometry import spectral_sense_requires_time_reversal
-from pilot_proxy.detector_weights import DetectorWeightBank
 from pilot_proxy.detector_contract import (
     CHIME_RUN_CONFIG_SCHEMA_TOKEN,
     CHIME_STATS_SCHEMA_TOKEN,
@@ -21,23 +19,25 @@ from pilot_proxy.detector_contract import (
     WEIGHT_COORDINATE_POST_SPECTRAL_SENSE,
     build_detector_contract,
     input_coordinate_system_for_weight_coordinate,
-    null_power_ratio_from_weight_norms,
     normalize_weight_coordinate_system,
     normalized_positive_excess,
     normalized_positive_excess_policy,
+    null_power_ratio_from_weight_norms,
     weight_term_norms_sq,
 )
+from pilot_proxy.detector_geometry import spectral_sense_requires_time_reversal
+from pilot_proxy.detector_weights import DetectorWeightBank
 from pilot_proxy.dtv_units import (
     DETECTOR_WINDOW_SAMPLES,
     DTV_BANDWIDTH_HZ,
     EFFECTIVE_BIN_BW_HZ,
     PILOT_BELOW_DATA_DB,
     PILOT_CAPTURE_EFFICIENCY,
-    power_terms_to_normalized_coarse_power_ratio_db,
     normalized_pilot_excess_to_db,
-    power_terms_to_normalized_pilot_excess,
-    power_terms_to_coarse_power_ratio,
     pilot_excess_db_to_data_shelf_snr_db,
+    power_terms_to_coarse_power_ratio,
+    power_terms_to_normalized_coarse_power_ratio_db,
+    power_terms_to_normalized_pilot_excess,
 )
 from pilot_proxy.integration import (
     DEFAULT_CHIME_DTV_RECEIVER_PROFILE,
@@ -48,11 +48,12 @@ from pilot_proxy.integration import (
     parse_physical_channel_selection,
     receiver_frequency_to_channel,
 )
-from pilot_proxy.integration.stream_layout import validate_integration_compatibility
 from pilot_proxy.integration.packing import estimate_complex_scale
+from pilot_proxy.integration.stream_layout import validate_integration_compatibility
 from pilot_proxy.kernel import FStatKernel
 from pilot_proxy.paths import DEFAULT_LIB_PATH, DEFAULT_WEIGHTS_PATH
 from pilot_proxy.provenance import file_sha256, sidecar_manifest_path
+
 from .frame_adapter import pack_chime_block_for_detector
 from .hdf5_input import (
     CHIME_NATIVE_OFFSET_BINARY_COMPLEX_INT4,

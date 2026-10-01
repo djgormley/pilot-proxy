@@ -48,10 +48,10 @@ smallest mask within a margin of the frontier's floor,
 """
 from __future__ import annotations
 
+import math
 from bisect import bisect_left
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-import math
 from numbers import Integral, Real
 from pathlib import Path
 from typing import Callable, Iterable, Protocol, TypeVar
@@ -1073,11 +1073,17 @@ def characterize_block(product, calibration: np.ndarray, evaluation: np.ndarray,
     screening level; the feasibility against a tolerance and the choice inside
     the deployable set are the science side's.
     """
-    from pilot_proxy.detectors.narrowband_marker.scores import ScoreRefused, build_score_bundle
+    from pilot_proxy.detectors.narrowband_marker.scores import (
+        ScoreRefused,
+        build_score_bundle,
+    )
     from pilot_proxy.products.reader import sha256_of
 
-    from .stability import (PROVISIONAL_MAX_COST_RATIO, PROVISIONAL_MAX_SYSTEMATIC_RATIO,
-                            PROVISIONAL_MIN_HALF_RETAINED)
+    from .stability import (
+        PROVISIONAL_MAX_COST_RATIO,
+        PROVISIONAL_MAX_SYSTEMATIC_RATIO,
+        PROVISIONAL_MIN_HALF_RETAINED,
+    )
 
     min_half_retained = PROVISIONAL_MIN_HALF_RETAINED if min_half_retained is None else min_half_retained
     max_cost_ratio = PROVISIONAL_MAX_COST_RATIO if max_cost_ratio is None else max_cost_ratio

@@ -13,19 +13,19 @@ database commit and a view refresh, without duplicating rows.
 """
 from __future__ import annotations
 
+import datetime
 import errno
 import hashlib
 import json
 import os
 import sqlite3
 import threading
-import datetime
 import uuid
 from collections.abc import Mapping
 from functools import wraps
 from pathlib import Path
-from .survey_provenance import inventory_identity, runtime_provenance
 
+from .survey_provenance import inventory_identity, runtime_provenance
 
 MANIFEST_SCHEMA = 1
 DATABASE_SCHEMA = 1

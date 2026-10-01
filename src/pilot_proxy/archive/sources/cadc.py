@@ -35,20 +35,36 @@ from numbers import Integral
 from pathlib import Path
 from typing import Iterable, List, Optional
 
-from ..interfaces import (DataSource, RunContext, Unit, PluginInfo, READY,
-                          SurveyUnavailableError)
+from ..datatrail_client import DATATRAIL, Datatrail, DatatrailContractError
+from ..interfaces import (
+    READY,
+    DataSource,
+    PluginInfo,
+    RunContext,
+    SurveyUnavailableError,
+    Unit,
+)
 from ..names import validate_identifier
+from ..recon import match_terms, recon
 from ..selection import parse_freq_ids, parse_selection
-from .cadc_inventory import (
-    annotate_row, candidate_file, join_uri, logical_unit_key, parse_row,
+from ..survey_state import (
+    STALE_VIEWS_MARKER,
+    VIEW_FLUSH_INTERVAL,
+    SurveyRun,
+    SurveyStore,
+    atomic_write_json,
+    build_configuration,
+    ensure_manifest,
+    load_attempts,
+    with_survey_output_lock,
 )
 from . import cadc_transport as _cadc_transport
-from ..datatrail_client import DATATRAIL, Datatrail, DatatrailContractError
-from ..recon import match_terms, recon
-from ..survey_state import (
-    VIEW_FLUSH_INTERVAL, SurveyStore, atomic_write_json, build_configuration,
-    ensure_manifest, load_attempts, with_survey_output_lock,
-    SurveyRun, STALE_VIEWS_MARKER,
+from .cadc_inventory import (
+    annotate_row,
+    candidate_file,
+    join_uri,
+    logical_unit_key,
+    parse_row,
 )
 
 

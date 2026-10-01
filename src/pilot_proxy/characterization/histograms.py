@@ -15,26 +15,35 @@ from __future__ import annotations
 
 import argparse
 import csv
-from datetime import datetime, timezone
 import hashlib
 import json
-from pathlib import Path
 import sys
+from datetime import datetime, timezone
+from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib.ticker import FuncFormatter, LogLocator, MaxNLocator, NullFormatter
-from matplotlib.lines import Line2D
 import numpy as np
 import scipy
+from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.lines import Line2D
+from matplotlib.ticker import FuncFormatter, LogLocator, MaxNLocator, NullFormatter
 from scipy import stats
 
 from pilot_proxy.config.project import default_project
-from pilot_proxy.detectors.narrowband_marker.reference_models import (A, B, NULL, NULL_MEDIAN, NULL_SD, bin_masses,
-                                                                      median_matched, moments)
+from pilot_proxy.detectors.narrowband_marker.reference_models import (
+    NULL,
+    NULL_MEDIAN,
+    NULL_SD,
+    A,
+    B,
+    bin_masses,
+    median_matched,
+    moments,
+)
 
 PROBS = np.array([.001, .01, .025, .15865525393145707, .25, .5, .75, .8413447460685429, .975, .99, .999])
 NOISE_LOWER = {"001": float(NULL.ppf(.001)), "01": float(NULL.ppf(.01))}

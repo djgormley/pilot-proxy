@@ -15,8 +15,8 @@ import numpy as np
 from .atsc_channels import physical_channel_to_pilot_hz
 from .detector_contract import (
     NORMALIZED_POSITIVE_EXCESS_MASK_RULE,
-    null_power_ratio_from_weight_norms,
     normalized_positive_excess,
+    null_power_ratio_from_weight_norms,
     weight_term_norms_sq,
 )
 from .detector_reference import (
@@ -26,20 +26,20 @@ from .detector_reference import (
     REFERENCE_WEIGHT_TERMS,
 )
 from .detector_weights import DetectorWeightBank
-from .fine_decision import FINE_BINS
-from .fxfft import N_IN as FINE_WINDOWS_PER_STREAM
 from .dtv_units import (
     DTV_BANDWIDTH_HZ,
     EFFECTIVE_BIN_BW_HZ,
     PILOT_BELOW_DATA_DB,
     PILOT_CAPTURE_EFFICIENCY,
-    power_terms_to_normalized_coarse_power_ratio_db,
-    power_terms_to_raw_pilot_excess,
     normalized_pilot_excess_to_db,
-    power_terms_to_normalized_pilot_excess,
-    power_terms_to_coarse_power_ratio,
     pilot_excess_db_to_data_shelf_snr_db,
+    power_terms_to_coarse_power_ratio,
+    power_terms_to_normalized_coarse_power_ratio_db,
+    power_terms_to_normalized_pilot_excess,
+    power_terms_to_raw_pilot_excess,
 )
+from .fine_decision import FINE_BINS
+from .fxfft import N_IN as FINE_WINDOWS_PER_STREAM
 from .json_utils import write_json_strict
 from .kernel import FStatKernel
 from .paths import DEFAULT_LIB_PATH, DEFAULT_WEIGHTS_PATH
@@ -278,7 +278,10 @@ def detect_packed_detector_input(
         matched_filter_row_projections = d_matched_filter_row_projections.reshape(batch, REFERENCE_WEIGHT_TERMS, rows, 2)
         # Exact all-bin marginal identity against the deployed u64 powers.
         # Any mismatch means stage-1 output is corrupt; fail immediately.
-        from .fine_reduction import check_coarse_power_marginal_identity, exact_coarse_power_by_term
+        from .fine_reduction import (
+            check_coarse_power_marginal_identity,
+            exact_coarse_power_by_term,
+        )
 
         for b_idx in range(batch):
             marginal = exact_coarse_power_by_term(

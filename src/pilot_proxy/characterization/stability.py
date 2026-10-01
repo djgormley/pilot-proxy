@@ -19,13 +19,13 @@ canonical JSON and digest.
 """
 from __future__ import annotations
 
-from bisect import bisect_right
-from collections.abc import Mapping
-from dataclasses import asdict, dataclass, field, replace
 import datetime as dt
 import hashlib
 import json
 import math
+from bisect import bisect_right
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass, field, replace
 from numbers import Integral, Real
 from types import MappingProxyType
 from typing import Sequence
@@ -33,10 +33,18 @@ from typing import Sequence
 import numpy as np
 
 from pilot_proxy.config.project import default_project
-from pilot_proxy.detectors.narrowband_marker.scores import candidate_eta_q16, candidate_rho_values
+from pilot_proxy.detectors.narrowband_marker.scores import (
+    candidate_eta_q16,
+    candidate_rho_values,
+)
 
-from .surface import (ALWAYS_MASKED_Q16, MIN_RETAINED_FRAMES, CalibrationEvidence, ScoreHistogram,
-                      build_score_histogram)
+from .surface import (
+    ALWAYS_MASKED_Q16,
+    MIN_RETAINED_FRAMES,
+    CalibrationEvidence,
+    ScoreHistogram,
+    build_score_histogram,
+)
 
 _REGISTER = default_project().register
 # the detector register's operational entries (a claim above screening needs every one resolved)

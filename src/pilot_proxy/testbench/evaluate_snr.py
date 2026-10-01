@@ -17,17 +17,17 @@ from typing import Any
 
 import numpy as np
 
+from pilot_proxy.atsc_channels import physical_channel_to_pilot_hz  # noqa: E402
+from pilot_proxy.detector_contract import (
+    normalized_positive_excess,
+    weight_term_norms_sq,
+)
 from pilot_proxy.detector_geometry import (  # noqa: E402
     DetectorFrameLayout,
     apply_spectral_sense_to_detector_matrix,
     build_stream_map,
     flatten_feed_channel_streams,
     stream_time_block_to_detector_matrix,
-)
-from pilot_proxy.atsc_channels import physical_channel_to_pilot_hz  # noqa: E402
-from pilot_proxy.detector_contract import (
-    normalized_positive_excess,
-    weight_term_norms_sq,
 )
 from pilot_proxy.detector_reference import (  # noqa: E402
     REFERENCE_LOWER_TERM_INDEX,
@@ -38,37 +38,38 @@ from pilot_proxy.detector_reference import (  # noqa: E402
 )
 from pilot_proxy.detector_weights import DetectorWeightBank  # noqa: E402
 from pilot_proxy.dtv_units import (  # noqa: E402
-    DB_LINEAR_BASE,
     COARSE_POWER_RATIO_SCALE,
+    DB_LINEAR_BASE,
     DB_POWER_FACTOR,
     DEFAULT_THRESHOLD_MAX_DENOMINATOR,
     DTV_BANDWIDTH_HZ,
     EFFECTIVE_BIN_BW_HZ,
-    UNIT_DATA_SHELF_POWER,
     PILOT_BELOW_DATA_DB,
     PILOT_CAPTURE_EFFICIENCY,
+    UNIT_DATA_SHELF_POWER,
     composite_to_data_shelf_snr_correction_db,
-    pilot_capture_efficiency_db,
-    power_terms_to_normalized_coarse_power_ratio,
-    power_terms_to_normalized_coarse_power_ratio_db,
-    power_terms_to_raw_pilot_excess,
-    normalized_pilot_excess_to_db,
+    data_shelf_snr_threshold_fields,
     normalize_coarse_power_ratio,
     normalized_coarse_power_ratio_to_pilot_excess,
-    power_terms_to_normalized_pilot_excess,
-    power_terms_to_coarse_power_ratio,
-    pilot_to_data_power_ratio,
+    normalized_pilot_excess_to_db,
+    pilot_capture_efficiency_db,
     pilot_excess_db_to_data_shelf_snr_db,
     pilot_excess_to_data_shelf_metadata,
+    pilot_to_data_power_ratio,
+    power_terms_to_coarse_power_ratio,
+    power_terms_to_normalized_coarse_power_ratio,
+    power_terms_to_normalized_coarse_power_ratio_db,
+    power_terms_to_normalized_pilot_excess,
+    power_terms_to_raw_pilot_excess,
     spreading_loss_db_from_bin_enbw_hz,
-    data_shelf_snr_threshold_fields,
+)
+from pilot_proxy.integration import QUANTIZATION_SCALE_MODE_GLOBAL  # noqa: E402
+from pilot_proxy.integration.packing import (  # noqa: E402
+    estimate_complex_scale,  # noqa: E402
+    pack_channelized_streams_for_detector,
 )
 from pilot_proxy.json_utils import write_json_strict  # noqa: E402
 from pilot_proxy.kernel import FStatKernel  # noqa: E402
-from pilot_proxy.integration import QUANTIZATION_SCALE_MODE_GLOBAL  # noqa: E402
-from pilot_proxy.integration.packing import (  # noqa: E402
-    pack_channelized_streams_for_detector,
-)
 from pilot_proxy.paths import (  # noqa: E402
     DEFAULT_LIB_PATH,
     DEFAULT_WEIGHTS_PATH,
@@ -96,6 +97,10 @@ from pilot_proxy.result_schema import (  # noqa: E402
     RESULT_SCHEMA_TOKEN,
     result_schema_object,
 )
+from pilot_proxy.secondary_python import (  # noqa: E402
+    package_only_pythonpath,
+    prepend_pythonpath,
+)
 from pilot_proxy.testbench.quantize import (  # noqa: E402
     ATSC_CHANNEL_WIDTH_HZ,
     ATSC_PILOT_OFFSET_HZ,
@@ -104,11 +109,6 @@ from pilot_proxy.testbench.quantize import (  # noqa: E402
     GNU_RADIO_ATSC_SYMBOL_RATE_HZ,
     LOCKED_BITS_PER_COMPONENT,
     LOCKED_DETECTOR_WINDOW_SAMPLES,
-)
-from pilot_proxy.integration.packing import estimate_complex_scale  # noqa: E402
-from pilot_proxy.secondary_python import (  # noqa: E402
-    package_only_pythonpath,
-    prepend_pythonpath,
 )
 
 HZ_PER_MHZ = 1.0e6

@@ -6,8 +6,9 @@ Pure-NumPy reference implementation for the local-reference power ratio kernel.
 
 from __future__ import annotations
 
-import numpy as np
 from typing import Any
+
+import numpy as np
 
 INT4_COMPONENT_BITS = 4
 INT8_COMPONENT_BITS = 8

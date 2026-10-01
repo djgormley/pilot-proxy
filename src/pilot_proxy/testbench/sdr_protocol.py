@@ -6,11 +6,11 @@ The existing sdr_transfer worker must not be used as a single-slot adapter.
 """
 from __future__ import annotations
 
-from copy import deepcopy
-from datetime import datetime, timezone
 import hashlib
 import json
 import math
+from copy import deepcopy
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 

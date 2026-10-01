@@ -57,12 +57,29 @@ import numpy as np
 
 from pilot_proxy.config._files import ProfileError
 from pilot_proxy.config.project import Project, default_project, load_project
-from pilot_proxy.detectors.narrowband_marker import NarrowbandMarkerAdapter, anchors, psd
+from pilot_proxy.detectors.narrowband_marker import (
+    NarrowbandMarkerAdapter,
+    anchors,
+    psd,
+)
 from pilot_proxy.detectors.narrowband_marker.scores import build_score_bundle
 from pilot_proxy.products.reader import COARSE_BIN_HZ, FINE_BIN_HZ, Product, sha256_of
 
-from . import (blocks, coarse_ladder, eras, false_alarm, flaggers, ledger, masked_spectra, nulls, oc_table,
-               occupancy, residual_chain, stability, surface)
+from . import (
+    blocks,
+    coarse_ladder,
+    eras,
+    false_alarm,
+    flaggers,
+    ledger,
+    masked_spectra,
+    nulls,
+    oc_table,
+    occupancy,
+    residual_chain,
+    stability,
+    surface,
+)
 from .surface import SELECTOR_ORDER, TieRule
 
 

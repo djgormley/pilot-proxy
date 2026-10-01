@@ -38,14 +38,18 @@ import numpy as np
 
 from pilot_proxy.archive import accel
 from pilot_proxy.archive.instruments import nyquist_sign
-from pilot_proxy.archive.interfaces import Analyzer, RunContext, PluginInfo, EXPERIMENTAL
-
+from pilot_proxy.archive.interfaces import (
+    EXPERIMENTAL,
+    Analyzer,
+    PluginInfo,
+    RunContext,
+)
 from pilot_proxy.atsc_channels import physical_channel_to_pilot_hz
+from pilot_proxy.chime.frame_adapter import pack_chime_block_for_detector
 from pilot_proxy.chime.hdf5_input import (
     CHIME_NATIVE_OFFSET_BINARY_COMPLEX_INT4,
     nearest_atsc_physical_channel,
 )
-from pilot_proxy.chime.frame_adapter import pack_chime_block_for_detector
 from pilot_proxy.chime.products import SAMPLE_RATE_HZ, atomic_savez_compressed
 from pilot_proxy.detect import detect_packed_detector_input
 from pilot_proxy.detector_contract import (
@@ -53,9 +57,9 @@ from pilot_proxy.detector_contract import (
     WEIGHT_COORDINATE_POST_SPECTRAL_SENSE,
     WEIGHT_COORDINATE_RAW_INPUT,
     build_detector_contract,
-    null_power_ratio_from_weight_norms,
     normalize_weight_coordinate_system,
     normalized_positive_excess,
+    null_power_ratio_from_weight_norms,
     weight_term_norms_sq,
 )
 from pilot_proxy.detector_geometry import (
@@ -65,6 +69,7 @@ from pilot_proxy.detector_geometry import (
     predicted_fine_designated_bins,
     predicted_pilot_fine_bin,
 )
+from pilot_proxy.detector_reference import REFERENCE_WEIGHT_TERMS
 from pilot_proxy.dtv_units import (
     DETECTOR_WINDOW_SAMPLES,
     DTV_BANDWIDTH_HZ,
@@ -85,10 +90,8 @@ from pilot_proxy.fine_reduction import (
     FINE_PAD_FACTOR,
     fine_bin_count,
 )
-from pilot_proxy.detector_reference import REFERENCE_WEIGHT_TERMS
 from pilot_proxy.fxfft import fine_power_fx
 from pilot_proxy.product_contract import (
-    CurrentProductContractError,
     FINE_STATUS_WITHOUT_TERMS,
     PER_PILOT_PRODUCT_SCHEMA_NAME,
     PER_PILOT_PRODUCT_SCHEMA_REVISION,
@@ -98,6 +101,7 @@ from pilot_proxy.product_contract import (
     PSD_DB_MIN,
     PSD_DB_STEP,
     SOURCE_EVENT_KEY_SCHEMA_VERSION,
+    CurrentProductContractError,
     current_decision_contract,
     current_decision_contract_json,
     validate_current_product_identity,

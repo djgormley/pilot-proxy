@@ -16,9 +16,9 @@ coarse marginal. No finite-stream pool or modeled aggregate is used.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import hashlib
 import math
+from dataclasses import dataclass
 from numbers import Integral, Real
 
 import numpy as np

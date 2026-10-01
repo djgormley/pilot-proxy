@@ -10,9 +10,14 @@ Per 16384-sample frame (0.04194304 s, the archive frame) this writes
 Frames sit on a common FPGA grid (--grid-fpga) so every frequency's frame k covers the same samples.
 Single process, single thread: the analysis host's docker cannot start threads.
 """
-import argparse, json, os, sys, time
-import numpy as np
+import argparse
+import json
+import os
+import sys
+import time
+
 import h5py
+import numpy as np
 import scipy.fft
 
 NFFT = 16384

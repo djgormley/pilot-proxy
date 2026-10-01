@@ -13,9 +13,8 @@ from typing import Any
 
 import numpy as np
 
-from pilot_proxy.plot_style import setup_matplotlib
-
 from pilot_proxy.json_utils import write_json_strict
+from pilot_proxy.plot_style import setup_matplotlib
 
 DEFAULT_INPUT_JSON = Path("generated/dtv_snr_eval/dtv_snr_eval.json")
 DEFAULT_OUTPUT_DIR = Path("generated/summary")

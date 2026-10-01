@@ -25,7 +25,7 @@ import re
 import shutil
 from typing import Iterable, List
 
-from ..interfaces import DataSource, RunContext, Unit, PluginInfo, READY
+from ..interfaces import READY, DataSource, PluginInfo, RunContext, Unit
 from ..selection import parse_selection
 
 # Default event capture, matching the canonical baseband naming

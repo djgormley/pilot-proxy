@@ -76,13 +76,17 @@ from typing import Any, Iterable, List, Mapping, Optional
 
 import numpy as np
 
+from pilot_proxy import __version__ as _PILOT_PROXY_VERSION
 from pilot_proxy.archive.analyzer_base import AccumulatingAnalyzer
 from pilot_proxy.archive.instruments import nyquist_sign
-from pilot_proxy.archive.interfaces import (RunContext, PluginInfo, READY,
-                                            STREAM_COMPLEX_BASEBAND)
+from pilot_proxy.archive.interfaces import (
+    READY,
+    STREAM_COMPLEX_BASEBAND,
+    PluginInfo,
+    RunContext,
+)
 from pilot_proxy.archive.selection import parse_freq_ids
 
-from pilot_proxy import __version__ as _PILOT_PROXY_VERSION
 from .chime_coarse import source_event_key
 
 _SIGNATURE = "pilot-proxy-control"     # stamped into the product; verified on resume

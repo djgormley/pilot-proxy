@@ -48,6 +48,7 @@ from pilot_proxy.atomic_io import (
     fsync_directory,
 )
 from pilot_proxy.chime.products import atomic_savez_compressed
+from pilot_proxy.config.project import default_project
 from pilot_proxy.detector_geometry import (
     DEFAULT_FINE_DESIGNATED_HALF_WIDTH_BINS,
     SPECTRAL_SENSE_INVERTED,
@@ -66,11 +67,9 @@ from pilot_proxy.fine_reduction import (
     independent_bin_mask,
     p_fa_to_threshold_k,
 )
-from pilot_proxy.config.project import default_project
-from pilot_proxy.product_contract import fine_power_ratio_of, null_power_ratio_of
 from pilot_proxy.json_utils import json_safe
+from pilot_proxy.product_contract import fine_power_ratio_of, null_power_ratio_of
 from pilot_proxy.provenance import file_sha256, package_source_sha256
-
 
 FRAME_HEALTH_GATE_SCHEMA_VERSION = "pilotproxy_archive_frame_health_gate_v1"
 ARCHIVE_HEALTH_SUMMARY_SCHEMA_VERSION = "pilotproxy_archive_health_summary_v1"

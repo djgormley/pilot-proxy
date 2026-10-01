@@ -96,6 +96,24 @@ target-version = "py310"
 extend-exclude = ["docs/evidence"]
 
 [tool.ruff.lint]
-# Start with correctness-oriented checks so legacy analysis scripts can be
-# cleaned incrementally without making style changes a release blocker.
-select = ["F"]
+# The library is held to pycodestyle errors and warnings and sorted imports;
+# tests, tools and scripts to the correctness checks only. Long lines, one-line
+# compound statements, lambdas bound to names and short names stay allowed.
+select = ["E", "F", "W", "I"]
+ignore = ["E501", "E701", "E702", "E731", "E741"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["E", "W", "I"]
+"tools/**" = ["E", "W", "I"]
+"scripts/**" = ["E", "W", "I"]
+"setup.py" = ["E", "W", "I"]
+# byte-pinned records: lag_moments.py is the module the 2026-09-09 lag study
+# snapshots, frame_policy.py the capture's frame policy of record
+"src/pilot_proxy/capture/lag_moments.py" = ["E", "W", "I"]
+"src/pilot_proxy/records/chime_atsc_2026/frame_policy.py" = ["E", "W", "I"]
+# the estimator-transfer freezer holds plot_results.py to its blob at the tag
+# estimator-transfer-publication-source-20260826
+"src/pilot_proxy/testbench/plot_results.py" = ["E", "W", "I"]

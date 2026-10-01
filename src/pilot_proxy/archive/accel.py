@@ -22,7 +22,6 @@ import subprocess
 import sys
 from typing import Optional
 
-
 _CUDA_COMMAND_TIMEOUT_SECONDS = 30
 _DEFAULT_CUDA_HOME = "/usr/local/cuda"
 

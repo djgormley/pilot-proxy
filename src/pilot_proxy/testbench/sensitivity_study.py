@@ -19,11 +19,11 @@ Python integers and does not depend on a float value rounded into an NPZ.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
-from functools import cmp_to_key
 import hashlib
 import json
 import math
+from dataclasses import dataclass
+from functools import cmp_to_key
 from typing import Any, Iterable, Mapping, Sequence
 
 import numpy as np

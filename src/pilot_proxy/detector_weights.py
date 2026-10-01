@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
+import json
 import math
 import operator
 import os
 import struct
 import zlib
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, cast
@@ -22,6 +22,7 @@ from pilot_proxy.detector_contract import (
 )
 from pilot_proxy.provenance import file_sha256
 from pilot_proxy.schema_identity import schema_token
+
 from .atsc_channels import (
     ATSC_CHANNEL_WIDTH_HZ,
     ATSC_PILOT_OFFSET_HZ,

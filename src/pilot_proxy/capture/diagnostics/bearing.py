@@ -19,7 +19,6 @@ import sys
 
 import numpy as np
 
-
 C = 299792458.0
 BEAR = np.deg2rad(np.arange(0, 360, 0.25)); ELEV = np.deg2rad([0.0])   # ground transmitters; elevation is degenerate with the EW alias anyway
 
@@ -125,7 +124,7 @@ def main(argv=None):
         cells = "  ".join(f"{res[k][0]:5.1f}/{res[k][1]:4.1f} {res[k][2]:.2f}" for k in ((1, 1), (-1, 1), (1, -1), (-1, -1)))
         print(f"{ch:2d}  {fid:3d}  x{ratio:5.0f}  {tu:10.0f}  {cells}   {KNOWN.get(ch, '')}")
     # choose the convention by the known stations
-    def err(k): 
+    def err(k):
         e = [min(abs(res[k][0] - KNOWN[ch]) % 360, 360 - abs(res[k][0] - KNOWN[ch]) % 360) for ch, _, _, _, res in rows if ch in KNOWN]
         return np.mean(e) if e else np.nan
     scores = {k: err(k) for k in ((1, 1), (-1, 1), (1, -1), (-1, -1))}

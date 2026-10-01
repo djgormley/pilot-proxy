@@ -17,7 +17,6 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import lru_cache, wraps
 
-
 CADC_CONNECT_TIMEOUT_SECONDS = 30.0
 CADC_READ_TIMEOUT_SECONDS = 120.0
 CADC_REQUEST_TIMEOUT = (

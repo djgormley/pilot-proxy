@@ -15,23 +15,23 @@ from typing import Any
 
 import numpy as np
 
-from pilot_proxy.atsc_channels import (
-    ATSC_UHF_MAX_PHYSICAL_CHANNEL,
-    ATSC_UHF_MIN_PHYSICAL_CHANNEL,
-)
-from pilot_proxy.detector_reference import REFERENCE_WEIGHT_TERMS
 from pilot_proxy.archived_product_keys import (
     ARCHIVED_FINE_POWER_RATIO,
     ARCHIVED_REFERENCE_NORM_SUM_SQ,
 )
-from pilot_proxy.fine_reduction import (
-    WEIGHT_TERM_REF_LOWER,
-    WEIGHT_TERM_REF_UPPER,
-    WEIGHT_TERM_TARGET,
+from pilot_proxy.atsc_channels import (
+    ATSC_UHF_MAX_PHYSICAL_CHANNEL,
+    ATSC_UHF_MIN_PHYSICAL_CHANNEL,
 )
 from pilot_proxy.detector_contract import (
     NORMALIZED_POSITIVE_EXCESS_MASK_RULE,
     normalized_positive_excess,
+)
+from pilot_proxy.detector_reference import REFERENCE_WEIGHT_TERMS
+from pilot_proxy.fine_reduction import (
+    WEIGHT_TERM_REF_LOWER,
+    WEIGHT_TERM_REF_UPPER,
+    WEIGHT_TERM_TARGET,
 )
 
 PER_PILOT_PRODUCT_SCHEMA_NAME = "pilotproxy_per_pilot_product"

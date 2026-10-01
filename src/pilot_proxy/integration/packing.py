@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import operator
+from dataclasses import dataclass
 from typing import Any, Sequence
 
 import numpy as np

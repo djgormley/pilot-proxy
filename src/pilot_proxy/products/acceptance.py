@@ -8,12 +8,12 @@ from __future__ import annotations
 
 import argparse
 import copy
-from dataclasses import dataclass
 import hashlib
 import json
 import math
-from pathlib import Path
 import re
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Mapping, Sequence
 
 import numpy as np
@@ -21,9 +21,17 @@ import numpy as np
 from pilot_proxy.config.instrument import nyquist_sign
 from pilot_proxy.config.project import default_project
 
-from .reader import (FINE_BINS, PRODUCT_SCHEMA_TOKEN, ProductContractError,
-                     _array, _float_scalar, _integer_scalar, _string_scalar,
-                     _string_vector, open_product)
+from .reader import (
+    FINE_BINS,
+    PRODUCT_SCHEMA_TOKEN,
+    ProductContractError,
+    _array,
+    _float_scalar,
+    _integer_scalar,
+    _string_scalar,
+    _string_vector,
+    open_product,
+)
 
 _PROJECT = default_project()
 _INSTRUMENT = _PROJECT.instrument

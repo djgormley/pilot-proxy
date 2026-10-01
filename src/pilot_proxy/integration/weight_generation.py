@@ -9,9 +9,9 @@ import math
 import operator
 import struct
 import zlib
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from pathlib import Path
-from collections.abc import Mapping
 from typing import Any, Sequence, cast
 
 import numpy as np
@@ -25,12 +25,12 @@ from pilot_proxy.detector_contract import (
     WEIGHT_COORDINATE_POST_SPECTRAL_SENSE,
     WEIGHT_COORDINATE_RAW_INPUT,
     input_coordinate_system_for_weight_coordinate,
-    null_power_ratio_from_weight_norms,
     normalize_weight_coordinate_system,
+    null_power_ratio_from_weight_norms,
     weight_term_norms_sq,
 )
-from pilot_proxy.detector_reference import quantize_complex_numpy
 from pilot_proxy.detector_geometry import SPECTRAL_SENSE_NORMAL
+from pilot_proxy.detector_reference import quantize_complex_numpy
 from pilot_proxy.detector_weights import (
     CRC32_UNSIGNED_MASK,
     CRC_SIZE,

@@ -59,9 +59,18 @@ from typing import Mapping
 
 import numpy as np
 
-from pilot_proxy.characterization.coarse_ladder import place_dumps, product_thresholds, run_thresholds
+from pilot_proxy.characterization.coarse_ladder import (
+    place_dumps,
+    product_thresholds,
+    run_thresholds,
+)
 from pilot_proxy.characterization.coherence import admissible_min_G
-from pilot_proxy.characterization.oc_table import canonical_json, check_table, read_rows, write_rows
+from pilot_proxy.characterization.oc_table import (
+    canonical_json,
+    check_table,
+    read_rows,
+    write_rows,
+)
 
 from . import units
 from .markers import marker_freq_ids, resolve_project

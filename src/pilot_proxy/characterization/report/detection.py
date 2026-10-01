@@ -149,6 +149,7 @@ from typing import Sequence
 import numpy as np
 
 from pilot_proxy.testbench.harness import evaluations as ev
+
 from .core import DASH, Fragment, Run, booktabs, fmt, fmt_int, tex
 
 NAME = "detection"

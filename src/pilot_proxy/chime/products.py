@@ -18,6 +18,7 @@ from pilot_proxy.config.project import default_project
 from pilot_proxy.detector_contract import NORMALIZED_POSITIVE_EXCESS_MASK_RULE
 from pilot_proxy.json_utils import write_json_strict
 from pilot_proxy.schema_identity import schema_token
+
 from .hdf5_input import ChimePilotDataset, dataset_manifest
 
 CHIME_DETECTOR_OUTPUTS_FILENAME = "chime_detector_outputs.npz"

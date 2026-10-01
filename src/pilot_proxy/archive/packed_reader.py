@@ -16,7 +16,7 @@ from typing import Iterator, Mapping
 import h5py
 import numpy as np
 
-from pilot_proxy.archive.interfaces import Reader, RunContext, PluginInfo, READY
+from pilot_proxy.archive.interfaces import READY, PluginInfo, Reader, RunContext
 from pilot_proxy.chime import baseband_format as fmt
 from pilot_proxy.chime.unreadable import unreadable_file
 

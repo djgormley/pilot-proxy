@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Iterable
 
 import matplotlib
+
 matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch

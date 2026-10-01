@@ -13,8 +13,8 @@ On-disk layout:
 """
 from __future__ import annotations
 
-import numpy as np
 import h5py
+import numpy as np
 
 from pilot_proxy.archive.instruments import load_instrument as _load_instrument
 

@@ -16,8 +16,17 @@ from pilot_proxy.detector_reference import (
     quantize_complex_numpy,
 )
 from pilot_proxy.integration.sdr_upgrade_adapter import (
-    DigitalAdapterConfig, DOWN, FIR_TAPS, FRAME_SAMPLES, INPUT_RATE_HZ, K, L,
-    OUTPUT_RATE_HZ, UP, projector_weights, resampler_coefficients,
+    DOWN,
+    FIR_TAPS,
+    FRAME_SAMPLES,
+    INPUT_RATE_HZ,
+    OUTPUT_RATE_HZ,
+    UP,
+    DigitalAdapterConfig,
+    K,
+    L,
+    projector_weights,
+    resampler_coefficients,
 )
 
 INPUT_BLOCK_SAMPLES = 8192

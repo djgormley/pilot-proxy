@@ -12,11 +12,11 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence, cast
 
 from pilot_proxy.atsc_channels import physical_channel_to_pilot_hz
-from pilot_proxy.detector_weights import DetectorWeightBank
 from pilot_proxy.detector_contract import (
     WEIGHT_COORDINATE_POST_SPECTRAL_SENSE,
     WEIGHT_COORDINATE_RAW_INPUT,
 )
+from pilot_proxy.detector_weights import DetectorWeightBank
 from pilot_proxy.dtv_units import (
     DETECTOR_WINDOW_SAMPLES,
     DTV_BANDWIDTH_HZ,

@@ -16,15 +16,16 @@ frames are keyed to (``ledger/channels/ch*_fid*.json``,
 ``channels/chNN/eras.json``, ``products-preflight.json``).
 """
 from __future__ import annotations
+
 import argparse
-from collections.abc import Mapping
-from datetime import datetime,timezone
 import hashlib
 import json
 import math
-from pathlib import Path
 import sys
 import zipfile
+from collections.abc import Mapping
+from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 
@@ -32,10 +33,10 @@ from pilot_proxy import archive_health, archived_product_keys
 from pilot_proxy.archive_health import evaluate_frame_health
 from pilot_proxy.config.project import default_project
 from pilot_proxy.products import reader
-from pilot_proxy.products.reader import Product,HEALTH_GATE_SCHEMA,NFFT
+from pilot_proxy.products.reader import HEALTH_GATE_SCHEMA, NFFT, Product
 
 from . import blocks, eras
-from .blocks import month_index,month_label
+from .blocks import month_index, month_label
 
 # the code this export runs, recorded with its sha256 in the extraction plan
 SOURCES=(Path(__file__).resolve(),Path(reader.__file__).resolve(),Path(blocks.__file__).resolve(),
@@ -312,7 +313,7 @@ def process_control(product_path,project,output):
 
 def run_control(product,output,profile=None):
     """Export one control band into a new frames directory that the histogram comparison reads."""
-    from pilot_proxy.config.project import default_project_dir,load_project
+    from pilot_proxy.config.project import default_project_dir, load_project
     product=Path(product).resolve();output=Path(output).resolve()
     project=load_project(Path(profile).resolve() if profile else default_project_dir())
     output.mkdir(parents=True,exist_ok=True)

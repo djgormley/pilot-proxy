@@ -8,14 +8,19 @@ SciPy is required for exact binomial intervals (available in the test extra).
 """
 from __future__ import annotations
 
+import math
 from collections import Counter
 from collections.abc import Mapping
-import math
 
 import numpy as np
 
 from pilot_proxy.characterization.false_alarm import (  # noqa: F401  (re-exported under their former names)
-    ALWAYS_MASKED_Q16, MAX_Q16, _integer, _probability, _real_vector, _requirements,
+    ALWAYS_MASKED_Q16,
+    MAX_Q16,
+    _integer,
+    _probability,
+    _real_vector,
+    _requirements,
     empirical_threshold as empirical_null_threshold,
     exact_q16_threshold as exact_q16_null_threshold,
     higher_index as _higher_index,

@@ -8,12 +8,12 @@ survey's network or persistence machinery.
 from __future__ import annotations
 
 import json
+import math
 from collections.abc import Mapping
 from copy import deepcopy
 from numbers import Integral
-import math
-from ..names import baseband_filename
 
+from ..names import baseband_filename
 
 RESERVED_FIELDS = frozenset({
     "scope", "event", "name", "size_bytes", "common_path", "obs_date",

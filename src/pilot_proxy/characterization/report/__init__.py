@@ -21,5 +21,14 @@ carry. Rendering conventions live in :mod:`.core`; each stub table has one
 builder module beside it.
 """
 from .core import (  # noqa: F401
-    Channel, Fragment, Run, booktabs, fmt, fmt_int, fmt_month, load_run, tex, write_report,
+    Channel,
+    Fragment,
+    Run,
+    booktabs,
+    fmt,
+    fmt_int,
+    fmt_month,
+    load_run,
+    tex,
+    write_report,
 )

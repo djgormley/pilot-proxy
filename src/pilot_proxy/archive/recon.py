@@ -7,7 +7,6 @@ from typing import List
 
 from .datatrail_client import DATATRAIL
 
-
 _PRINTED_CHILD_LIMIT = 20
 
 

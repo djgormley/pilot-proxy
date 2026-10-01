@@ -3,19 +3,19 @@
 
 from pilot_proxy.detector_geometry import DetectorFrameLayout
 
-from .detector_core import DetectorCoreProfile, load_detector_core_profile
 from .defaults import (
     DEFAULT_CHIME_DTV_RECEIVER_PROFILE,
     DEFAULT_CHIME_STREAM_MAP,
     DEFAULT_DETECTOR_CORE_PROFILE,
     DEFAULT_REFERENCE_RECEIVER_PROFILE,
 )
+from .detector_core import DetectorCoreProfile, load_detector_core_profile
 from .packing import PackedDetectorInput, pack_channelized_streams_for_detector
 from .receiver_profile import (
-    ChannelSelection,
-    ChannelizerProfile,
     FREQUENCY_ORDER_ASCENDING_RF,
     FREQUENCY_ORDER_DESCENDING_RF,
+    ChannelizerProfile,
+    ChannelSelection,
     ReceiverProfile,
     default_reference_receiver_profile,
     load_receiver_profile,

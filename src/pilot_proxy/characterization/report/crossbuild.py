@@ -147,6 +147,7 @@ from typing import Mapping, Sequence
 import numpy as np
 
 from pilot_proxy.products.reader import Product
+
 from .core import DASH, Fragment, Run, booktabs, fmt, fmt_int, tex
 
 NAME = "crossbuild_record"

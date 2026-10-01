@@ -6,7 +6,6 @@ the receiver or on-disk container that supplied the samples.
 """
 from __future__ import annotations
 
-
 # One uint8 per complex sample: offset-binary int4 real in the high nibble and
 # offset-binary int4 imaginary in the low nibble, yielded as baseband frames.
 STREAM_PACKED_COMPLEX_INT4_BASEBAND = "packed-complex-int4-baseband-frame"

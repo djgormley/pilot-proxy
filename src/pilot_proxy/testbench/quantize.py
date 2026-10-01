@@ -10,6 +10,14 @@ from typing import Any
 
 import numpy as np
 
+from pilot_proxy.atsc_channels import physical_channel_to_pilot_hz  # noqa: E402
+from pilot_proxy.integration import QUANTIZATION_SCALE_MODE_GLOBAL  # noqa: E402
+from pilot_proxy.integration.packing import (  # noqa: E402
+    estimate_complex_scale,
+    pack_channelized_streams_for_detector,
+)
+from pilot_proxy.json_utils import write_json_strict  # noqa: E402
+from pilot_proxy.paths import GENERATED_DIR, resolve_user_path  # noqa: E402
 from pilot_proxy.reference_channelizer import (  # noqa: E402
     REFERENCE_ADC_SAMPLE_RATE_HZ,
     REFERENCE_BAND_LOWER_HZ,
@@ -23,14 +31,6 @@ from pilot_proxy.reference_channelizer import (  # noqa: E402
     reference_channel_frequencies_hz,
     sinc_hamming_pfb_response,
 )
-from pilot_proxy.atsc_channels import physical_channel_to_pilot_hz  # noqa: E402
-from pilot_proxy.integration import QUANTIZATION_SCALE_MODE_GLOBAL  # noqa: E402
-from pilot_proxy.integration.packing import (  # noqa: E402
-    estimate_complex_scale,
-    pack_channelized_streams_for_detector,
-)
-from pilot_proxy.json_utils import write_json_strict  # noqa: E402
-from pilot_proxy.paths import GENERATED_DIR, resolve_user_path  # noqa: E402
 
 GNU_RADIO_ATSC_SYMBOL_RATE_HZ = 4_500_000.0 / 286.0 * 684.0
 ATSC_CHANNEL_WIDTH_HZ = 6.0e6

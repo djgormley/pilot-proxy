@@ -92,7 +92,10 @@ import numpy as np
 from scipy import stats
 
 from pilot_proxy.config.project import default_project
-from pilot_proxy.detectors.narrowband_marker.exchangeability import Exchangeability, exchangeability_rate
+from pilot_proxy.detectors.narrowband_marker.exchangeability import (
+    Exchangeability,
+    exchangeability_rate,
+)
 from pilot_proxy.products.reader import Product, fine_power_ratio
 
 from . import blocks, eras

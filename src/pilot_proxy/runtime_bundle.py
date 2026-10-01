@@ -18,10 +18,15 @@ from pilot_proxy.detector_contract import (
     build_detector_contract,
     detector_contract_sha256,
     input_coordinate_system_for_weight_coordinate,
-    null_power_ratio_from_weight_norms,
     normalize_weight_coordinate_system,
+    null_power_ratio_from_weight_norms,
     validate_detector_contract,
     weight_term_norms_sq,
+)
+from pilot_proxy.fine_decision import FINE_DECISION_VERSION
+from pilot_proxy.fine_reduction import (
+    CFAR_DEFAULT_GUARD_FINE_BINS,
+    FINE_PAD_FACTOR,
 )
 from pilot_proxy.integration import (
     load_detector_core_profile,
@@ -33,11 +38,6 @@ from pilot_proxy.integration.stream_layout import validate_integration_compatibi
 from pilot_proxy.integration.weight_generation import (
     generate_weight_table_from_receiver_profile,
     profile_requires_window_time_reversal,
-)
-from pilot_proxy.fine_decision import FINE_DECISION_VERSION
-from pilot_proxy.fine_reduction import (
-    CFAR_DEFAULT_GUARD_FINE_BINS,
-    FINE_PAD_FACTOR,
 )
 from pilot_proxy.json_utils import write_json_strict
 from pilot_proxy.provenance import file_sha256

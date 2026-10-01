@@ -4,9 +4,9 @@ from __future__ import annotations
 import functools
 import importlib.metadata
 import os
-from pathlib import Path
 import re
 import subprocess
+from pathlib import Path
 from subprocess import run as _run_git
 
 from pilot_proxy import __version__

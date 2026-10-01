@@ -17,6 +17,7 @@ the per-frame 2-D arrays shaped ``(frames, 1)``.
 """
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import shutil
@@ -29,12 +30,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterator, Mapping, Sequence
 
-import fcntl
-
 import numpy as np
 
 from pilot_proxy.archive.chime_coarse import CHIME_COARSE_WIDTH_HZ
-
 from pilot_proxy.atomic_io import (
     atomic_write_json,
     create_temporary_sibling,
@@ -62,22 +60,21 @@ from pilot_proxy.detector_contract import (
     normalized_positive_excess_policy,
     validate_detector_contract,
 )
+from pilot_proxy.product_contract import (
+    PER_FRAME_PRODUCT_KEYS,
+    CurrentProductContractError,
+    exact_integer_array,
+    exact_integer_scalar,
+    null_power_ratio_of,
+    validate_current_product_identity,
+)
 from pilot_proxy.provenance import (
     detector_version_build_id,
     detector_version_geometry,
     file_sha256,
 )
-from pilot_proxy.product_contract import (
-    PER_FRAME_PRODUCT_KEYS,
-    null_power_ratio_of,
-    CurrentProductContractError,
-    exact_integer_array,
-    exact_integer_scalar,
-    validate_current_product_identity,
-)
 
 from .chime_coarse import source_event_key
-
 
 _PUBLISH_JOURNAL_SCHEMA = "pilotproxy_combine_publish_journal_v1"
 _PUBLISH_LOCK_SCHEMA = "pilotproxy_combine_publish_lock_v1"

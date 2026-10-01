@@ -23,7 +23,12 @@ import math
 from dataclasses import dataclass, replace
 from typing import Sequence
 
-from pilot_proxy.characterization.surface import MIN_KEPT, SELECTOR_ORDER, FrontierPoint, TieRule
+from pilot_proxy.characterization.surface import (
+    MIN_KEPT,
+    SELECTOR_ORDER,
+    FrontierPoint,
+    TieRule,
+)
 from pilot_proxy.config.integration_model import IntegrationModel
 
 

@@ -21,6 +21,14 @@ from pilot_proxy.detector_contract import (
 from pilot_proxy.json_utils import write_json_strict
 from pilot_proxy.provenance import file_sha256
 
+from .hdf5_input import (
+    CHIME_NATIVE_OFFSET_BINARY_COMPLEX_INT4,
+    COMPLEX_FLOAT,
+    PACKED_TWOS_COMPLEMENT_COMPLEX_INT4,
+    REAL_IMAG_LAST_AXIS,
+    STRUCTURED_COMPLEX,
+    UNKNOWN_ENCODING,
+)
 from .products import (
     CHIME_COMBINE_CANONICAL_RELATIVE_PATHS,
     CHIME_COMBINE_GENERATION_MANIFEST_FILENAME,
@@ -30,14 +38,6 @@ from .products import (
     CHIME_INPUT_MANIFEST_SCHEMA_TOKEN,
     CHIME_SPECTROGRAM_CACHE_FILENAME,
     SCAN_INPUT_MANIFEST_SCHEMA_TOKEN,
-)
-from .hdf5_input import (
-    CHIME_NATIVE_OFFSET_BINARY_COMPLEX_INT4,
-    COMPLEX_FLOAT,
-    PACKED_TWOS_COMPLEMENT_COMPLEX_INT4,
-    REAL_IMAG_LAST_AXIS,
-    STRUCTURED_COMPLEX,
-    UNKNOWN_ENCODING,
 )
 from .reductions import CHIME_REDUCTIONS_10S_FILENAME
 

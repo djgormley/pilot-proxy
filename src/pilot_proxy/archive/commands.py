@@ -26,7 +26,6 @@ from .invpaths import inventory_dir_for_write
 from .names import validate_identifier
 from .sources import CadcDatatrailSource, LocalDirectorySource
 
-
 _ARCHIVE_SOURCE = "cadc-datatrail"
 _LOCAL_SOURCE = "local"
 _SURVEY_READER = "chime-baseband"

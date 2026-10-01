@@ -6,9 +6,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from pilot_proxy.schema_identity import schema_token
-
 import numpy as np
+
+from pilot_proxy.schema_identity import schema_token
 
 SPECTRAL_SENSE_NORMAL = "normal"
 SPECTRAL_SENSE_INVERTED = "inverted"

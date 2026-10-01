@@ -12,12 +12,17 @@ from __future__ import annotations
 
 from typing import Iterable, Iterator, Mapping
 
-from pilot_proxy.archive.interfaces import (Reader, RunContext, PluginInfo, READY,
-                                            STREAM_COMPLEX_BASEBAND)
+from pilot_proxy.archive.interfaces import (
+    READY,
+    STREAM_COMPLEX_BASEBAND,
+    PluginInfo,
+    Reader,
+    RunContext,
+)
 from pilot_proxy.archive.names import baseband_filename
+
 from . import baseband_format as fmt
 from .unreadable import unreadable_file
-
 
 # A truncated baseband object can still be valid HDF5, but archive objects this
 # small cannot contain even a useful fraction of the native payload. The floor

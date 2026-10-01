@@ -113,7 +113,14 @@ from typing import Sequence
 import numpy as np
 
 from pilot_proxy.characterization import blocks
-from pilot_proxy.products.reader import FINE_BIN_HZ, FINE_BINS, Geometry, Product, fine_hz_of_bin, fine_power_ratio
+from pilot_proxy.products.reader import (
+    FINE_BIN_HZ,
+    FINE_BINS,
+    Geometry,
+    Product,
+    fine_hz_of_bin,
+    fine_power_ratio,
+)
 
 MIN_COHORT_FRAMES = 30
 WINDOW_HALF_WIDTH = 30

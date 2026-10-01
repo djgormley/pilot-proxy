@@ -60,8 +60,13 @@ import numpy as np
 
 from pilot_proxy.config.integration_model import IntegrationModel
 from pilot_proxy.config.project import default_project
-from pilot_proxy.detectors.narrowband_marker.shelf import (DEFAULT_TRIM_PERCENTILE, ShelfStatistics, _nested_split,
-                                                           _on_epoch, shelf_statistics)
+from pilot_proxy.detectors.narrowband_marker.shelf import (
+    DEFAULT_TRIM_PERCENTILE,
+    ShelfStatistics,
+    _nested_split,
+    _on_epoch,
+    shelf_statistics,
+)
 from pilot_proxy.products.npzio import load_npz
 from pilot_proxy.products.reader import Product
 

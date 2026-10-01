@@ -149,7 +149,14 @@ from typing import Iterable, Sequence
 
 import numpy as np
 
-from pilot_proxy.products.reader import FINE_BIN_HZ, NFFT, PSD_BIN_HZ, SAMPLE_RATE_HZ, Geometry, Product
+from pilot_proxy.products.reader import (
+    FINE_BIN_HZ,
+    NFFT,
+    PSD_BIN_HZ,
+    SAMPLE_RATE_HZ,
+    Geometry,
+    Product,
+)
 
 SPANS = (64, 128, 256)
 TARGET_K = 128                                   # the campaign's tap length: the in-span lobe lives here

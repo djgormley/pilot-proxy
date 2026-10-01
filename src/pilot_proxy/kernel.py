@@ -6,6 +6,7 @@ from __future__ import annotations
 import ctypes
 import operator
 import os
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
@@ -18,9 +19,6 @@ FINE_WINDOWS_PER_STREAM = 128
 # =============================================================================
 # Data Classes
 # =============================================================================
-
-
-from dataclasses import dataclass
 
 
 @dataclass

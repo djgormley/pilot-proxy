@@ -7,9 +7,9 @@ SciPy is required (the ``test`` extra supplies it).
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
 import hashlib
 import math
+from dataclasses import asdict, dataclass
 
 import numpy as np
 from scipy.signal import firwin, upfirdn

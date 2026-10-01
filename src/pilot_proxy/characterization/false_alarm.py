@@ -45,15 +45,15 @@ lower bound.
 """
 from __future__ import annotations
 
-from fractions import Fraction
 import math
+from fractions import Fraction
 from numbers import Integral, Real
 from typing import Mapping
 
 import numpy as np
 from scipy import stats
-from scipy.stats import beta, betabinom, binom
 from scipy.special import logsumexp
+from scipy.stats import beta, betabinom, binom
 
 from pilot_proxy.config.project import default_project
 

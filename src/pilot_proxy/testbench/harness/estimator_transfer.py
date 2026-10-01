@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Sequence
 
 import matplotlib
+
 matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt
 import numpy as np

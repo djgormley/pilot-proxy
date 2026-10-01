@@ -34,10 +34,10 @@ convenient approximation of it:
 """
 from __future__ import annotations
 
+import math
 from bisect import bisect_left
 from dataclasses import dataclass
 from functools import cmp_to_key
-import math
 from typing import Any, Iterable, Mapping, Sequence
 
 import numpy as np

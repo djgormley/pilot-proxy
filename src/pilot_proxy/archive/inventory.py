@@ -14,7 +14,6 @@ from . import invpaths
 from .names import validate_identifier
 from .survey_provenance import inventory_identity, runtime_provenance
 
-
 INVENTORY_META_SCHEMA_KEY = "datatrawl_inventory"
 INVENTORY_META_SCHEMA_VERSION = 1
 _MAX_SLUG_LENGTH = 40

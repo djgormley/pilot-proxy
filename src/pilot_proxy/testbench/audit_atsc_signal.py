@@ -11,8 +11,8 @@ from typing import Any
 
 import numpy as np
 
-from pilot_proxy.json_utils import write_json_strict
 from pilot_proxy.dtv_units import PILOT_BELOW_DATA_DB
+from pilot_proxy.json_utils import write_json_strict
 from pilot_proxy.testbench.quantize import (
     ATSC_CHANNEL_WIDTH_HZ,
     ATSC_PILOT_OFFSET_HZ,

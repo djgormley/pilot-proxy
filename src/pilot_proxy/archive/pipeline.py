@@ -35,9 +35,15 @@ from dataclasses import dataclass
 from numbers import Integral
 from typing import Iterable, Optional
 
-from .interfaces import (DataSource, Reader, Analyzer, RunContext, Unit,
-                         UnreadableUnitError, stream_compatibility)
-
+from .interfaces import (
+    Analyzer,
+    DataSource,
+    Reader,
+    RunContext,
+    Unit,
+    UnreadableUnitError,
+    stream_compatibility,
+)
 
 _WORKER_POLL_SECONDS = 0.1
 # How long an abnormal stop waits for its download workers. A failure aborts

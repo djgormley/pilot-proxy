@@ -26,27 +26,33 @@ decision plus Q16 one (:func:`candidate_eta_q16`).
 """
 from __future__ import annotations
 
-from collections.abc import Iterator, Mapping, Sequence
-from dataclasses import dataclass
-from functools import cmp_to_key
 import hashlib
 import json
 import math
-from numbers import Integral
 import os
-from pathlib import Path
 import tempfile
+from collections.abc import Iterator, Mapping, Sequence
+from dataclasses import dataclass
+from functools import cmp_to_key
+from numbers import Integral
+from pathlib import Path
 
 import numpy as np
 
 from pilot_proxy import __version__
+from pilot_proxy.characterization.surface import (
+    ALWAYS_MASKED_Q16,
+    MAX_MULTIPLIER_Q16,
+    Q16_SCALE,
+)
 from pilot_proxy.config.project import default_project
-from pilot_proxy.characterization.surface import (ALWAYS_MASKED_Q16, MAX_MULTIPLIER_Q16,
-                                                  Q16_SCALE)
-from pilot_proxy.products.reader import (FINE_BINS, PRODUCT_SCHEMA_NAME,
-                                         PRODUCT_SCHEMA_REVISION, PRODUCT_SCHEMA_TOKEN,
-                                         SOURCE_EVENT_KEY_SCHEMA)
-
+from pilot_proxy.products.reader import (
+    FINE_BINS,
+    PRODUCT_SCHEMA_NAME,
+    PRODUCT_SCHEMA_REVISION,
+    PRODUCT_SCHEMA_TOKEN,
+    SOURCE_EVENT_KEY_SCHEMA,
+)
 
 SCORE_BUNDLE_SCHEMA = "residual_score_bundle_v2"
 _PRODUCER_SCHEMA = "residual_score_producer_v2"
