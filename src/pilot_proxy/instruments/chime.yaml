@@ -25,6 +25,16 @@ scopes:
 reader: chime-baseband   # canonical reader; `scan` uses it when --reader is
                          # omitted (override for a different file format).
 
+# Feed layout: input i sits on cylinder i // inputs_per_cylinder, EW spacing
+# ew_spacing_m between cylinders, at NS position i % positions_per_cylinder,
+# ns_spacing_m between positions (each cylinder holds both polarisations of
+# its positions). The capture's baseline lengths and bearing fit read it.
+feed_layout:
+  ew_spacing_m: 22.0
+  ns_spacing_m: 0.3048
+  inputs_per_cylinder: 512
+  positions_per_cylinder: 256
+
 # Site: the DRAO longitude (east-positive degrees) used for local mean sidereal
 # time, and the IANA zone of local civil time.
 site:

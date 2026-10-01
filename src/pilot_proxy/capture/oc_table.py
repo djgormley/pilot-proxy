@@ -72,7 +72,7 @@ SCHEMA_ID = f"{SCHEMA_NAME}_v{SCHEMA_VERSION}"
 SCHEMA_FILE = Path(__file__).resolve().parent / "schemas" / f"{SCHEMA_ID}.schema.json"
 TABLE, SUMMARY, TAU_BOUNDS, MANIFEST = ("capture_oc_table.csv", "capture_oc_summary.csv", "capture_tau_bounds.csv",
                                         "manifest.json")
-CLASSES = ((0, 1), (0, 8), (0, 32), (0, 64), (0, 128), (0, 255), (1, 0), (1, 32), (2, 0), (3, 0))
+CLASSES = units.TEN_CLASSES
 PRODUCTS = ("xx", "yy", "stokes_i", "polmax")
 POL_OF_PRODUCT = {"xx": "0", "yy": "1", "stokes_i": "I"}
 BANKS = ("nominal", "measured_marker")

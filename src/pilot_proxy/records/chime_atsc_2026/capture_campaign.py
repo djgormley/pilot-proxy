@@ -19,6 +19,10 @@ LAG_REFERENCE_BANDS = (34, 37)
 # detector runs per bank: the archive's nominal bank, and the measured-marker bank of band 33
 DETECTOR_RUNS = {"nominal": "kernel_{event}_k230", "measured_marker": "kernel_{event}_k230_ch33measured"}
 MEASURED_MARKER_BANDS = ("33",)
+# census bearings (deg east of north) of the stations the bearing fit calibrates its sign convention on, and the
+# bands whose emitter's bearing it reads under that convention (capture bearing)
+STATION_BEARINGS_DEG = {17: 272.2, 35: 272.1, 22: 11.6, 21: 251.3}
+BEARING_UNKNOWN_BANDS = (33, 14, 36)
 
 
 def dataset_dir(root, event):
@@ -27,5 +31,5 @@ def dataset_dir(root, event):
     return os.path.join(root, f"pilot_reduce_{event}")
 
 
-__all__ = ["CADENCE_EVENTS", "DETECTOR_RUNS", "LAG_REFERENCE_BANDS", "MEASURED_MARKER_BANDS", "SCIENCE_EVENTS",
-           "dataset_dir"]
+__all__ = ["BEARING_UNKNOWN_BANDS", "CADENCE_EVENTS", "DETECTOR_RUNS", "LAG_REFERENCE_BANDS", "MEASURED_MARKER_BANDS",
+           "SCIENCE_EVENTS", "STATION_BEARINGS_DEG", "dataset_dir"]

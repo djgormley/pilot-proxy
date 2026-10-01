@@ -18,6 +18,9 @@ import os
 
 import numpy as np
 
+# The ten baseline classes the capture reads, as (EW step, NS step), in the order of every capture table.
+TEN_CLASSES = ((0, 1), (0, 8), (0, 32), (0, 64), (0, 128), (0, 255), (1, 0), (1, 32), (2, 0), (3, 0))
+
 
 def to_power(a, n_b, n_frame):
     """The per-frame covariance ratio ``A_net^2 N n_b`` of a net class amplitude. A reading at or below zero is
@@ -66,5 +69,5 @@ def frame_samples(project=None):
     return int(project.detector_config.nfft)
 
 
-__all__ = ["class_baseline_count", "class_column", "first_product", "frame_samples", "frames_per_dump",
+__all__ = ["TEN_CLASSES", "class_baseline_count", "class_column", "first_product", "frame_samples", "frames_per_dump",
            "gate_power", "to_power"]

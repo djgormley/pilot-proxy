@@ -29,8 +29,9 @@ import sys
 import numpy as np
 
 from .markers import control_bands, resolve_project
+from .units import TEN_CLASSES
 
-CLASSES = [(0, 1), (0, 8), (0, 32), (0, 64), (0, 128), (0, 255), (1, 0), (1, 32), (2, 0), (3, 0)]
+CLASSES = list(TEN_CLASSES)
 
 
 def science_events(project):
@@ -62,7 +63,11 @@ def load(ev, *, datasets, nfft):
     return out
 
 
-def rows_for(eps, control):
+def rows_for(eps, control, layout=None):
+    """Rows of baseline_floor.csv; ``layout`` is the instrument's feed layout (the default project's when None)."""
+    if layout is None:
+        layout = resolve_project(None).instrument.feed_layout
+    ew_m, ns_m = layout.ew_spacing_m, layout.ns_spacing_m
     chans = sorted({v["ch"] for e in eps.values() for v in e.values()})
     rows = []
     for c in CLASSES:
@@ -77,7 +82,7 @@ def rows_for(eps, control):
                     v = [e[f]["x"][key] for f in e if e[f]["ch"] == ch]
                     if v: per_dump.append(float(np.nanmedian(v)))
                 A = float(np.nanmedian(per_dump)) if per_dump else np.nan
-                rows.append(dict(channel=ch, ew=c[0], ns=c[1], baseline_m=round(c[0] * 22.0 + c[1] * 0.3048, 2) if c[0] == 0 or c[1] == 0 else round(np.hypot(c[0] * 22.0, c[1] * 0.3048), 2), pol=p, A=A, floor_mean=fl_mean, floor_sd=fl_sd, A_over_floor=(A / fl_mean if fl_mean > 0 else np.nan), A_minus_floor_over_sd=((A - fl_mean) / fl_sd if fl_sd > 0 else np.nan)))
+                rows.append(dict(channel=ch, ew=c[0], ns=c[1], baseline_m=round(c[0] * ew_m + c[1] * ns_m, 2) if c[0] == 0 or c[1] == 0 else round(np.hypot(c[0] * ew_m, c[1] * ns_m), 2), pol=p, A=A, floor_mean=fl_mean, floor_sd=fl_sd, A_over_floor=(A / fl_mean if fl_mean > 0 else np.nan), A_minus_floor_over_sd=((A - fl_mean) / fl_sd if fl_sd > 0 else np.nan)))
     return chans, rows
 
 
@@ -92,7 +97,7 @@ def main(argv=None):
     control = control_bands(project); nfft = int(project.detector_config.nfft)
     DUMPS = args.events.split(",") if args.events else science_events(project)
     eps = {ev: load(ev, datasets=args.datasets, nfft=nfft) for ev in DUMPS}
-    chans, rows = rows_for(eps, control)
+    chans, rows = rows_for(eps, control, project.instrument.feed_layout)
     os.makedirs(args.out_dir, exist_ok=True)
     with open(os.path.join(args.out_dir, "baseline_floor.csv"), "w") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)

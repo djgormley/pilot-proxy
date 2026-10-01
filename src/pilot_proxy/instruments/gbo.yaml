@@ -8,4 +8,5 @@ n_feeds: 256             # outriggers (CHIME is 2048); same across gbo/hco/kko
 scopes:
   - gbo.event.baseband.raw
 
+feed_layout: null       # no layout recorded; do not inherit CHIME's
 site: null               # no site recorded; do not inherit CHIME's

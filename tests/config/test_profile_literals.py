@@ -324,6 +324,23 @@ LITERALS = {
     "capture_ruling_detection_gate_sigma": (
         "capture ruling release r5.2 source/ruling_a18.py:143 NSIG (record d53fbe48)", "pinned", 3.0,
         lambda: P.register.value("capture.detection_gate_sigma")),
+    "capture_bearing_ew_spacing": (
+        "pilot-proxy src/pilot_proxy/capture/diagnostics/bearing.py:22 EW_M (also capture/control_level.py:80)",
+        "moved", 22.0, lambda: P.instrument.feed_layout.ew_spacing_m),
+    "capture_bearing_ns_spacing": (
+        "pilot-proxy src/pilot_proxy/capture/diagnostics/bearing.py:22 NS_M (also capture/control_level.py:80)",
+        "moved", 0.3048, lambda: P.instrument.feed_layout.ns_spacing_m),
+    "capture_bearing_layout": (
+        "pilot-proxy src/pilot_proxy/capture/diagnostics/bearing.py:28 layout (i // 512, i % 256)",
+        "moved", (512, 256),
+        lambda: (P.instrument.feed_layout.inputs_per_cylinder, P.instrument.feed_layout.positions_per_cylinder)),
+    "capture_bearing_known_stations": (
+        "pilot-proxy src/pilot_proxy/capture/diagnostics/bearing.py:23 KNOWN", "moved",
+        {17: 272.2, 35: 272.1, 22: 11.6, 21: 251.3},
+        lambda: P.record_module("capture_campaign").STATION_BEARINGS_DEG),
+    "capture_bearing_unknown_bands": (
+        "pilot-proxy src/pilot_proxy/capture/diagnostics/bearing.py:24 UNKNOWN", "moved", [33, 14, 36],
+        lambda: list(P.record_module("capture_campaign").BEARING_UNKNOWN_BANDS)),
     # ---- eras -------------------------------------------------------------------
     "rfisher_sign_on_off_through": (
         "RFIsher src/rfisher/residual.py:135 SIGN_ON_OFF_THROUGH",
@@ -466,6 +483,7 @@ MOVED_NAMES = {
     "capture/tau_bounds.py": {"AC_LANE", "AC_CHECK", "FITS_CHECK", "B3_NULL", "B4_BOUNDS", "EVID"},
     "capture/diagnostics/band_shape.py": {"NFFT", "W"},
     "capture/diagnostics/line_check.py": {"NFFT", "W", "DK"},
+    "capture/diagnostics/bearing.py": {"EW_M", "NS_M", "KNOWN", "UNKNOWN"},
     "detectors/narrowband_marker/marker_to_inband.py": {"NFFT", "PILOT", "SCI", "OUT"},
 }
 

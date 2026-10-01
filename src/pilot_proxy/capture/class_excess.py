@@ -34,8 +34,9 @@ import sys
 import numpy as np
 
 from .markers import control_bands, resolve_project
+from .units import TEN_CLASSES
 
-CLASSES = [(0, 1), (0, 8), (0, 32), (0, 64), (0, 128), (0, 255), (1, 0), (1, 32), (2, 0), (3, 0)]
+CLASSES = list(TEN_CLASSES)
 PRODUCT_SETS = {"xx,yy": (0, 1), "stokes_i": ("I",)}
 
 

@@ -39,8 +39,10 @@ _INSTRUMENT_DIR = os.path.join(
 DEFAULT_NFFT = 16384
 _INSTRUMENT_KEYS = frozenset({
     "name", "band", "nyquist_zone", "n_feeds", "nfft", "scopes", "reader", "site",
+    "feed_layout",
 })
 _SITE_KEYS = frozenset({"longitude_deg_east", "time_zone"})
+_FEED_LAYOUT_KEYS = ("ew_spacing_m", "ns_spacing_m", "inputs_per_cylinder", "positions_per_cylinder")
 _BAND_KEYS = frozenset({
     "f0_mhz", "bandwidth_mhz", "n_channels", "descending",
 })
@@ -49,6 +51,17 @@ _BAND_KEYS = frozenset({
 # --------------------------------------------------------------------------
 # Instrument geometry
 # --------------------------------------------------------------------------
+@dataclass(frozen=True)
+class FeedLayout:
+    """Where each input sits: cylinder ``i // inputs_per_cylinder`` (EW step
+    ``ew_spacing_m``) and position ``i % positions_per_cylinder`` (NS step
+    ``ns_spacing_m``)."""
+    ew_spacing_m: float
+    ns_spacing_m: float
+    inputs_per_cylinder: int
+    positions_per_cylinder: int
+
+
 @dataclass
 class Instrument:
     name: str
@@ -68,6 +81,7 @@ class Instrument:
     site_longitude_deg: Optional[float] = None  # east-positive site longitude;
                            # None when the file records no site
     local_time_zone: str = ""  # IANA zone of the site's civil time ("" if none)
+    feed_layout: Optional[FeedLayout] = None  # None when the file records none
 
     @property
     def fs_hz(self) -> float:
@@ -304,6 +318,7 @@ def _instrument_from_config(requested_name: str, cfg: Mapping) -> Instrument:
 
     site_longitude_deg, local_time_zone = _site_from_config(
         requested_name, cfg.get("site"))
+    feed_layout = _feed_layout_from_config(requested_name, cfg.get("feed_layout"))
 
     return Instrument(
         name=configured_name,
@@ -318,7 +333,25 @@ def _instrument_from_config(requested_name: str, cfg: Mapping) -> Instrument:
         reader=reader,
         site_longitude_deg=site_longitude_deg,
         local_time_zone=local_time_zone,
+        feed_layout=feed_layout,
     )
+
+
+def _feed_layout_from_config(requested_name: str, layout) -> Optional[FeedLayout]:
+    """Validate the optional ``feed_layout`` block (``null``: none recorded)."""
+    if layout is None:
+        return None
+    if not isinstance(layout, Mapping) or set(layout) != set(_FEED_LAYOUT_KEYS):
+        raise ValueError(
+            f"instrument {requested_name!r}: feed_layout must be null or a mapping of "
+            f"exactly {list(_FEED_LAYOUT_KEYS)}")
+    values = {}
+    for key in _FEED_LAYOUT_KEYS:
+        integer = not key.endswith("_m")
+        values[key] = _positive_number(layout[key], field=f"feed_layout.{key}", integer=integer)
+        if not integer:
+            values[key] = float(values[key])
+    return FeedLayout(**values)
 
 
 def _site_from_config(requested_name: str, site) -> tuple[Optional[float], str]:
