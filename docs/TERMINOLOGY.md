@@ -13,6 +13,7 @@ sides use, with the same code names.
 | F (coarse power ratio) | `coarse_power_ratio` (product field) |
 | μ0 | `null_power_ratio` (`pilot_proxy.detector_contract.null_power_ratio_from_weight_norms`) |
 | Q = F/μ0 | `normalized_coarse_power_ratio`; OC column `statistic` = `Q` |
+| e_p = Q − 1 | `normalized_pilot_excess` |
 | Z_ρ, the fine OS-CFAR score | `pilot_proxy.detectors.narrowband_marker.scores.required_eta_q16_by_rank`; OC column `statistic` = `Z_rho` |
 | ρ, η, η_q16 | `rho`, `eta`, `eta_q16` |
 | M (marker bins), B (bulk) | `marker_bins`, `bulk` |
@@ -123,13 +124,13 @@ The normalized ratio and physical pilot excess are
 \[
 Q_\mathrm{coarse}=R_\mathrm{coarse}/R_\mathrm{null},
 \qquad
-\rho=Q_\mathrm{coarse}-1.
+e_p=Q_\mathrm{coarse}-1.
 \]
 
 `reject_mask` uses the exact integer form of `Q_coarse > 1`.
 `normalized_coarse_power_ratio_db = 10 log10(Q_coarse)` is the plotted level,
 so the null and the active positive-excess boundary are both exactly 0 dB.
-The reported `pilot_excess_db` is `10 log10(rho)` where `rho > 0`, and
+The reported `pilot_excess_db` is `10 log10(e_p)` where `e_p > 0`, and
 `estimated_data_shelf_snr_db` is derived from that same normalized excess.
 The linear `coarse_power_ratio` remains available for exact reconstruction;
 `raw_pilot_excess = R_coarse - 1` is diagnostic-only and is not a physical PNR.

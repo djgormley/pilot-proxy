@@ -22,9 +22,9 @@ can be totalled over the same kept frames for the claim and for the truth.
 Nothing in the masking path is re-derived for the bench.  The per-rank Q16
 boundary, the keep rule, the empirical candidate staircase, the retained-frame
 floor and the shelf-or-floor residual convention are transcribed in
-``pilot_proxy.testbench.mask_frontier`` from the deployed selector
-(``rfisher.residual_scores``, ``rfisher.preparation``, ``rfisher.thresholds``,
-``rfisher_results.archive.selection`` and ``.nulls``); a frontier drawn with a
+``pilot_proxy.testbench.mask_frontier`` from the detector's score and
+characterization modules (``pilot_proxy.detectors.narrowband_marker.scores``,
+``pilot_proxy.characterization.surface`` and ``.nulls``); a frontier drawn with a
 different rule would validate nothing.  The waveform, reference-PFB
 normalization, weight profile, designated set and bulk mask come from
 ``tools/current_geometry_sensitivity.py`` so that these frames are the frames

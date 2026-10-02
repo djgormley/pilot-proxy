@@ -6,7 +6,7 @@ The capture characterization measures, on those dumps, what the detector side ow
 and the control band's level, the frame residual, the cadence coherence time and its within-dump lower bounds, the
 phasor coherence between dumps, the lag moments of the in-band voltages, and where each dump sits on the band's
 archive ladder. It writes one handoff for the science side, `capture_operating_characteristic_v1`. No tolerance,
-credit, gain model or disposition is computed here: the capture ruling (the table of record) is the science side's.
+post-processing sensitivity, gain model or disposition is computed here: the capture ruling (the table of record) is the science side's.
 `capture cadence-report` writes the cadence report up to its phase-coherence section; the report of record goes on
 with the table of record's dispositions, which RFIsher appends (`rfisher records cadence-report`).
 

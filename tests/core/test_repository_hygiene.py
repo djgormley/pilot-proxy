@@ -2,6 +2,7 @@
 to a removed path except at the commit that holds it, and the byte-pinned record modules unchanged."""
 from __future__ import annotations
 
+import ast
 import hashlib
 import re
 import subprocess
@@ -80,6 +81,78 @@ def test_no_reference_to_a_removed_path():
         for m in pattern.finditer(text):
             found.append(f"{f}:{text.count(chr(10), 0, m.start()) + 1}: {m.group(1)}")
     assert not found, found
+
+
+def _path_parts(node):
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value.split("/")
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+        return _path_parts(node.left) + _path_parts(node.right)
+    if isinstance(node, ast.Call):
+        name = ast.unparse(node.func)
+        if name in ("Path", "pathlib.Path", "os.path.join", "path.join", "join"):
+            return [part for arg in node.args for part in _path_parts(arg)]
+        if isinstance(node.func, ast.Attribute) and node.func.attr == "joinpath":
+            return _path_parts(node.func.value) + [
+                part for arg in node.args for part in _path_parts(arg)
+            ]
+    return [None]
+
+
+def _composed_removed_paths(text, removed, tracked):
+    tails = {}
+    for path in removed:
+        parts = path.split("/")
+        for count in range(2, len(parts) + 1):
+            tails.setdefault("/".join(parts[-count:]), set()).add(path)
+    live_tails = {
+        "/".join(path.split("/")[-count:])
+        for path in tracked for count in range(2, len(path.split("/")) + 1)
+    }
+    found = set()
+    for node in ast.walk(ast.parse(text)):
+        if not isinstance(node, (ast.BinOp, ast.Call)):
+            continue
+        parts = _path_parts(node)
+        start = max((i + 1 for i, part in enumerate(parts) if part is None), default=0)
+        suffix = parts[start:]
+        for count in range(len(suffix), 1, -1):
+            tail = "/".join(suffix[-count:])
+            if tail in tails and (tail in removed or tail not in live_tails):
+                found.add((node.lineno, tail))
+                break
+    return sorted(found)
+
+
+def test_no_removed_path_composed_in_code():
+    tracked = _tracked()
+    removed = _removed()
+    found = []
+    for path in tracked:
+        if path.endswith(".py") and not path.startswith(RECORDS):
+            found.extend(
+                f"{path}:{line}: {tail}"
+                for line, tail in _composed_removed_paths(_text(path) or "", removed, tracked)
+            )
+    assert not found, found
+
+
+@pytest.mark.parametrize("expression", [
+    'ROOT / "retired" / "reader.py"',
+    'Path("retired") / "reader.py"',
+    'os.path.join(ROOT, "retired", "reader.py")',
+    'ROOT.joinpath("retired", "reader.py")',
+])
+def test_composed_path_check_finds_removed_files(expression):
+    assert _composed_removed_paths(expression, {"retired/reader.py"}, [])
+
+
+def test_composed_path_check_preserves_dynamic_parts_and_live_tails():
+    removed = {"old/retired/reader.py"}
+    assert not _composed_removed_paths('ROOT / "retired" / name / "reader.py"', removed, [])
+    assert not _composed_removed_paths(
+        'ROOT / "retired" / "reader.py"', removed, ["new/retired/reader.py"]
+    )
 
 
 def test_a_cited_removed_path_exists_at_its_commit():

@@ -67,6 +67,8 @@ def rows_for(eps, control, layout=None):
     """Rows of baseline_floor.csv; ``layout`` is the instrument's feed layout (the default project's when None)."""
     if layout is None:
         layout = resolve_project(None).instrument.feed_layout
+    if layout is None:
+        raise ValueError("the instrument records no feed layout")
     ew_m, ns_m = layout.ew_spacing_m, layout.ns_spacing_m
     chans = sorted({v["ch"] for e in eps.values() for v in e.values()})
     rows = []
@@ -94,6 +96,8 @@ def main(argv=None):
     ap.add_argument("--project", default=None)
     args = ap.parse_args(argv)
     project = resolve_project(args.project)
+    if project.instrument.feed_layout is None:
+        ap.error("the instrument records no feed layout")
     control = control_bands(project); nfft = int(project.detector_config.nfft)
     DUMPS = args.events.split(",") if args.events else science_events(project)
     eps = {ev: load(ev, datasets=args.datasets, nfft=nfft) for ev in DUMPS}

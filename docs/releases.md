@@ -30,10 +30,14 @@ row 11.
 | 16 | `docs/evidence/youden_j_2026-09-07` | the Youden J table (`characterize roc`) and the table of `DESIGN_DECISIONS.md` | 30e50c2 | release environment |
 | 17 | `noise_signal_references_2026-09-09` | the coarse power response and the coarse reference-law figures (`tools/plot_coarse_power_response.py`, `tools/plot_coarse_reference_laws.py`) | 30e50c2 | release environment, with the plotter's `/usr/bin/python3.12` identity check bypassed as the refactor's ruling R16 records |
 | 18 | the archive acceptance report | `products check-archive` | 30e50c2 | release environment |
-| 6 | the capture's detector tables vendored by the dissertation, and the frozen `CADENCE_REPORT.md` | frame residuals, cadence and lag coherence (`capture frame-residual`, `capture cadence`), the cadence report up to its table of record section (`capture cadence-report`; the science side appends the rest) | 30e50c2 | archive environment for the frame residuals, release environment for the cadence tables, dissertation environment for `marker-to-inband` |
+| 6 | the capture's detector tables vendored by the dissertation, and the frozen `CADENCE_REPORT.md` | frame residuals, cadence and lag coherence (`capture frame-residual`, `capture cadence`), and the complete cadence report (`capture cadence-report` at this replay commit; see the split below) | 30e50c2 | archive environment for the frame residuals, release environment for the cadence tables, dissertation environment for `marker-to-inband` |
 | 9 | the frame policies of the 2026 capture | `records frame-policy` (`records/chime_atsc_2026/frame_policy.py`, c49ae37f) | 30e50c2 | archive environment |
 | 22 | the Stokes I study inputs | the Stokes I cadence, class excess and summary inputs (the capture's `--products stokes_i` options) | 30e50c2 | release environment |
 | 7, 21 | the capture handoff | the detector half of the table of record and of the capture ruling (`capture oc-table`) | 30e50c2 | release environment |
 
 Rows 1c to 1f, 2, 3, 8 and 13 and the science halves of rows 7 and 21 are the
 science side's (RFIsher `docs/releases.md`).
+
+At 30e50c2, `capture cadence-report` writes the complete report and takes
+the table of record as an input. From 728af5e, it writes only the detector
+section; `rfisher records cadence-report` appends the science section.

@@ -53,7 +53,7 @@ _BAND_KEYS = frozenset({
 # --------------------------------------------------------------------------
 @dataclass(frozen=True)
 class FeedLayout:
-    """Where each input sits: cylinder ``i // inputs_per_cylinder`` (EW step
+    """A cylinder array's input layout: cylinder ``i // inputs_per_cylinder`` (EW step
     ``ew_spacing_m``) and position ``i % positions_per_cylinder`` (NS step
     ``ns_spacing_m``)."""
     ew_spacing_m: float

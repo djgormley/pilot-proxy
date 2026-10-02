@@ -117,3 +117,5 @@ combine-as-imports = true
 # the estimator-transfer freezer holds plot_results.py to its blob at the tag
 # estimator-transfer-publication-source-20260826
 "src/pilot_proxy/testbench/plot_results.py" = ["E", "W", "I"]
+# Keep backend selection immediately after the matplotlib import.
+"src/pilot_proxy/figure_style.py" = ["I"]

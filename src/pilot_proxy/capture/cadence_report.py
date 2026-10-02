@@ -34,7 +34,12 @@ def main(argv=None):
     if len(argv) < 3 or argv[0] in ("-h", "--help"):
         print(__doc__.split("\n\n")[-1], file=sys.stderr)
         return 0 if argv and argv[0] in ("-h", "--help") else 2
-    if len(argv) > 4 or (len(argv) == 4 and _is_table_of_record(argv[3])):
+    try:
+        has_record = len(argv) == 4 and _is_table_of_record(argv[3])
+    except OSError as exc:
+        print(f"cannot read cadence input: {exc}", file=sys.stderr)
+        return 2
+    if len(argv) > 4 or has_record:
         print("the table of record is not an input of this report: its section is written by the science side, "
               f"`{SCIENCE_COMMAND}`, from the file this command writes", file=sys.stderr)
         return 2

@@ -96,16 +96,25 @@ def selftest(project=None):
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
+    usage = next(line for line in __doc__.splitlines() if line.startswith("usage:"))
+    if "-h" in argv or "--help" in argv:
+        print(usage)
+        return 0
     project_dir = None
     if "--project" in argv:
-        i = argv.index("--project"); project_dir = argv[i + 1]; del argv[i:i + 2]
+        i = argv.index("--project")
+        if i + 1 == len(argv) or argv[i + 1].startswith("--"):
+            print("--project requires a directory", file=sys.stderr)
+            return 2
+        project_dir = argv[i + 1]; del argv[i:i + 2]
+    if "--selftest" not in argv and len(argv) < 3:
+        print(usage, file=sys.stderr)
+        return 2
     project = _project(project_dir)
-    campaign = project.record_module("capture_campaign")
-    KNOWN, UNKNOWN = campaign.STATION_BEARINGS_DEG, campaign.BEARING_UNKNOWN_BANDS
     if "--selftest" in argv:
         print("self-test with random instrumental phases, 30% amplitude scatter and noise at half the line amplitude:"); selftest(project); return 0
-    if len(argv) < 3 or argv[0] in ("-h", "--help"):
-        print(__doc__.split("\n\n")[0].split("\n", 1)[1]); return 0 if argv and argv[0] in ("-h", "--help") else 2
+    campaign = project.record_module("capture_campaign")
+    KNOWN, UNKNOWN = campaign.STATION_BEARINGS_DEG, campaign.BEARING_UNKNOWN_BANDS
     prod_dir, gainfile, t_unix = argv[0], argv[1], float(argv[2])
     rows = []
     for f in sorted(glob.glob(os.path.join(prod_dir, "*.npz")), key=lambda p: int(os.path.basename(p)[:-4])):

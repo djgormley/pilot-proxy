@@ -9,6 +9,9 @@ The default export is intentionally allowed to be partial.  Tables that require
 large archived products or an external science forecast are recorded as
 ``pending`` instead of being replaced with inferred, digitized, or synthetic
 values.  Use ``--require-complete`` when preparing a final archival snapshot.
+
+The v1 data format is preserved. Error messages and the exported README's
+verification command follow the current command layout.
 """
 
 from __future__ import annotations

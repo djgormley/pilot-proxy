@@ -1,8 +1,7 @@
 """Dissertation-wide plotting style.
 
-The single style source. The dissertation bundle (figure_src/style.py) is the
-audited original; pilot-proxy and RFIsher carry byte-identical copies, checked
-by a test in each repository.
+This copy preserves the plotting conventions used by the recorded figures.
+The dissertation maintains its current style in figure_src/style.py.
 
 The body text is Latin Modern (LaTeX ``lmodern``).  Submission figures render
 all text through the same LaTeX stack, at a fixed physical size, so labels are
@@ -21,7 +20,6 @@ from pathlib import Path
 from typing import Iterable
 
 import matplotlib
-
 matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
